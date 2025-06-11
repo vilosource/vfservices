@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  certbot:
+    image: certbot/dns-cloudflare
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./scripts/run_certbot.sh:/run_certbot.sh:ro
+    environment:
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+      - DEV_DOMAIN=${DEV_DOMAIN:-vlservices.viloforge.com}
+    entrypoint: ["bash", "/run_certbot.sh"]

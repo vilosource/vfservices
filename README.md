@@ -23,9 +23,28 @@ pip install -r requirements.txt
 export VF_JWT_SECRET="super-secret-key"
 ```
 
-You can start all services at once using the provided Makefile:
+Before running the servers you will need valid HTTPS certificates. These are
+retrieved from Let's Encrypt using a Dockerized Certbot image. Provide your
+Cloudflare API token and email via environment variables and run:
 
 ```bash
-make dev-cert   # generates self-signed certificates
-make up         # runs all projects on different ports
+export CLOUDFLARE_API_TOKEN="<token>"
+export LETSENCRYPT_EMAIL="you@example.com"
+export DEV_DOMAIN="vlservices.viloforge.com"  # optional override
+make dev-cert   # obtains certificates for *.vlservices.viloforge.com
+```
+
+Once certificates exist you can start all services at once:
+
+```bash
+make up
+```
+
+Ensure your hosts file resolves the development subdomains to localhost:
+
+```
+127.0.0.1 login.vlservices.viloforge.com
+127.0.0.1 website.vlservices.viloforge.com
+127.0.0.1 billing-api.vlservices.viloforge.com
+127.0.0.1 inventory-api.vlservices.viloforge.com
 ```
