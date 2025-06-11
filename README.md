@@ -23,11 +23,9 @@ pip install -r requirements.txt
 export VF_JWT_SECRET="super-secret-key"
 ```
 
-Then run any project using Django's development server:
+You can start all services at once using the provided Makefile:
 
 ```bash
-cd identity-provider
-python manage.py runserver
+make dev-cert   # generates self-signed certificates
+make up         # runs all projects on different ports
 ```
-
-Repeat for the other projects as needed.
