@@ -2,3 +2,4 @@ djangorestframework
 django
 pytest
 pydantic2
+PyJWT
