@@ -9,3 +9,4 @@
 - Replaced self-signed cert generation with Let's Encrypt via Docker Compose.
 - Updated Makefile to run all Django projects with runserver_plus over HTTPS.
 - Documented domain configuration and Cloudflare-based certificate flow.
+- Fixed Makefile tab issues and added `LetsEncrypt.md` documentation.
