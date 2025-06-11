@@ -25,7 +25,8 @@ export VF_JWT_SECRET="super-secret-key"
 
 Before running the servers you will need valid HTTPS certificates. These are
 retrieved from Let's Encrypt using a Dockerized Certbot image. Provide your
-Cloudflare API token and email via environment variables and run:
+Cloudflare API token and email via environment variables and run
+`make dev-cert` (see `LetsEncrypt.md` for details):
 
 ```bash
 export CLOUDFLARE_API_TOKEN="<token>"
