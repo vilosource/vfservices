@@ -6,3 +6,6 @@
 - Implemented demo website page and DRF health/private endpoints for each API.
 - Added identity provider login/logout pages and login API.
 - Added Makefile and dev certificate generation script.
+- Replaced self-signed cert generation with Let's Encrypt via Docker Compose.
+- Updated Makefile to run all Django projects with runserver_plus over HTTPS.
+- Documented domain configuration and Cloudflare-based certificate flow.
