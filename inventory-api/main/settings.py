@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
     "inventory",
 ]
 
@@ -126,3 +127,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # JWT configuration
 JWT_SECRET = os.environ.get("VF_JWT_SECRET", "change-me")
+SSO_COOKIE_DOMAIN = os.environ.get("SSO_COOKIE_DOMAIN", "localhost")
+DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL", "/")
