@@ -1,5 +1,5 @@
 VF_JWT_SECRET ?= change-me
-DEV_DOMAIN ?= vlservices.viloforge.com
+DEV_DOMAIN ?= vfservices.viloforge.com
 CERT_DIR ?= certs/live/$(DEV_DOMAIN)
 CERT_FILE ?= $(CERT_DIR)/fullchain.pem
 KEY_FILE ?= $(CERT_DIR)/privkey.pem
