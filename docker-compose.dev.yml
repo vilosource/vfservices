@@ -1,0 +1,84 @@
+version: '3.8'
+services:
+  traefik:
+    image: traefik:v2.11
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  identity-provider:
+    build:
+      context: .
+      dockerfile: identity-provider/Dockerfile
+    working_dir: /code/identity-provider
+    volumes:
+      - ./identity-provider:/code/identity-provider
+      - ./common:/code/common
+    environment:
+      - PYTHONPATH=/code
+      - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
+      - SSO_COOKIE_DOMAIN=.${DEV_DOMAIN:-vfservices.viloforge.com}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.identity.rule=Host(`login.${DEV_DOMAIN:-vfservices.viloforge.com}`)
+      - traefik.http.services.identity.loadbalancer.server.port=8000
+
+  website:
+    build:
+      context: .
+      dockerfile: website/Dockerfile
+    working_dir: /code/website
+    volumes:
+      - ./website:/code/website
+      - ./common:/code/common
+    environment:
+      - PYTHONPATH=/code
+      - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
+      - SSO_COOKIE_DOMAIN=.${DEV_DOMAIN:-vfservices.viloforge.com}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.website.rule=Host(`website.${DEV_DOMAIN:-vfservices.viloforge.com}`)
+      - traefik.http.services.website.loadbalancer.server.port=8000
+
+  billing-api:
+    build:
+      context: .
+      dockerfile: billing-api/Dockerfile
+    working_dir: /code/billing-api
+    volumes:
+      - ./billing-api:/code/billing-api
+      - ./common:/code/common
+    environment:
+      - PYTHONPATH=/code
+      - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
+      - SSO_COOKIE_DOMAIN=.${DEV_DOMAIN:-vfservices.viloforge.com}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.billing.rule=Host(`billing-api.${DEV_DOMAIN:-vfservices.viloforge.com}`)
+      - traefik.http.services.billing.loadbalancer.server.port=8000
+
+  inventory-api:
+    build:
+      context: .
+      dockerfile: inventory-api/Dockerfile
+    working_dir: /code/inventory-api
+    volumes:
+      - ./inventory-api:/code/inventory-api
+      - ./common:/code/common
+    environment:
+      - PYTHONPATH=/code
+      - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
+      - SSO_COOKIE_DOMAIN=.${DEV_DOMAIN:-vfservices.viloforge.com}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.inventory.rule=Host(`inventory-api.${DEV_DOMAIN:-vfservices.viloforge.com}`)
+      - traefik.http.services.inventory.loadbalancer.server.port=8000
+
+networks:
+  default:
+    name: vfnet

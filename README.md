@@ -57,3 +57,25 @@ Ensure your hosts file resolves the development subdomains to localhost:
 127.0.0.1 billing-api.vlservices.viloforge.com
 127.0.0.1 inventory-api.vlservices.viloforge.com
 ```
+
+## Docker-based Development
+
+You can also run the projects using Docker. Each project includes a `Dockerfile` and a common compose file `docker-compose.dev.yml` starts them together with [Traefik](https://traefik.io) for routing. Services run on plain HTTP and are reloaded whenever code changes because the project directories are mounted as bind volumes.
+
+Start the stack with:
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+Traefik listens on port 80 and routes based on subdomain. Ensure your hosts file maps the development domain to `localhost`, for example:
+
+```text
+127.0.0.1 login.vfservices.viloforge.com
+127.0.0.1 website.vfservices.viloforge.com
+127.0.0.1 billing-api.vfservices.viloforge.com
+127.0.0.1 inventory-api.vfservices.viloforge.com
+```
+
+Then open `http://website.vfservices.viloforge.com` in your browser.
+
