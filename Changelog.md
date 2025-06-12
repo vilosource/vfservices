@@ -15,3 +15,5 @@
 - Makefile now initializes SQLite databases automatically if they do not exist
   and sets `PYTHONPATH` so shared `common` modules import correctly.
 - Added Dockerfiles for each project and docker-compose.dev.yml using Traefik for development.
+- docker-compose.yml now starts all Django projects with Traefik and mounts the source
+  directories so code changes reload immediately.
