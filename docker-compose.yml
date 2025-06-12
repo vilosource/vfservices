@@ -8,5 +8,5 @@ services:
     environment:
       - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
-      - DEV_DOMAIN=${DEV_DOMAIN:-vlservices.viloforge.com}
-    entrypoint: ["bash", "/run_certbot.sh"]
+      - DEV_DOMAIN=${DEV_DOMAIN:-vfservices.viloforge.com}
+    entrypoint: ["sh", "/run_certbot.sh"]

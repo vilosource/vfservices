@@ -10,3 +10,5 @@
 - Updated Makefile to run all Django projects with runserver_plus over HTTPS.
 - Documented domain configuration and Cloudflare-based certificate flow.
 - Fixed Makefile tab issues and added `LetsEncrypt.md` documentation.
+- Added `django_extensions` to each project's `INSTALLED_APPS` so
+  `runserver_plus` works correctly during development.
