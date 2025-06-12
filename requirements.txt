@@ -1,4 +1,3 @@
-django-extensions
 djangorestframework
 django
 pytest

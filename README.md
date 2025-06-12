@@ -23,6 +23,10 @@ pip install -r requirements.txt
 export VF_JWT_SECRET="super-secret-key"
 ```
 
+The servers run with `runserver_plus` from **django-extensions** to enable
+HTTPS in development. This package is installed from `requirements.txt`, and
+each project includes `django_extensions` in `INSTALLED_APPS`.
+
 Before running the servers you will need valid HTTPS certificates. These are
 retrieved from Let's Encrypt using a Dockerized Certbot image. Provide your
 Cloudflare API token and email via environment variables and run
