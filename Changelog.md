@@ -14,3 +14,4 @@
   `runserver_plus` works correctly during development.
 - Makefile now initializes SQLite databases automatically if they do not exist
   and sets `PYTHONPATH` so shared `common` modules import correctly.
+- Added Dockerfiles for each project and docker-compose.dev.yml using Traefik for development.
