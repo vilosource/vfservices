@@ -10,28 +10,40 @@ up:
 	$(MAKE) -j4 run-identity run-website run-billing run-inventory
 
 run-identity:
+	if [ ! -f identity-provider/db.sqlite3 ]; then \
+	       PYTHONPATH=$(PWD) python identity-provider/manage.py migrate --noinput; \
+	fi; \
 	VF_JWT_SECRET=$(VF_JWT_SECRET) \
 	SSO_COOKIE_DOMAIN=.${DEV_DOMAIN} \
-	python identity-provider/manage.py runserver_plus 8001 \
-	    --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
+	PYTHONPATH=$(PWD) python identity-provider/manage.py runserver_plus 8001 \
+	   --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
 
 run-website:
+	if [ ! -f website/db.sqlite3 ]; then \
+	       PYTHONPATH=$(PWD) python website/manage.py migrate --noinput; \
+	fi; \
 	VF_JWT_SECRET=$(VF_JWT_SECRET) \
 	SSO_COOKIE_DOMAIN=.${DEV_DOMAIN} \
-	python website/manage.py runserver_plus 8002 \
-	    --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
+	PYTHONPATH=$(PWD) python website/manage.py runserver_plus 8002 \
+	   --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
 
 run-billing:
+	if [ ! -f billing-api/db.sqlite3 ]; then \
+	       PYTHONPATH=$(PWD) python billing-api/manage.py migrate --noinput; \
+	fi; \
 	VF_JWT_SECRET=$(VF_JWT_SECRET) \
 	SSO_COOKIE_DOMAIN=.${DEV_DOMAIN} \
-	python billing-api/manage.py runserver_plus 8003 \
-	    --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
+	PYTHONPATH=$(PWD) python billing-api/manage.py runserver_plus 8003 \
+	   --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
 
 run-inventory:
+	if [ ! -f inventory-api/db.sqlite3 ]; then \
+	       PYTHONPATH=$(PWD) python inventory-api/manage.py migrate --noinput; \
+	fi; \
 	VF_JWT_SECRET=$(VF_JWT_SECRET) \
 	SSO_COOKIE_DOMAIN=.${DEV_DOMAIN} \
-	python inventory-api/manage.py runserver_plus 8004 \
-	    --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
+	PYTHONPATH=$(PWD) python inventory-api/manage.py runserver_plus 8004 \
+	   --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
 
 device-cert:
 	@echo "Deprecated target name: use dev-cert"

@@ -12,3 +12,5 @@
 - Fixed Makefile tab issues and added `LetsEncrypt.md` documentation.
 - Added `django_extensions` to each project's `INSTALLED_APPS` so
   `runserver_plus` works correctly during development.
+- Makefile now initializes SQLite databases automatically if they do not exist
+  and sets `PYTHONPATH` so shared `common` modules import correctly.
