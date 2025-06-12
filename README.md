@@ -45,6 +45,10 @@ Once certificates exist you can start all services at once:
 make up
 ```
 
+The Makefile will automatically create the local SQLite databases for each
+project on first run by executing `python manage.py migrate` when the database
+file is missing. Subsequent runs will skip this step.
+
 Ensure your hosts file resolves the development subdomains to localhost:
 
 ```
