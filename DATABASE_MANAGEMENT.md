@@ -84,7 +84,7 @@ Development services automatically get these environment variables:
 When `DJANGO_ENV=development` is set:
 
 1. **Fixtures Loading**: Automatically loads `fixtures/dev_data.json` if it exists
-2. **Admin User Creation**: Creates admin user (username: admin, password: admin) for identity-provider
+2. **Admin User Creation**: Creates admin user (username: admin, password: admin123) for identity-provider
 3. **Debug Mode**: Enables Django debug features
 
 ### Database Initialization
@@ -95,8 +95,32 @@ Each service's entrypoint script automatically:
 2. Checks if its database exists
 3. Creates the database if it doesn't exist
 4. Runs Django migrations
-5. Loads development fixtures (if in development mode)
-6. Starts the Django application
+5. Creates/updates admin user using Django management command (identity-provider only)
+6. Loads development fixtures (if in development mode)
+7. Starts the Django application
+
+### Admin User Management
+
+The identity-provider service uses a Django management command to create and manage the admin user:
+
+**Management Command**: `python manage.py create_admin`
+
+This command:
+- Checks if the admin user exists
+- Creates a new admin user if it doesn't exist
+- Updates the existing admin user's password and settings if it does exist
+- Verifies password functionality after creation/update
+
+**Environment Configuration**:
+- `ADMIN_USERNAME` (default: `admin`)
+- `ADMIN_EMAIL` (default: `admin@viloforge.com`)
+- `ADMIN_PASSWORD` (default: `admin123`)
+
+This approach is more reliable than creating users in Django's AppConfig.ready() method because:
+- It runs after database migrations are complete
+- It's executed in the correct process context
+- It provides better error handling and logging
+- It can be run independently for troubleshooting
 
 ## Backup and Restore
 

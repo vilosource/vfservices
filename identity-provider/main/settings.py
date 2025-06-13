@@ -52,7 +52,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "common.jwt_auth.middleware.JWTAuthenticationMiddleware",
+    # JWT middleware removed - identity provider uses session-based auth
+    # Other services will use JWT middleware to validate tokens issued by this service
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]

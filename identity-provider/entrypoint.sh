@@ -53,26 +53,19 @@ EOF
 echo "Running database migrations..."
 python manage.py migrate --noinput
 
+# Create admin user using management command
+echo "Creating/updating admin user..."
+python manage.py create_admin
+
 # Load fixtures if in development mode
 if [ "${DJANGO_ENV:-}" = "development" ]; then
-    echo "Development mode detected - loading fixtures and creating superuser..."
+    echo "Development mode detected - loading fixtures..."
     
     # Load fixtures if they exist
     if [ -f "fixtures/dev_data.json" ]; then
         echo "Loading development fixtures..."
         python manage.py loaddata fixtures/dev_data.json 2>/dev/null || echo "Failed to load fixtures, continuing..."
     fi
-    
-    # Create superuser if it doesn't exist
-    python manage.py shell -c "
-from django.contrib.auth import get_user_model
-User = get_user_model()
-if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@example.com', 'admin')
-    print('Created admin user (username: admin, password: admin)')
-else:
-    print('Admin user already exists')
-" 2>/dev/null || echo "Could not create admin user"
 fi
 
 # Execute the main command
