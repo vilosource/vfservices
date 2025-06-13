@@ -13,7 +13,7 @@ def index(request):
     return render(request, "identity_app/index.html", {"message": "Welcome to the Identity Provider!"})
 
 
-def login_user(request):
+def login_user(request, redirect_uri=None):
     """Render login form or authenticate user and set JWT cookie."""
     if request.method == "GET":
         return render(request, "identity_app/login.html")
