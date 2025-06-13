@@ -45,9 +45,10 @@ Once certificates exist you can start all services at once:
 make up
 ```
 
-The Makefile will automatically create the local SQLite databases for each
-project on first run by executing `python manage.py migrate` when the database
-file is missing. Subsequent runs will skip this step.
+Prior versions of the repository used SQLite databases that the Makefile
+initialised automatically. The stack now relies on a shared PostgreSQL
+container so no local database files are created. Migrations are applied
+automatically at container start up by each project's `entrypoint.sh`.
 
 Ensure your hosts file resolves the development subdomains to localhost:
 
@@ -60,7 +61,7 @@ Ensure your hosts file resolves the development subdomains to localhost:
 
 ## Docker-based Development
 
-You can also run the projects using Docker. Each project includes a `Dockerfile` and the main compose file `docker-compose.yml` starts them together with [Traefik](https://traefik.io) for routing. Services run on plain HTTP and are reloaded whenever code changes because the project directories are mounted as bind volumes.
+You can also run the projects using Docker. Each project includes a `Dockerfile` and the main compose file `docker-compose.yml` starts them together with [Traefik](https://traefik.io) for routing **and a PostgreSQL container**. Services run on plain HTTP and are reloaded whenever code changes because the project directories are mounted as bind volumes.
 
 Start the stack with:
 
@@ -76,6 +77,11 @@ Traefik listens on port 80 and routes based on subdomain. Ensure your hosts file
 127.0.0.1 billing-api.vfservices.viloforge.com
 127.0.0.1 inventory-api.vfservices.viloforge.com
 ```
+
+The compose file also starts a `postgres` container. Each Django service is
+configured via environment variables (`POSTGRES_HOST`, `POSTGRES_DB`,
+`POSTGRES_USER`, and `POSTGRES_PASSWORD`) to connect to this database and runs
+migrations on start up.
 
 Then open `http://website.vfservices.viloforge.com` in your browser.
 

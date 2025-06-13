@@ -29,6 +29,15 @@ services:
       - CLOUDFLARE_TOKEN=${CLOUDFLARE_API_TOKEN}
     entrypoint: /bin/sh
 
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-vfuser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-vfpass}
+      - POSTGRES_DB=${POSTGRES_DB:-vfdb}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   identity-provider:
     build:
       context: .
@@ -41,6 +50,10 @@ services:
       - PYTHONPATH=/code
       - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
       - SSO_COOKIE_DOMAIN=.${DEV_DOMAIN:-vfservices.viloforge.com}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=${POSTGRES_DB:-vfdb}
+      - POSTGRES_USER=${POSTGRES_USER:-vfuser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-vfpass}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.identity.rule=Host(`identity.${DEV_DOMAIN:-vfservices.viloforge.com}`)"
@@ -61,6 +74,10 @@ services:
       - PYTHONPATH=/code
       - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
       - SSO_COOKIE_DOMAIN=.${DEV_DOMAIN:-vfservices.viloforge.com}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=${POSTGRES_DB:-vfdb}
+      - POSTGRES_USER=${POSTGRES_USER:-vfuser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-vfpass}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.website.rule=Host(`website.${DEV_DOMAIN:-vfservices.viloforge.com}`)"
@@ -81,6 +98,10 @@ services:
       - PYTHONPATH=/code
       - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
       - SSO_COOKIE_DOMAIN=.${DEV_DOMAIN:-vfservices.viloforge.com}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=${POSTGRES_DB:-vfdb}
+      - POSTGRES_USER=${POSTGRES_USER:-vfuser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-vfpass}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.billing.rule=Host(`billing.${DEV_DOMAIN:-vfservices.viloforge.com}`)"
@@ -101,6 +122,10 @@ services:
       - PYTHONPATH=/code
       - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
       - SSO_COOKIE_DOMAIN=.${DEV_DOMAIN:-vfservices.viloforge.com}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=${POSTGRES_DB:-vfdb}
+      - POSTGRES_USER=${POSTGRES_USER:-vfuser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-vfpass}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.inventory.rule=Host(`inventory.${DEV_DOMAIN:-vfservices.viloforge.com}`)"
@@ -112,3 +137,6 @@ services:
 networks:
   default:
     name: vfnet
+
+volumes:
+  pgdata:
