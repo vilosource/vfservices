@@ -79,3 +79,8 @@ Traefik listens on port 80 and routes based on subdomain. Ensure your hosts file
 
 Then open `http://website.vfservices.viloforge.com` in your browser.
 
+The identity provider automatically creates a default administrative user named
+`admin` with password `admin` the first time it starts if the user does not
+already exist. Use these credentials to sign into the Django admin or login
+page during development.
+

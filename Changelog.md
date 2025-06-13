@@ -17,3 +17,4 @@
 - Added Dockerfiles for each project and docker-compose.dev.yml using Traefik for development.
 - docker-compose.yml now starts all Django projects with Traefik and mounts the source
   directories so code changes reload immediately.
+- Identity provider now ensures a default `admin` user exists with password `admin` when started via Docker.
