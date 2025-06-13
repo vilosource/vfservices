@@ -4,4 +4,4 @@
 - Ensure that there is a Changelog.md and always update before making a merge request.
 - Ensure that documentation is up to date. 
 - Always read the SPEC.md 
-
+- Ignore and never read BACKLOGS
