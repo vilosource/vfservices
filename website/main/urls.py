@@ -17,8 +17,14 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from . import views 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("webdev/base.html", views.base, name="base"),
+    path("webdev/index.html", views.index, name="index"),
+    path("webdev/auth.html", views.auth, name="index"),
+    path("webdev/template_viewer/", views.template_viewer, name="template_viewer"),
+    path("webdev/template_viewer/<str:template_name>/", views.template_viewer, name="template_viewer"),
     path("", include("webapp.urls")),
 ]
