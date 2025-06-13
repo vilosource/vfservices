@@ -1,0 +1,1 @@
+default_app_config = 'identity_app.apps.IdentityAppConfig'

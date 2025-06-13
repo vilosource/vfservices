@@ -28,6 +28,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["identity.vfservices.viloforge.com", "localhost", "127.0.1", "[::1]"]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://identity.vfservices.viloforge.com',
+]
 
 # Application definition
 
