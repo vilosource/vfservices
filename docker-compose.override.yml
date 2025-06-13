@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  postgres:
+    ports:
+      - "5432:5432"  # Expose port for external database tools
+    
+  identity-provider:
+    environment:
+      - DEBUG=True
+      - DJANGO_ENV=development
+    volumes:
+      - ./identity-provider:/code/identity-provider:delegated  # Performance optimization
+    
+  website:
+    environment:
+      - DEBUG=True
+      - DJANGO_ENV=development
+    volumes:
+      - ./website:/code/website:delegated
+    
+  billing-api:
+    environment:
+      - DEBUG=True
+      - DJANGO_ENV=development
+    volumes:
+      - ./billing-api:/code/billing-api:delegated
+    
+  inventory-api:
+    environment:
+      - DEBUG=True
+      - DJANGO_ENV=development
+    volumes:
+      - ./inventory-api:/code/inventory-api:delegated

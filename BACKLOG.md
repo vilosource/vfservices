@@ -1,3 +1,6 @@
+These are backlog topis. 
+IMPORTANT: They should not be implemented yet. 
+
 * find a way to make the ALLOWED_HOSTS configurable via environment variables. 
 * the tls config is hardcoded:
 
@@ -8,3 +11,6 @@ tls:
     - certFile: /etc/certs/live/vfservices.viloforge.com/fullchain.pem
       keyFile: /etc/certs/live/vfservices.viloforge.com/privkey.pem
 
+* The app users have hardcoded database. This should be fixed.
+
+* The databases management scripts all have hardcoded db names. We should parse the docker-compose.yml to find the database names. 
