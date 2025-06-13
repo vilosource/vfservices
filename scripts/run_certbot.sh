@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+echo "Running Certbot to obtain wildcard certificates for *.${DEV_DOMAIN}..."
 set -euo pipefail
 DOMAIN="${DEV_DOMAIN:-vfservices.viloforge.com}"
 : "${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is required}"

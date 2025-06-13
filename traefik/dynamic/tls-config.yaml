@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: /etc/certs/live/vfservices.viloforge.com/fullchain.pem
+      keyFile: /etc/certs/live/vfservices.viloforge.com/privkey.pem

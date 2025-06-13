@@ -1,15 +1,35 @@
 version: '3.8'
+
 services:
   traefik:
-    image: traefik:v2.11
+    image: traefik:v3.4
     command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --entryPoints.web.address=:80
+      - --entryPoints.websecure.address=:443
+      - --entryPoints.web.http.redirections.entryPoint.to=websecure
+      - --entryPoints.web.http.redirections.entryPoint.scheme=https
+      - --accesslog=true
+      - --accesslog.format=common
+      - --log.level=DEBUG
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./certs:/etc/certs:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+
+  certbot:
+    image: certbot/dns-cloudflare
+    volumes:
+      - ./certs:/etc/letsencrypt
+    environment:
+      - CLOUDFLARE_TOKEN=${CLOUDFLARE_API_TOKEN}
+    entrypoint: /bin/sh
 
   identity-provider:
     build:
@@ -17,16 +37,18 @@ services:
       dockerfile: identity-provider/Dockerfile
     working_dir: /code/identity-provider
     volumes:
-      - ./identity-provider:/code/identity-provider
+      - ./identity-provider:/code/identity-provider 
       - ./common:/code/common
     environment:
       - PYTHONPATH=/code
       - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
       - SSO_COOKIE_DOMAIN=.${DEV_DOMAIN:-vfservices.viloforge.com}
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.identity.rule=Host(`login.${DEV_DOMAIN:-vfservices.viloforge.com}`)
-      - traefik.http.services.identity.loadbalancer.server.port=8000
+      - "traefik.enable=true"
+      - "traefik.http.routers.identity.rule=Host(`identity.${DEV_DOMAIN:-vfservices.viloforge.com}`)"
+      - "traefik.http.routers.identity.entrypoints=websecure"
+      - "traefik.http.routers.identity.tls=true"
+      - "traefik.http.services.identity.loadbalancer.server.port=8000"
 
   website:
     build:
@@ -41,9 +63,11 @@ services:
       - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
       - SSO_COOKIE_DOMAIN=.${DEV_DOMAIN:-vfservices.viloforge.com}
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.website.rule=Host(`website.${DEV_DOMAIN:-vfservices.viloforge.com}`)
-      - traefik.http.services.website.loadbalancer.server.port=8000
+      - "traefik.enable=true"
+      - "traefik.http.routers.website.rule=Host(`website.${DEV_DOMAIN:-vfservices.viloforge.com}`)"
+      - "traefik.http.routers.website.entrypoints=websecure"
+      - "traefik.http.routers.website.tls=true"
+      - "traefik.http.services.website.loadbalancer.server.port=8000"
 
   billing-api:
     build:
@@ -58,9 +82,11 @@ services:
       - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
       - SSO_COOKIE_DOMAIN=.${DEV_DOMAIN:-vfservices.viloforge.com}
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.billing.rule=Host(`billing-api.${DEV_DOMAIN:-vfservices.viloforge.com}`)
-      - traefik.http.services.billing.loadbalancer.server.port=8000
+      - "traefik.enable=true"
+      - "traefik.http.routers.billing.rule=Host(`billing.${DEV_DOMAIN:-vfservices.viloforge.com}`)"
+      - "traefik.http.routers.billing.entrypoints=websecure"
+      - "traefik.http.routers.billing.tls=true"
+      - "traefik.http.services.billing.loadbalancer.server.port=8000"
 
   inventory-api:
     build:
@@ -75,9 +101,11 @@ services:
       - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
       - SSO_COOKIE_DOMAIN=.${DEV_DOMAIN:-vfservices.viloforge.com}
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.inventory.rule=Host(`inventory-api.${DEV_DOMAIN:-vfservices.viloforge.com}`)
-      - traefik.http.services.inventory.loadbalancer.server.port=8000
+      - "traefik.enable=true"
+      - "traefik.http.routers.inventory.rule=Host(`inventory.${DEV_DOMAIN:-vfservices.viloforge.com}`)"
+      - "traefik.http.routers.inventory.entrypoints=websecure"
+      - "traefik.http.routers.inventory.tls=true"
+      - "traefik.http.services.inventory.loadbalancer.server.port=8000"
 
 networks:
   default:

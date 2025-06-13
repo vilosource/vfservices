@@ -8,6 +8,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from common.jwt_auth import utils
 
+def index(request):
+    """Render the index page with a welcome message."""
+    return render(request, "identity_app/index.html", {"message": "Welcome to the Identity Provider!"})
+
 
 def login_user(request):
     """Render login form or authenticate user and set JWT cookie."""

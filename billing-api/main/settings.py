@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-r(bcn+trm#9^(jpiq8wj9l^)_l5#vz&x1^un@!-w@_k-70c(-)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["billing.vfservices.viloforge.com", "localhost", "127.0.0.1", "[::1]"]
 
 
 # Application definition
