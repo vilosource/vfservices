@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- heading "Very elegant & impressive!" [level=3]
+- paragraph: 󰝗 I've been using this theme for a while and I must say that whenever I am looking for a design - I refer to this theme for specifics & implementation. With wide arrays of components, designs, charts - I would highly recommend this theme for anyone using it for dashboard or project management usage.. 󰉾
+- heading "- Admin User" [level=5]
+- link "Logo dark":
+  - /url: index.html
+  - img "Logo dark"
+- heading "Sign In" [level=4]
+- paragraph: Enter your username and password to access admin panel.
+- text: Username
+- textbox "Username"
+- link "Forgot your password?":
+  - /url: "#"
+- text: Password
+- textbox "Password"
+- text: 
+- checkbox "Remember me"
+- text: Remember me
+- button "Log In"
+- heading "Sign in with" [level=5]
+- list:
+  - listitem:
+    - link "󰈌":
+      - /url: "javascript: void(0);"
+  - listitem:
+    - link "󰊭":
+      - /url: "javascript: void(0);"
+  - listitem:
+    - link "󰕄":
+      - /url: "javascript: void(0);"
+  - listitem:
+    - link "󰊤":
+      - /url: "javascript: void(0);"
+- contentinfo:
+  - paragraph:
+    - text: Don't have an account?
+    - link "Sign Up":
+      - /url: "#"
+```
