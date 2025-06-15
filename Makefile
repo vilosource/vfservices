@@ -1,6 +1,6 @@
 VF_JWT_SECRET ?= change-me
-DEV_DOMAIN ?= vfservices.viloforge.com
-CERT_DIR ?= certs/live/$(DEV_DOMAIN)
+BASE_DOMAIN ?= vfservices.viloforge.com
+CERT_DIR ?= certs/live/$(BASE_DOMAIN)
 CERT_FILE ?= $(CERT_DIR)/fullchain.pem
 KEY_FILE ?= $(CERT_DIR)/privkey.pem
 
@@ -51,7 +51,7 @@ run-identity-0:
 	       PYTHONPATH=$(PWD) python identity-provider/manage.py migrate --noinput; \
 	fi; \
 	VF_JWT_SECRET=$(VF_JWT_SECRET) \
-	SSO_COOKIE_DOMAIN=.${DEV_DOMAIN} \
+	SSO_COOKIE_DOMAIN=.${BASE_DOMAIN} \
 	PYTHONPATH=$(PWD) python identity-provider/manage.py runserver_plus 0.0.0.0:8001 \
 	   --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
 
@@ -60,7 +60,7 @@ run-website-0:
 	       PYTHONPATH=$(PWD) python website/manage.py migrate --noinput; \
 	fi; \
 	VF_JWT_SECRET=$(VF_JWT_SECRET) \
-	SSO_COOKIE_DOMAIN=.${DEV_DOMAIN} \
+	SSO_COOKIE_DOMAIN=.${BASE_DOMAIN} \
 	PYTHONPATH=$(PWD) python website/manage.py runserver_plus 0.0.0.0:8002 \
 	   --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
 
@@ -69,7 +69,7 @@ run-billing-0:
 	       PYTHONPATH=$(PWD) python billing-api/manage.py migrate --noinput; \
 	fi; \
 	VF_JWT_SECRET=$(VF_JWT_SECRET) \
-	SSO_COOKIE_DOMAIN=.${DEV_DOMAIN} \
+	SSO_COOKIE_DOMAIN=.${BASE_DOMAIN} \
 	PYTHONPATH=$(PWD) python billing-api/manage.py runserver_plus 0.0.0.0:8003 \
 	   --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
 
@@ -78,7 +78,7 @@ run-inventory-0:
 	       PYTHONPATH=$(PWD) python inventory-api/manage.py migrate --noinput; \
 	fi; \
 	VF_JWT_SECRET=$(VF_JWT_SECRET) \
-	SSO_COOKIE_DOMAIN=.${DEV_DOMAIN} \
+	SSO_COOKIE_DOMAIN=.${BASE_DOMAIN} \
 	PYTHONPATH=$(PWD) python inventory-api/manage.py runserver_plus 0.0.0.0:8004 \
 	   --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
 
@@ -105,7 +105,7 @@ docker-dev-logs:
 
 docker-dev-https: dev-cert
 	@echo "Starting services with HTTPS support..."
-	@echo "Certificates should be available in ./certs/live/${DEV_DOMAIN}/"
+	@echo "Certificates should be available in ./certs/live/${BASE_DOMAIN}/"
 	docker compose -f docker-compose.dev.yml up
 
 docker-dev-certbot-renew:
@@ -125,9 +125,9 @@ docker-dev-certbot-renew:
 	  --force-renewal \
 	  --non-interactive \
 	  --dns-cloudflare-propagation-seconds 60 \
-	  -d "${DEV_DOMAIN}" \
-	  -d "*.${DEV_DOMAIN}" \
-	  --cert-name "${DEV_DOMAIN}"
+	  -d "${BASE_DOMAIN}" \
+	  -d "*.${BASE_DOMAIN}" \
+	  --cert-name "${BASE_DOMAIN}"
 	@rm -f /tmp/cloudflare.ini
 
 # Database management targets

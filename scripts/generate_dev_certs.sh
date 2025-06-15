@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Configuration
-DOMAIN="${DEV_DOMAIN:-vfservices.viloforge.com}"
+DOMAIN="${BASE_DOMAIN:-vfservices.viloforge.com}"
 CERT_DIR="certs/live/${DOMAIN}"
 mkdir -p "${CERT_DIR}"
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Configuration
-DOMAIN="${DEV_DOMAIN:-vfservices.viloforge.com}"
+DOMAIN="${BASE_DOMAIN:-vfservices.viloforge.com}"
 EMAIL="${LETSENCRYPT_EMAIL:-viloforge@outlook.com}"
 
 # Check if required environment variables are set

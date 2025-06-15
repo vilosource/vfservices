@@ -16,9 +16,9 @@ This runs `scripts/get_dev_certs.sh`, which in turn executes Certbot in a Docker
 
 - `CLOUDFLARE_API_TOKEN` – API token with permission to modify DNS records for the development domain.
 - `LETSENCRYPT_EMAIL` – email address used when requesting certificates.
-- `DEV_DOMAIN` – base domain for development (defaults to `vlservices.viloforge.com`).
+- `BASE_DOMAIN` – base domain for development (defaults to `vlservices.viloforge.com`).
 
-The generated certificates are stored under `certs/live/<DEV_DOMAIN>/` as `fullchain.pem` and `privkey.pem`.
+The generated certificates are stored under `certs/live/<BASE_DOMAIN>/` as `fullchain.pem` and `privkey.pem`.
 
 ## Using Certificates
 

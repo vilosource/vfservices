@@ -27,10 +27,10 @@ SECRET_KEY = "django-insecure-6)0i9dmc%av%+u03d0=1zcbecqw(!1^i=m8*@r+zc=o5h-r6h3
 DEBUG = True
 
 # Domain configuration from environment
-DEV_DOMAIN = os.environ.get("DEV_DOMAIN", "vfservices.viloforge.com")
+BASE_DOMAIN = os.environ.get("BASE_DOMAIN", "vfservices.viloforge.com")
 
 ALLOWED_HOSTS = [
-    f".{DEV_DOMAIN}",    # Allow all subdomains of the configured domain
+    f".{BASE_DOMAIN}",    # Allow all subdomains of the configured domain
     "localhost", 
     "127.0.0.1", 
     "[::1]", 
@@ -42,7 +42,7 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    f'https://*.{DEV_DOMAIN}',  # Allow all subdomains
+    f'https://*.{BASE_DOMAIN}',  # Allow all subdomains
 ]
 
 # Application definition

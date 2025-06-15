@@ -35,7 +35,7 @@ Cloudflare API token and email via environment variables and run
 ```bash
 export CLOUDFLARE_API_TOKEN="<token>"
 export LETSENCRYPT_EMAIL="you@example.com"
-export DEV_DOMAIN="vlservices.viloforge.com"  # optional override
+export BASE_DOMAIN="vlservices.viloforge.com"  # optional override
 make dev-cert   # obtains certificates for *.vlservices.viloforge.com
 ```
 

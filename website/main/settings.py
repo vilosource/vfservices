@@ -27,10 +27,10 @@ SECRET_KEY = "django-insecure-88dibxfu8bp0stkg#@@e@s50zkatz1j8*0g&jy8u9wbja1^sk8
 DEBUG = True
 
 # Domain configuration from environment
-DEV_DOMAIN = os.environ.get("DEV_DOMAIN", "vfservices.viloforge.com")
+BASE_DOMAIN = os.environ.get("BASE_DOMAIN", "vfservices.viloforge.com")
 
 ALLOWED_HOSTS = [
-    f".{DEV_DOMAIN}",    # Allow all subdomains of the configured domain
+    f".{BASE_DOMAIN}",    # Allow all subdomains of the configured domain
     "localhost", 
     "127.0.0.1", 
     "[::1]"
@@ -38,7 +38,7 @@ ALLOWED_HOSTS = [
 
 # CSRF trusted origins - required for CSRF protection when using custom domains
 CSRF_TRUSTED_ORIGINS = [
-    f"https://*.{DEV_DOMAIN}",  # Allow all subdomains
+    f"https://*.{BASE_DOMAIN}",  # Allow all subdomains
     "http://localhost:8001",
     "http://127.0.0.1:8001",
 ]
@@ -165,9 +165,9 @@ IDENTITY_PROVIDER_URL = os.environ.get(
 
 # For JavaScript API calls (external URLs via Traefik)
 EXTERNAL_SERVICE_URLS = {
-    'identity': os.environ.get('IDENTITY_EXTERNAL_URL', f'https://identity.{DEV_DOMAIN}'),
-    'billing': os.environ.get('BILLING_EXTERNAL_URL', f'https://billing.{DEV_DOMAIN}'),
-    'inventory': os.environ.get('INVENTORY_EXTERNAL_URL', f'https://inventory.{DEV_DOMAIN}'),
+    'identity': os.environ.get('IDENTITY_EXTERNAL_URL', f'https://identity.{BASE_DOMAIN}'),
+    'billing': os.environ.get('BILLING_EXTERNAL_URL', f'https://billing.{BASE_DOMAIN}'),
+    'inventory': os.environ.get('INVENTORY_EXTERNAL_URL', f'https://inventory.{BASE_DOMAIN}'),
 }
 
 # Logging configuration
