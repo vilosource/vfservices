@@ -27,6 +27,7 @@ services:
       context: ./tests
       dockerfile: playwright/docker/Dockerfile.playwright.enhanced
       target: ${TEST_TARGET:-development}
+    network_mode: host
     volumes:
       - ./tests:/tests
       - ./test-results:/test-results
@@ -49,11 +50,6 @@ services:
       - GITHUB_ACTIONS=${GITHUB_ACTIONS:-false}
       - TEST_PARALLEL=${TEST_PARALLEL:-4}
       - TEST_TIMEOUT=${TEST_TIMEOUT:-30000}
-    networks:
-      - vfnet
-    depends_on:
-      playwright-setup:
-        condition: service_completed_successfully
     profiles:
       - testing
     # Dynamic command based on environment
@@ -69,10 +65,10 @@ services:
           tail -f /dev/null
         elif [ '${TEST_MODE:-full}' = 'headed' ]; then
           echo 'Running in headed mode...' &&
-          npm run test:headed -- --output-dir=/test-results/${TEST_RUN_ID:-$(date +%Y%m%d_%H%M%S)}
+          npm run test:headed
         else
           echo 'Running full test suite...' &&
-          npm run test -- --output-dir=/test-results/${TEST_RUN_ID:-$(date +%Y%m%d_%H%M%S)}
+          npm run test
         fi
       "
 

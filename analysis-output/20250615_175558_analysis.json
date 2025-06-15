@@ -1,0 +1,119 @@
+{
+  "runId": "20250615_175558",
+  "timestamp": "2025-06-15T14:57:11.391Z",
+  "summary": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "successRate": 0,
+    "duration": 0,
+    "averageTestTime": 0,
+    "retries": 0
+  },
+  "failures": {
+    "total": 0,
+    "categories": {
+      "Browser/Infrastructure": {
+        "count": 0,
+        "tests": [],
+        "description": "Browser launch, system dependencies"
+      },
+      "Network/CORS": {
+        "count": 0,
+        "tests": [],
+        "description": "Network errors, CORS issues"
+      },
+      "Authentication": {
+        "count": 0,
+        "tests": [],
+        "description": "Login, JWT, permissions"
+      },
+      "Service Unavailable": {
+        "count": 0,
+        "tests": [],
+        "description": "Service down, timeouts"
+      },
+      "Assertion Errors": {
+        "count": 0,
+        "tests": [],
+        "description": "Test logic, expected vs actual"
+      },
+      "Timeout": {
+        "count": 0,
+        "tests": [],
+        "description": "Page load, element wait timeouts"
+      },
+      "Element Not Found": {
+        "count": 0,
+        "tests": [],
+        "description": "Missing DOM elements"
+      },
+      "JavaScript Errors": {
+        "count": 0,
+        "tests": [],
+        "description": "Runtime JS errors"
+      },
+      "Other": {
+        "count": 0,
+        "tests": [],
+        "description": "Uncategorized failures"
+      }
+    },
+    "patterns": {
+      "flaky_tests": [],
+      "consistent_failures": [],
+      "timeout_prone": [],
+      "browser_specific": []
+    },
+    "repeatOffenders": [],
+    "newFailures": [],
+    "criticalPaths": []
+  },
+  "performance": {
+    "message": "No performance data available"
+  },
+  "coverage": {
+    "totalTests": 0,
+    "coverageByArea": {
+      "Authentication": 0,
+      "Profile": 0,
+      "CORS": 0,
+      "API": 0,
+      "UI": 0,
+      "Integration": 0
+    },
+    "coverageGaps": [
+      "Authentication",
+      "Profile",
+      "CORS",
+      "API",
+      "UI",
+      "Integration"
+    ]
+  },
+  "artifacts": {
+    "traces": 0,
+    "screenshots": 0,
+    "videos": 0,
+    "hasArtifacts": false
+  },
+  "trends": {
+    "message": "Trend analysis requires historical data",
+    "recommendation": "Run tests regularly to build trend analysis"
+  },
+  "recommendations": [
+    {
+      "priority": "CRITICAL",
+      "category": "Success Rate",
+      "message": "🚨 Critical: Success rate below 50% - immediate attention required",
+      "action": "Stop development and fix infrastructure issues immediately"
+    },
+    {
+      "priority": "LOW",
+      "category": "Coverage",
+      "message": "📊 Missing test coverage in: Authentication, Profile, CORS, API, UI, Integration",
+      "action": "Add tests for uncovered areas"
+    }
+  ]
+}

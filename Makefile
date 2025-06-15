@@ -579,7 +579,7 @@ test-quick:
 	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
 		-e TEST_RUN_ID=$$TEST_RUN_ID \
 		-e BASE_DOMAIN=$(BASE_DOMAIN) \
-		playwright-runner npm run test -- --grep="@smoke" --output-dir=/test-results/$$TEST_RUN_ID
+		playwright-runner npm run test -- --grep="@smoke"
 
 # List available test runs
 test-list:

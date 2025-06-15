@@ -15,10 +15,11 @@ module.exports = defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
+  outputDir: process.env.TEST_RUN_ID ? `../test-results/${process.env.TEST_RUN_ID}/artifacts` : '../test-results/artifacts',
   reporter: [
-    ['html', { outputFolder: '../test-results/html-report' }],
-    ['json', { outputFile: '../test-results/results.json' }],
-    ['junit', { outputFile: '../test-results/results.xml' }]
+    ['html', { outputFolder: process.env.TEST_RUN_ID ? `../test-results/${process.env.TEST_RUN_ID}/html-report` : '../test-results/html-report' }],
+    ['json', { outputFile: process.env.TEST_RUN_ID ? `../test-results/${process.env.TEST_RUN_ID}/results.json` : '../test-results/results.json' }],
+    ['junit', { outputFile: process.env.TEST_RUN_ID ? `../test-results/${process.env.TEST_RUN_ID}/results.xml` : '../test-results/results.xml' }]
   ],
   use: {
     baseURL: process.env.BASE_URL || 'https://vfservices.viloforge.com',
