@@ -76,6 +76,12 @@ def index(request: HttpRequest) -> HttpResponse:
         )
         raise
 
+def index_view(request: HttpRequest) -> HttpResponse:
+    """
+    Root URL handler - redirects to login page
+    """
+    return HttpResponseRedirect('/login/')
+
 @log_view_access('login_page')
 def login_user(request: HttpRequest, redirect_uri: str = None) -> HttpResponse:
     """Render login form or authenticate user and set JWT cookie."""

@@ -246,7 +246,7 @@ print(f"DEBUG: CORS_ALLOWED_ORIGINS configured with {len(CORS_ALLOWED_ORIGINS)} 
 # JWT configuration
 JWT_SECRET = os.environ.get("VF_JWT_SECRET", "change-me")
 SSO_COOKIE_DOMAIN = os.environ.get("SSO_COOKIE_DOMAIN", "localhost")
-DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL", "/")
+DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL", f"https://website.{BASE_DOMAIN}")
 
 # Logging configuration
 LOG_BASE_DIR = os.environ.get("LOG_BASE_DIR", "/tmp")

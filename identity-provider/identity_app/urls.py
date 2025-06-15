@@ -3,6 +3,7 @@ from . import views
 from rest_framework.views import APIView
 
 urlpatterns = [
+    path('', views.index_view, name='index'),  # Root URL redirects to login
     path('login/', views.login_user, name='login'),
     path('logout/', views.logout_user, name='logout'),
     path('api/', views.APIInfoView.as_view(), name='api_info'),
