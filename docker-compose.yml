@@ -90,7 +90,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-vfpass}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.website.rule=Host(`website.${DEV_DOMAIN:-vfservices.viloforge.com}`)"
+      - "traefik.http.routers.website.rule=Host(`website.${DEV_DOMAIN:-vfservices.viloforge.com}`) || Host(`${DEV_DOMAIN:-vfservices.viloforge.com}`)"
       - "traefik.http.routers.website.entrypoints=websecure"
       - "traefik.http.routers.website.tls=true"
       - "traefik.http.services.website.loadbalancer.server.port=8000"

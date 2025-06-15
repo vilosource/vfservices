@@ -156,7 +156,24 @@ def logout_view(request: HttpRequest) -> HttpResponse:
         )
         
         response = HttpResponseRedirect(reverse('accounts:login'))
+        
+        # Clear JWT cookie for multiple domain variations to ensure logout works
         response.delete_cookie('jwt', domain=settings.SSO_COOKIE_DOMAIN)
+        response.delete_cookie('jwt')  # Clear without domain specification
+        
+        # Also clear for the current domain if different
+        current_domain = request.get_host().split(':')[0]  # Remove port if present
+        if current_domain != settings.SSO_COOKIE_DOMAIN.lstrip('.'):
+            response.delete_cookie('jwt', domain=f'.{current_domain}')
+        
+        logger.debug(
+            f"Cleared JWT cookies for domains: {settings.SSO_COOKIE_DOMAIN}, {current_domain}",
+            extra={
+                'sso_domain': settings.SSO_COOKIE_DOMAIN,
+                'current_domain': current_domain,
+                'user': str(user) if user else 'Anonymous',
+            }
+        )
         
         messages.success(request, "Logged out successfully")
         
