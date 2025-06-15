@@ -7,3 +7,5 @@ pydantic2
 PyJWT
 django-extensions
 psycopg2-binary
+drf-yasg
+coreapi

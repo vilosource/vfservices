@@ -1,5 +1,7 @@
 import datetime
 import logging
+import sys
+import os
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpRequest, HttpResponse
@@ -8,6 +10,13 @@ from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
+# Add the parent directory to Python path to access common module
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from common.jwt_auth import utils
 from .logging_utils import (
     log_view_access, 
@@ -341,6 +350,36 @@ class LoginAPIView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @swagger_auto_schema(
+        operation_description="Authenticate user and obtain JWT token",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['username', 'password'],
+            properties={
+                'username': openapi.Schema(type=openapi.TYPE_STRING, description='Username'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description='Password'),
+            },
+            example={
+                'username': 'user@example.com',
+                'password': 'password123'
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description='Authentication successful',
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'token': openapi.Schema(type=openapi.TYPE_STRING, description='JWT token')
+                    }
+                )
+            ),
+            400: 'Bad Request - Missing username or password',
+            401: 'Unauthorized - Invalid credentials',
+            500: 'Internal Server Error'
+        },
+        tags=['Authentication']
+    )
     def post(self, request):
         """Handle API login requests."""
         logger.debug(
@@ -353,8 +392,23 @@ class LoginAPIView(APIView):
         )
         
         try:
-            username = request.data.get("username")
-            password = request.data.get("password")
+            # Access request.data to trigger parsing
+            try:
+                data = request.data
+                username = data.get("username")
+                password = data.get("password")
+            except Exception as parse_error:
+                logger.warning(
+                    f"API login request with invalid data format: {str(parse_error)}",
+                    extra={
+                        'ip': get_client_ip(request),
+                        'error_type': type(parse_error).__name__,
+                    }
+                )
+                return Response(
+                    {"detail": "Invalid request format"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
             logger.info(
                 f"API authentication attempt for username: {username}",
@@ -491,3 +545,126 @@ class LoginAPIView(APIView):
                 {"detail": "Internal server error"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class APIInfoView(APIView):
+    """API endpoint that provides information about available API endpoints."""
+    
+    authentication_classes = []
+    permission_classes = []
+
+    @swagger_auto_schema(
+        operation_description="Get information about available API endpoints",
+        responses={
+            200: openapi.Response(
+                description='API information',
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'service': openapi.Schema(type=openapi.TYPE_STRING, description='Service name'),
+                        'version': openapi.Schema(type=openapi.TYPE_STRING, description='API version'),
+                        'endpoints': openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            description='Available API endpoints'
+                        ),
+                        'timestamp': openapi.Schema(type=openapi.TYPE_STRING, description='Response timestamp')
+                    }
+                )
+            )
+        },
+        tags=['API Info']
+    )
+    def get(self, request):
+        """Return API information and available endpoints."""
+        logger.info(
+            "API info endpoint accessed",
+            extra={
+                'ip': get_client_ip(request),
+                'user_agent': request.META.get('HTTP_USER_AGENT', 'Unknown'),
+            }
+        )
+        
+        api_info = {
+            "service": "Identity Provider API",
+            "version": "1.0.0",
+            "description": "Authentication and JWT token management service",
+            "endpoints": {
+                "/api/": {
+                    "method": "GET",
+                    "description": "Get API information",
+                    "authentication": "None"
+                },
+                "/api/login/": {
+                    "method": "POST", 
+                    "description": "Authenticate user and obtain JWT token",
+                    "authentication": "None",
+                    "parameters": {
+                        "username": "string (required)",
+                        "password": "string (required)"
+                    },
+                    "returns": {
+                        "token": "JWT token string"
+                    }
+                },
+                "/api/status/": {
+                    "method": "GET",
+                    "description": "API health check and status",
+                    "authentication": "None"
+                },
+                "/api/docs/": {
+                    "method": "GET",
+                    "description": "Interactive API documentation (Swagger UI)",
+                    "authentication": "None"
+                },
+                "/api/redoc/": {
+                    "method": "GET", 
+                    "description": "Alternative API documentation (ReDoc)",
+                    "authentication": "None"
+                }
+            },
+            "authentication": {
+                "type": "JWT Token",
+                "description": "Use the token obtained from /api/login/ in the Authorization header",
+                "header_format": "Authorization: Bearer <token>"
+            },
+            "timestamp": timezone.now().isoformat()
+        }
+        
+        return Response(api_info)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+@swagger_auto_schema(
+    operation_description="Get API status and health check",
+    responses={
+        200: openapi.Response(
+            description='API status',
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'status': openapi.Schema(type=openapi.TYPE_STRING, description='API status'),
+                    'service': openapi.Schema(type=openapi.TYPE_STRING, description='Service name'),
+                    'timestamp': openapi.Schema(type=openapi.TYPE_STRING, description='Response timestamp')
+                }
+            )
+        )
+    },
+    tags=['API Info']
+)
+def api_status(request):
+    """API health check endpoint."""
+    logger.debug(
+        "API status endpoint accessed",
+        extra={
+            'ip': get_client_ip(request),
+            'user_agent': request.META.get('HTTP_USER_AGENT', 'Unknown'),
+        }
+    )
+    
+    return Response({
+        "status": "healthy",
+        "service": "identity-provider",
+        "version": "1.0.0",
+        "timestamp": timezone.now().isoformat()
+    })

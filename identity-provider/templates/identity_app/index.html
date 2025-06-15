@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ service }} - Identity Provider</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .info-box {
+            background: #e7f3ff;
+            border: 1px solid #b8daff;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .api-endpoints {
+            background: #f8f9fa;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .endpoint {
+            background: white;
+            border-left: 4px solid #007bff;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .method {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .method.post {
+            background: #28a745;
+        }
+        .url {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #333;
+        }
+        .description {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .docs-link {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+        .docs-link:hover {
+            background: #0056b3;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 12px;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 {{ message }}</h1>
+        
+        <div class="info-box">
+            <p><strong>Service:</strong> {{ service }}</p>
+            <p><strong>Version:</strong> {{ version }}</p>
+            <p><strong>Status:</strong> ✅ Active</p>
+        </div>
+
+        <h2>📚 API Documentation</h2>
+        <div>
+            <a href="/api/docs/" class="docs-link">🔗 Interactive API Docs (Swagger)</a>
+            <a href="/api/redoc/" class="docs-link">📖 Alternative Docs (ReDoc)</a>
+            <a href="/api/" class="docs-link">ℹ️ API Info</a>
+        </div>
+
+        <h2>🛠️ Available API Endpoints</h2>
+        <div class="api-endpoints">
+            <div class="endpoint">
+                <div>
+                    <span class="method">GET</span>
+                    <span class="url">/api/</span>
+                </div>
+                <div class="description">Get API information and available endpoints</div>
+            </div>
+            
+            <div class="endpoint">
+                <div>
+                    <span class="method post">POST</span>
+                    <span class="url">/api/login/</span>
+                </div>
+                <div class="description">Authenticate user and obtain JWT token</div>
+            </div>
+            
+            <div class="endpoint">
+                <div>
+                    <span class="method">GET</span>
+                    <span class="url">/api/status/</span>
+                </div>
+                <div class="description">API health check and status</div>
+            </div>
+            
+            <div class="endpoint">
+                <div>
+                    <span class="method">GET</span>
+                    <span class="url">/api/docs/</span>
+                </div>
+                <div class="description">Interactive API documentation (Swagger UI)</div>
+            </div>
+            
+            <div class="endpoint">
+                <div>
+                    <span class="method">GET</span>
+                    <span class="url">/api/redoc/</span>
+                </div>
+                <div class="description">Alternative API documentation (ReDoc)</div>
+            </div>
+        </div>
+
+        <h2>🔧 Authentication</h2>
+        <div class="info-box">
+            <p><strong>Type:</strong> JWT Token</p>
+            <p><strong>Header Format:</strong> <code>Authorization: Bearer &lt;token&gt;</code></p>
+            <p><strong>Token Endpoint:</strong> <code>POST /api/login/</code></p>
+            <p><strong>Token Expiry:</strong> 1 hour</p>
+        </div>
+
+        <div class="timestamp">
+            Generated at {{ timestamp }}
+        </div>
+    </div>
+</body>
+</html>
