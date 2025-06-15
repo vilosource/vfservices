@@ -40,10 +40,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "django_extensions",
+    "corsheaders",
     "inventory",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -298,3 +300,23 @@ LOGGING = {
         },
     },
 }
+
+# CORS configuration for Traefik routing
+CORS_ALLOWED_ORIGINS = [
+    "https://website.vfservices.viloforge.com",
+    "http://localhost:3000",  # Development
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]

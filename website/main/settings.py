@@ -140,6 +140,20 @@ JWT_SECRET = os.environ.get("VF_JWT_SECRET", "change-me")
 SSO_COOKIE_DOMAIN = os.environ.get("SSO_COOKIE_DOMAIN", "localhost")
 DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL", "/")
 
+# Identity Provider Integration
+# Use internal Docker network URLs for service-to-service communication
+IDENTITY_PROVIDER_URL = os.environ.get(
+    "IDENTITY_PROVIDER_URL", 
+    "http://identity-provider:8000"  # Internal Docker network URL
+)
+
+# For JavaScript API calls (external URLs via Traefik)
+EXTERNAL_SERVICE_URLS = {
+    'identity': os.environ.get('IDENTITY_EXTERNAL_URL', 'https://identity.vfservices.viloforge.com'),
+    'billing': os.environ.get('BILLING_EXTERNAL_URL', 'https://billing.vfservices.viloforge.com'),
+    'inventory': os.environ.get('INVENTORY_EXTERNAL_URL', 'https://inventory.vfservices.viloforge.com'),
+}
+
 # Logging configuration
 LOG_BASE_DIR = os.environ.get("LOG_BASE_DIR", "/tmp")
 
