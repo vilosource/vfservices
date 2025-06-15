@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-6)0i9dmc%av%+u03d0=1zcbecqw(!1^i=m8*@r+zc=o5h-r6h3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["identity.vfservices.viloforge.com", "localhost", "127.0.0.1", "[::1]", "127.0.0.1:8100"]
+ALLOWED_HOSTS = ["identity.vfservices.viloforge.com", "localhost", "127.0.0.1", "[::1]", "127.0.0.1:8100", "identity-provider"]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://identity.vfservices.viloforge.com',
