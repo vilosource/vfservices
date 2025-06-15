@@ -185,28 +185,54 @@ REDOC_SETTINGS = {
     'LAZY_RENDERING': False,
 }
 
-# CORS settings for API documentation
-CORS_ALLOWED_ORIGINS = [
-    "https://identity.vfservices.viloforge.com",
-    "http://identity.vfservices.viloforge.com",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:8100",
-]
+# CORS settings - Using Traefik-Integrated CORS Discovery System
+# The CORS discovery system will automatically configure origins based on environment
+# and service discovery. Manual configuration below serves as fallback.
 
-CORS_ALLOW_CREDENTIALS = True
-
-CORS_ALLOWED_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
-]
+# Import and configure CORS discovery system
+try:
+    from identity_app.cors_discovery import configure_cors
+    cors_config = configure_cors()
+    if cors_config:
+        # CORS discovery successful - settings applied automatically
+        pass
+    else:
+        # Discovery failed - using manual fallback configuration
+        raise ImportError("CORS discovery failed")
+except ImportError:
+    # Fallback CORS configuration
+    CORS_ALLOWED_ORIGINS = [
+        "https://identity.vfservices.viloforge.com",
+        "http://identity.vfservices.viloforge.com",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://127.0.0.1:8100",
+    ]
+    
+    CORS_ALLOW_CREDENTIALS = True
+    
+    CORS_ALLOWED_HEADERS = [
+        'accept',
+        'accept-encoding',
+        'authorization',
+        'content-type',
+        'dnt',
+        'origin',
+        'user-agent',
+        'x-csrftoken',
+        'x-requested-with',
+    ]
+    
+    CORS_ALLOW_METHODS = [
+        'DELETE',
+        'GET',
+        'OPTIONS',
+        'PATCH',
+        'POST',
+        'PUT',
+    ]
+    
+    CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
 
 # JWT configuration
 JWT_SECRET = os.environ.get("VF_JWT_SECRET", "change-me")
@@ -333,6 +359,11 @@ LOGGING = {
         # Identity app loggers
         "identity_app": {
             "handlers": ["console", "file", "debug_console", "debug_file", "auth_file"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
+        },
+        "identity_app.cors_discovery": {
+            "handlers": ["console", "file", "debug_console", "debug_file"],
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": False,
         },

@@ -4,7 +4,7 @@ CERT_DIR ?= certs/live/$(DEV_DOMAIN)
 CERT_FILE ?= $(CERT_DIR)/fullchain.pem
 KEY_FILE ?= $(CERT_DIR)/privkey.pem
 
-.PHONY: help up dev-cert https-up http-up docker-dev-up docker-dev-down docker-dev-build docker-dev-logs docker-dev-https docker-dev-certbot-renew db-reset db-reset-dev db-shell db-list db-drop-all fresh-start dev-reset dev-fresh dev-backup dev-shell-db dev-logs-db restart-identity restart-website restart-billing restart-inventory dev-status prod-backup prod-restore
+.PHONY: help up dev-cert https-up http-up docker-dev-up docker-dev-down docker-dev-build docker-dev-logs docker-dev-https docker-dev-certbot-renew db-reset db-reset-dev db-shell db-list db-drop-all fresh-start dev-reset dev-fresh dev-backup dev-shell-db dev-logs-db restart-identity restart-website restart-billing restart-inventory dev-status prod-backup prod-restore archive
 
 help:
 	@echo "Available make targets:"
@@ -39,6 +39,9 @@ help:
 	@echo "  restart-website     Restart website service"
 	@echo "  restart-billing     Restart billing-api service"
 	@echo "  restart-inventory   Restart inventory-api service"
+	@echo ""
+	@echo "=== Project Management ==="
+	@echo "  archive             Create a project archive excluding .gitignore files"
 
 up:
 	$(MAKE) -j4 run-identity-0 run-website-0 run-billing-0 run-inventory-0
@@ -205,5 +208,26 @@ prod-restore:
 fresh-start: docker-dev-down db-reset docker-dev-build
 	@echo "Fresh environment ready. Starting services..."
 	docker compose -f docker-compose.dev.yml up
+
+# Archive project excluding .gitignore files
+archive:
+	@echo "Creating project archive..."
+	@PROJECT_NAME=$$(basename $(PWD)); \
+	ARCHIVE_NAME="$${PROJECT_NAME}-$$(date +%Y%m%d-%H%M%S).tar.gz"; \
+	echo "Archive name: $$ARCHIVE_NAME"; \
+	cd ..; \
+	if command -v git >/dev/null 2>&1 && [ -d vfservices/.git ]; then \
+		echo "Using git to create archive (excludes .gitignore files)..."; \
+		cd vfservices && git archive --format=tar.gz --prefix="$$PROJECT_NAME/" HEAD > "../$$ARCHIVE_NAME"; \
+	else \
+		echo "Git not available or not a git repository. Using tar with .gitignore exclusions..."; \
+		tar --exclude-from=vfservices/.gitignore \
+		    --exclude='.git' \
+		    --exclude='*.tar.gz' \
+		    --exclude='*.zip' \
+		    -czf "$$ARCHIVE_NAME" vfservices/; \
+	fi; \
+	echo "Archive created: ../$$ARCHIVE_NAME"; \
+	ls -lh "$$ARCHIVE_NAME"
 
 .DEFAULT_GOAL := help

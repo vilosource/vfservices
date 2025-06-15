@@ -28,6 +28,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["website.vfservices.viloforge.com", "localhost", "127.0.0.1", "[::1]"]
 
+# CSRF trusted origins - required for CSRF protection when using custom domains
+CSRF_TRUSTED_ORIGINS = [
+    "https://website.vfservices.viloforge.com",
+    "http://localhost:8001",
+    "http://127.0.0.1:8001",
+]
+
 
 # Application definition
 
