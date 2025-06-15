@@ -26,10 +26,23 @@ SECRET_KEY = "django-insecure-6)0i9dmc%av%+u03d0=1zcbecqw(!1^i=m8*@r+zc=o5h-r6h3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["identity.vfservices.viloforge.com", "localhost", "127.0.0.1", "[::1]", "127.0.0.1:8100", "identity-provider"]
+# Domain configuration from environment
+DEV_DOMAIN = os.environ.get("DEV_DOMAIN", "vfservices.viloforge.com")
+
+ALLOWED_HOSTS = [
+    f".{DEV_DOMAIN}",    # Allow all subdomains of the configured domain
+    "localhost", 
+    "127.0.0.1", 
+    "[::1]", 
+    "127.0.0.1:8100",
+    "identity-provider",  # Docker internal hostname
+    "website",           # Docker internal hostname  
+    "billing-api",       # Docker internal hostname
+    "inventory-api",     # Docker internal hostname
+]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://identity.vfservices.viloforge.com',
+    f'https://*.{DEV_DOMAIN}',  # Allow all subdomains
 ]
 
 # Application definition

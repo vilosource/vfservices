@@ -219,6 +219,7 @@ archive:
 	if command -v git >/dev/null 2>&1 && [ -d vfservices/.git ]; then \
 		echo "Using git to create archive (excludes .gitignore files)..."; \
 		cd vfservices && git archive --format=tar.gz --prefix="$$PROJECT_NAME/" HEAD > "../$$ARCHIVE_NAME"; \
+		cd ..; \
 	else \
 		echo "Git not available or not a git repository. Using tar with .gitignore exclusions..."; \
 		tar --exclude-from=vfservices/.gitignore \
@@ -227,7 +228,7 @@ archive:
 		    --exclude='*.zip' \
 		    -czf "$$ARCHIVE_NAME" vfservices/; \
 	fi; \
-	echo "Archive created: ../$$ARCHIVE_NAME"; \
+	echo "Archive created: $$PWD/$$ARCHIVE_NAME"; \
 	ls -lh "$$ARCHIVE_NAME"
 
 .DEFAULT_GOAL := help
