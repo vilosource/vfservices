@@ -57,12 +57,55 @@ This document outlines the testing strategy optimized for development workflows,
 - `@safari` - Safari/WebKit tests
 - `@mobile` - Mobile browser tests
 
+## 🎯 Specific Test Execution
+
+### Run Individual Tests
+```bash
+# Run specific test file
+make test-file FILE=auth/login.spec.js
+
+# Run specific test within a file
+make test-specific FILE=auth/login.spec.js TEST="should login successfully"
+
+# Run all tests in a directory
+make test-dir DIR=auth
+
+# Run tests matching a pattern
+make test-grep PATTERN="login"
+make test-grep PATTERN="@smoke.*login"
+make test-grep PATTERN="should.*successfully"
+
+# List available tests and directories
+make test-ls
+```
+
+### Common Patterns
+```bash
+# Test specific functionality you're working on
+make test-file FILE=auth/login.spec.js       # Authentication
+make test-file FILE=cors/cross-domain-api.spec.js  # CORS
+make test-file FILE=website/homepage.spec.js  # Frontend
+
+# Test by component
+make test-dir DIR=auth          # All auth tests
+make test-dir DIR=website       # All website tests
+make test-dir DIR=infrastructure # All infrastructure tests
+
+# Search for specific test scenarios
+make test-grep PATTERN="profile"           # All profile-related tests
+make test-grep PATTERN="@critical"         # All critical tests
+make test-grep PATTERN="should.*fail"      # All failure scenarios
+```
+
 ## 🔄 Development Workflow
 
 ### During Active Development
 ```bash
 # Quick feedback after changes
 make test-smoke
+
+# Test specific file you're working on
+make test-file FILE=auth/login.spec.js
 
 # Test specific component you're working on
 make test-auth    # If working on authentication

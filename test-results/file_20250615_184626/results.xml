@@ -1,0 +1,1409 @@
+<testsuites id="" name="" tests="11" failures="11" skipped="0" errors="0" time="41.847576999999994">
+<testsuite name="playwright/tests/auth/login.spec.js" timestamp="2025-06-15T15:46:37.877Z" hostname="chromium" tests="11" failures="11" skipped="0" time="15.223" errors="0">
+<testcase name="Authentication Tests › should load login page successfully @smoke @fast @critical" classname="playwright/tests/auth/login.spec.js" time="1.46">
+<failure message="login.spec.js:26:3 should load login page successfully @smoke @fast @critical" type="FAILURE">
+<![CDATA[  [chromium] › playwright/tests/auth/login.spec.js:26:3 › Authentication Tests › should load login page successfully @smoke @fast @critical 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at /tests/playwright/tests/auth/login.spec.js:28:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at /tests/playwright/tests/auth/login.spec.js:28:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at /tests/playwright/tests/auth/login.spec.js:28:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:46:38.582Z] Authentication data cleared
+✅ [2025-06-15T15:46:38.585Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:38.911Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/video.webm]]
+✅ [2025-06-15T15:46:40.157Z] Authentication data cleared
+✅ [2025-06-15T15:46:40.159Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:40.488Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/trace.zip]]
+✅ [2025-06-15T15:46:41.565Z] Authentication data cleared
+✅ [2025-06-15T15:46:41.568Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:41.856Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Authentication Tests › should login successfully with valid admin credentials @auth @critical @dev" classname="playwright/tests/auth/login.spec.js" time="1.303">
+<failure message="login.spec.js:44:3 should login successfully with valid admin credentials @auth @critical @dev" type="FAILURE">
+<![CDATA[  [chromium] › playwright/tests/auth/login.spec.js:44:3 › Authentication Tests › should login successfully with valid admin credentials @auth @critical @dev 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:48:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:48:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:48:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:46:42.756Z] Authentication data cleared
+✅ [2025-06-15T15:46:42.758Z] Attempting login with username: admin
+✅ [2025-06-15T15:46:42.758Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:43.037Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium/video.webm]]
+✅ [2025-06-15T15:46:43.858Z] Authentication data cleared
+✅ [2025-06-15T15:46:43.859Z] Attempting login with username: admin
+✅ [2025-06-15T15:46:43.860Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:44.142Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry1/trace.zip]]
+✅ [2025-06-15T15:46:45.120Z] Authentication data cleared
+✅ [2025-06-15T15:46:45.123Z] Attempting login with username: admin
+✅ [2025-06-15T15:46:45.123Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:45.424Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry2/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Authentication Tests › should login successfully with valid user credentials" classname="playwright/tests/auth/login.spec.js" time="1.408">
+<failure message="login.spec.js:62:3 should login successfully with valid user credentials" type="FAILURE">
+<![CDATA[  [chromium] › playwright/tests/auth/login.spec.js:62:3 › Authentication Tests › should login successfully with valid user credentials 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:69:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:69:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:69:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:46:46.698Z] Authentication data cleared
+✅ [2025-06-15T15:46:46.700Z] Attempting login with username: testuser
+✅ [2025-06-15T15:46:46.701Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:47.046Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium/video.webm]]
+✅ [2025-06-15T15:46:47.877Z] Authentication data cleared
+✅ [2025-06-15T15:46:47.879Z] Attempting login with username: testuser
+✅ [2025-06-15T15:46:47.879Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:48.174Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium-retry1/trace.zip]]
+✅ [2025-06-15T15:46:49.165Z] Authentication data cleared
+✅ [2025-06-15T15:46:49.168Z] Attempting login with username: testuser
+✅ [2025-06-15T15:46:49.168Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:49.477Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-8cb11-with-valid-user-credentials-chromium-retry2/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Authentication Tests › should reject invalid credentials" classname="playwright/tests/auth/login.spec.js" time="2.249">
+<failure message="login.spec.js:80:3 should reject invalid credentials" type="FAILURE">
+<![CDATA[  [chromium] › playwright/tests/auth/login.spec.js:80:3 › Authentication Tests › should reject invalid credentials 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:82:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:82:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:82:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:46:50.787Z] Authentication data cleared
+✅ [2025-06-15T15:46:50.789Z] Attempting login with username: invalid_user
+✅ [2025-06-15T15:46:50.789Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:51.057Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium/video.webm]]
+✅ [2025-06-15T15:46:52.080Z] Authentication data cleared
+✅ [2025-06-15T15:46:52.081Z] Attempting login with username: invalid_user
+✅ [2025-06-15T15:46:52.082Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:52.730Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium-retry1/trace.zip]]
+✅ [2025-06-15T15:46:54.606Z] Authentication data cleared
+✅ [2025-06-15T15:46:54.608Z] Attempting login with username: invalid_user
+✅ [2025-06-15T15:46:54.609Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:55.243Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-f8e2a--reject-invalid-credentials-chromium-retry2/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Authentication Tests › should reject empty credentials" classname="playwright/tests/auth/login.spec.js" time="1.67">
+<failure message="login.spec.js:97:3 should reject empty credentials" type="FAILURE">
+<![CDATA[  [chromium] › playwright/tests/auth/login.spec.js:97:3 › Authentication Tests › should reject empty credentials 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:99:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:99:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:99:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:46:56.438Z] Authentication data cleared
+✅ [2025-06-15T15:46:56.441Z] Attempting login with username: 
+✅ [2025-06-15T15:46:56.442Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:56.745Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium/video.webm]]
+✅ [2025-06-15T15:46:57.662Z] Authentication data cleared
+✅ [2025-06-15T15:46:57.664Z] Attempting login with username: 
+✅ [2025-06-15T15:46:57.664Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:46:57.979Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium-retry1/trace.zip]]
+✅ [2025-06-15T15:46:59.519Z] Authentication data cleared
+✅ [2025-06-15T15:46:59.524Z] Attempting login with username: 
+✅ [2025-06-15T15:46:59.525Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:00.055Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-9538a-ld-reject-empty-credentials-chromium-retry2/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Authentication Tests › should logout successfully" classname="playwright/tests/auth/login.spec.js" time="1.476">
+<failure message="login.spec.js:110:3 should logout successfully" type="FAILURE">
+<![CDATA[  [chromium] › playwright/tests/auth/login.spec.js:110:3 › Authentication Tests › should logout successfully 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at LoginPage.loginWithTestUser (/tests/playwright/pages/login-page.js:94:16)
+        at /tests/playwright/tests/auth/login.spec.js:113:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at LoginPage.loginWithTestUser (/tests/playwright/pages/login-page.js:94:16)
+        at /tests/playwright/tests/auth/login.spec.js:113:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at LoginPage.loginWithTestUser (/tests/playwright/pages/login-page.js:94:16)
+        at /tests/playwright/tests/auth/login.spec.js:113:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:47:01.065Z] Authentication data cleared
+✅ [2025-06-15T15:47:01.067Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:01.067Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:01.400Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium/video.webm]]
+✅ [2025-06-15T15:47:02.312Z] Authentication data cleared
+✅ [2025-06-15T15:47:02.314Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:02.314Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:02.611Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium-retry1/trace.zip]]
+✅ [2025-06-15T15:47:03.716Z] Authentication data cleared
+✅ [2025-06-15T15:47:03.718Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:03.719Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:04.080Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-97ac7--should-logout-successfully-chromium-retry2/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Authentication Tests › should maintain SSO across domain navigation" classname="playwright/tests/auth/login.spec.js" time="1.232">
+<failure message="login.spec.js:128:3 should maintain SSO across domain navigation" type="FAILURE">
+<![CDATA[  [chromium] › playwright/tests/auth/login.spec.js:128:3 › Authentication Tests › should maintain SSO across domain navigation 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at LoginPage.loginWithTestUser (/tests/playwright/pages/login-page.js:94:16)
+        at /tests/playwright/tests/auth/login.spec.js:131:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at LoginPage.loginWithTestUser (/tests/playwright/pages/login-page.js:94:16)
+        at /tests/playwright/tests/auth/login.spec.js:131:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at LoginPage.loginWithTestUser (/tests/playwright/pages/login-page.js:94:16)
+        at /tests/playwright/tests/auth/login.spec.js:131:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:47:05.638Z] Authentication data cleared
+✅ [2025-06-15T15:47:05.641Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:05.641Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:05.971Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium/video.webm]]
+✅ [2025-06-15T15:47:06.949Z] Authentication data cleared
+✅ [2025-06-15T15:47:06.952Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:06.952Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:07.207Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium-retry1/trace.zip]]
+✅ [2025-06-15T15:47:07.957Z] Authentication data cleared
+✅ [2025-06-15T15:47:07.959Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:07.960Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:08.198Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-236f3-SO-across-domain-navigation-chromium-retry2/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Authentication Tests › should handle session timeout gracefully" classname="playwright/tests/auth/login.spec.js" time="1.089">
+<failure message="login.spec.js:149:3 should handle session timeout gracefully" type="FAILURE">
+<![CDATA[  [chromium] › playwright/tests/auth/login.spec.js:149:3 › Authentication Tests › should handle session timeout gracefully 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at LoginPage.loginWithTestUser (/tests/playwright/pages/login-page.js:94:16)
+        at /tests/playwright/tests/auth/login.spec.js:152:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at LoginPage.loginWithTestUser (/tests/playwright/pages/login-page.js:94:16)
+        at /tests/playwright/tests/auth/login.spec.js:152:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at LoginPage.loginWithTestUser (/tests/playwright/pages/login-page.js:94:16)
+        at /tests/playwright/tests/auth/login.spec.js:152:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:47:08.944Z] Authentication data cleared
+✅ [2025-06-15T15:47:08.947Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:08.947Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:09.232Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium/video.webm]]
+✅ [2025-06-15T15:47:09.887Z] Authentication data cleared
+✅ [2025-06-15T15:47:09.888Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:09.888Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:10.114Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium-retry1/trace.zip]]
+✅ [2025-06-15T15:47:10.723Z] Authentication data cleared
+✅ [2025-06-15T15:47:10.724Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:10.725Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:10.965Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-0efd0--session-timeout-gracefully-chromium-retry2/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Authentication Tests › should prevent access to protected resources when not authenticated" classname="playwright/tests/auth/login.spec.js" time="1.123">
+<failure message="login.spec.js:174:3 should prevent access to protected resources when not authenticated" type="FAILURE">
+<![CDATA[  [chromium] › playwright/tests/auth/login.spec.js:174:3 › Authentication Tests › should prevent access to protected resources when not authenticated 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://website.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://website.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at /tests/playwright/tests/auth/login.spec.js:183:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://website.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://website.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at /tests/playwright/tests/auth/login.spec.js:183:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://website.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://website.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at /tests/playwright/tests/auth/login.spec.js:183:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:47:11.690Z] Authentication data cleared
+✅ [2025-06-15T15:47:11.701Z] Authentication data cleared
+✅ [2025-06-15T15:47:11.701Z] Navigating to website: https://website.vfservices.viloforge.com
+✅ [2025-06-15T15:47:12.008Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium/video.webm]]
+✅ [2025-06-15T15:47:12.623Z] Authentication data cleared
+✅ [2025-06-15T15:47:12.633Z] Authentication data cleared
+✅ [2025-06-15T15:47:12.633Z] Navigating to website: https://website.vfservices.viloforge.com
+✅ [2025-06-15T15:47:12.873Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium-retry1/trace.zip]]
+✅ [2025-06-15T15:47:13.494Z] Authentication data cleared
+✅ [2025-06-15T15:47:13.504Z] Authentication data cleared
+✅ [2025-06-15T15:47:13.505Z] Navigating to website: https://website.vfservices.viloforge.com
+✅ [2025-06-15T15:47:13.760Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-6a955-rces-when-not-authenticated-chromium-retry2/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Authentication Tests › should handle concurrent login attempts" classname="playwright/tests/auth/login.spec.js" time="1.235">
+<failure message="login.spec.js:200:3 should handle concurrent login attempts" type="FAILURE">
+<![CDATA[  [chromium] › playwright/tests/auth/login.spec.js:200:3 › Authentication Tests › should handle concurrent login attempts 
+
+    Error: page.goto: net::ERR_ABORTED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:207:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_ABORTED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:207:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_ABORTED at https://identity.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://identity.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at LoginPage.goto (/tests/playwright/pages/login-page.js:24:16)
+        at LoginPage.login (/tests/playwright/pages/login-page.js:60:16)
+        at /tests/playwright/tests/auth/login.spec.js:207:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:47:14.509Z] Authentication data cleared
+✅ [2025-06-15T15:47:14.512Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:14.512Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:14.515Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:14.515Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:14.826Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium/video.webm]]
+✅ [2025-06-15T15:47:15.504Z] Authentication data cleared
+✅ [2025-06-15T15:47:15.505Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:15.506Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:15.509Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:15.509Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:15.827Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium-retry1/trace.zip]]
+✅ [2025-06-15T15:47:16.455Z] Authentication data cleared
+✅ [2025-06-15T15:47:16.457Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:16.457Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:16.460Z] Attempting login with username: admin
+✅ [2025-06-15T15:47:16.460Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:47:16.751Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-b3259-e-concurrent-login-attempts-chromium-retry2/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Authentication Tests › should redirect to intended page after login" classname="playwright/tests/auth/login.spec.js" time="0.978">
+<failure message="login.spec.js:222:3 should redirect to intended page after login" type="FAILURE">
+<![CDATA[  [chromium] › playwright/tests/auth/login.spec.js:222:3 › Authentication Tests › should redirect to intended page after login 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://website.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://website.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at /tests/playwright/tests/auth/login.spec.js:226:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://website.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://website.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at /tests/playwright/tests/auth/login.spec.js:226:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at https://website.vfservices.viloforge.com/
+    Call log:
+      - navigating to "https://website.vfservices.viloforge.com/", waiting until "networkidle"
+
+
+       at playwright/pages/base-page.js:19
+
+      17 |     TestHelpers.log(`Navigating to ${service}: ${url}`);
+      18 |     
+    > 19 |     await this.page.goto(url, { 
+         |                     ^
+      20 |       waitUntil: 'networkidle',
+      21 |       timeout: this.timeout 
+      22 |     });
+        at LoginPage.navigateToService (/tests/playwright/pages/base-page.js:19:21)
+        at /tests/playwright/tests/auth/login.spec.js:226:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/file_20250615_184626/artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:47:17.349Z] Authentication data cleared
+✅ [2025-06-15T15:47:17.360Z] Authentication data cleared
+✅ [2025-06-15T15:47:17.361Z] Navigating to website: https://website.vfservices.viloforge.com
+✅ [2025-06-15T15:47:17.586Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium/video.webm]]
+✅ [2025-06-15T15:47:18.145Z] Authentication data cleared
+✅ [2025-06-15T15:47:18.159Z] Authentication data cleared
+✅ [2025-06-15T15:47:18.159Z] Navigating to website: https://website.vfservices.viloforge.com
+✅ [2025-06-15T15:47:18.394Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium-retry1/trace.zip]]
+✅ [2025-06-15T15:47:18.976Z] Authentication data cleared
+✅ [2025-06-15T15:47:18.985Z] Authentication data cleared
+✅ [2025-06-15T15:47:18.985Z] Navigating to website: https://website.vfservices.viloforge.com
+✅ [2025-06-15T15:47:19.203Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-94ba1-o-intended-page-after-login-chromium-retry2/video.webm]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

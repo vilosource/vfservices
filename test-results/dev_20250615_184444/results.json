@@ -1,0 +1,630 @@
+{
+  "config": {
+    "configFile": "/tests/playwright.config.js",
+    "rootDir": "/tests",
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": "/tests/playwright/config/global-setup.js",
+    "globalTeardown": "/tests/playwright/config/global-teardown.js",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "undefined/undefined/commit/undefined",
+        "buildHref": "undefined/undefined/actions/runs/undefined"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "../test-results/dev_20250615_184444/html-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../test-results/dev_20250615_184444/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "../test-results/dev_20250615_184444/results.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/test-results/dev_20250615_184444/artifacts",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "ci": {
+            "commitHref": "undefined/undefined/commit/undefined",
+            "buildHref": "undefined/undefined/actions/runs/undefined"
+          },
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/test-results/dev_20250615_184444/artifacts",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "ci": {
+            "commitHref": "undefined/undefined/commit/undefined",
+            "buildHref": "undefined/undefined/actions/runs/undefined"
+          },
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/test-results/dev_20250615_184444/artifacts",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "ci": {
+            "commitHref": "undefined/undefined/commit/undefined",
+            "buildHref": "undefined/undefined/actions/runs/undefined"
+          },
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/test-results/dev_20250615_184444/artifacts",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "ci": {
+            "commitHref": "undefined/undefined/commit/undefined",
+            "buildHref": "undefined/undefined/actions/runs/undefined"
+          },
+          "actualWorkers": 1
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/test-results/dev_20250615_184444/artifacts",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "ci": {
+            "commitHref": "undefined/undefined/commit/undefined",
+            "buildHref": "undefined/undefined/actions/runs/undefined"
+          },
+          "actualWorkers": 1
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.53.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "playwright/tests/auth/login.spec.js",
+      "file": "playwright/tests/auth/login.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication Tests",
+          "file": "playwright/tests/auth/login.spec.js",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load login page successfully @smoke @fast @critical",
+              "ok": false,
+              "tags": [
+                "smoke",
+                "fast",
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1326,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at /tests/playwright/tests/auth/login.spec.js:30:47",
+                        "location": {
+                          "file": "/tests/playwright/tests/auth/login.spec.js",
+                          "column": 47,
+                          "line": 30
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 28 |\u001b[39m       \u001b[36mawait\u001b[39m loginPage\u001b[33m.\u001b[39mgoto()\u001b[33m;\u001b[39m\n \u001b[90m 29 |\u001b[39m       \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m       expect(\u001b[36mawait\u001b[39m loginPage\u001b[33m.\u001b[39misOnLoginPage())\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m       expect(\u001b[36mawait\u001b[39m loginPage\u001b[33m.\u001b[39misPageLoaded())\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 32 |\u001b[39m       \n \u001b[90m 33 |\u001b[39m       \u001b[90m// Verify login form elements are present\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/tests/playwright/tests/auth/login.spec.js",
+                            "column": 47,
+                            "line": 30
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  28 |       await loginPage.goto();\n  29 |       \n> 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);\n     |                                               ^\n  31 |       expect(await loginPage.isPageLoaded()).toBe(true);\n  32 |       \n  33 |       // Verify login form elements are present\n    at /tests/playwright/tests/auth/login.spec.js:30:47"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "✅ [2025-06-15T15:44:57.435Z] Authentication data cleared\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:44:57.436Z] Navigating to identity: https://identity.vfservices.viloforge.com\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:44:58.695Z] Authentication data cleared\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-15T15:44:57.349Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/tests/playwright/tests/auth/login.spec.js",
+                        "column": 47,
+                        "line": 30
+                      }
+                    },
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1394,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at /tests/playwright/tests/auth/login.spec.js:30:47",
+                        "location": {
+                          "file": "/tests/playwright/tests/auth/login.spec.js",
+                          "column": 47,
+                          "line": 30
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 28 |\u001b[39m       \u001b[36mawait\u001b[39m loginPage\u001b[33m.\u001b[39mgoto()\u001b[33m;\u001b[39m\n \u001b[90m 29 |\u001b[39m       \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m       expect(\u001b[36mawait\u001b[39m loginPage\u001b[33m.\u001b[39misOnLoginPage())\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m       expect(\u001b[36mawait\u001b[39m loginPage\u001b[33m.\u001b[39misPageLoaded())\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 32 |\u001b[39m       \n \u001b[90m 33 |\u001b[39m       \u001b[90m// Verify login form elements are present\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/tests/playwright/tests/auth/login.spec.js",
+                            "column": 47,
+                            "line": 30
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  28 |       await loginPage.goto();\n  29 |       \n> 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);\n     |                                               ^\n  31 |       expect(await loginPage.isPageLoaded()).toBe(true);\n  32 |       \n  33 |       // Verify login form elements are present\n    at /tests/playwright/tests/auth/login.spec.js:30:47"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "✅ [2025-06-15T15:44:59.230Z] Authentication data cleared\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:44:59.231Z] Navigating to identity: https://identity.vfservices.viloforge.com\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:45:00.521Z] Authentication data cleared\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-06-15T15:44:59.128Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/tests/playwright/tests/auth/login.spec.js",
+                        "column": 47,
+                        "line": 30
+                      }
+                    },
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1330,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at /tests/playwright/tests/auth/login.spec.js:30:47",
+                        "location": {
+                          "file": "/tests/playwright/tests/auth/login.spec.js",
+                          "column": 47,
+                          "line": 30
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 28 |\u001b[39m       \u001b[36mawait\u001b[39m loginPage\u001b[33m.\u001b[39mgoto()\u001b[33m;\u001b[39m\n \u001b[90m 29 |\u001b[39m       \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m       expect(\u001b[36mawait\u001b[39m loginPage\u001b[33m.\u001b[39misOnLoginPage())\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m       expect(\u001b[36mawait\u001b[39m loginPage\u001b[33m.\u001b[39misPageLoaded())\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 32 |\u001b[39m       \n \u001b[90m 33 |\u001b[39m       \u001b[90m// Verify login form elements are present\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/tests/playwright/tests/auth/login.spec.js",
+                            "column": 47,
+                            "line": 30
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  28 |       await loginPage.goto();\n  29 |       \n> 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);\n     |                                               ^\n  31 |       expect(await loginPage.isPageLoaded()).toBe(true);\n  32 |       \n  33 |       // Verify login form elements are present\n    at /tests/playwright/tests/auth/login.spec.js:30:47"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "✅ [2025-06-15T15:45:01.083Z] Authentication data cleared\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:45:01.085Z] Navigating to identity: https://identity.vfservices.viloforge.com\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:45:02.347Z] Authentication data cleared\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 2,
+                      "startTime": "2025-06-15T15:45:00.996Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/tests/playwright/tests/auth/login.spec.js",
+                        "column": 47,
+                        "line": 30
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b5de489503d1ab33fcbf-1000feab01787af5138b",
+              "file": "playwright/tests/auth/login.spec.js",
+              "line": 26,
+              "column": 3
+            },
+            {
+              "title": "should login successfully with valid admin credentials @auth @critical @dev",
+              "ok": false,
+              "tags": [
+                "auth",
+                "critical",
+                "dev"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11651,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#id_username, [name=\"username\"], input[type=\"text\"]') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#id_username, [name=\"username\"], input[type=\"text\"]') to be visible\u001b[22m\n\n    at Function.waitForStableElement (/tests/playwright/utils/helpers.js:94:16)\n    at LoginPage.waitForElement (/tests/playwright/pages/base-page.js:85:23)\n    at LoginPage.login (/tests/playwright/pages/login-page.js:63:16)\n    at /tests/playwright/tests/auth/login.spec.js:48:7",
+                        "location": {
+                          "file": "/tests/playwright/utils/helpers.js",
+                          "column": 16,
+                          "line": 94
+                        },
+                        "snippet": "   at playwright/utils/helpers.js:94\n\n\u001b[0m \u001b[90m 92 |\u001b[39m \u001b[90m   */\u001b[39m\n \u001b[90m 93 |\u001b[39m   \u001b[36mstatic\u001b[39m \u001b[36masync\u001b[39m waitForStableElement(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 94 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 95 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m100\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Small delay for animations\u001b[39m\n \u001b[90m 96 |\u001b[39m   }\n \u001b[90m 97 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/tests/playwright/utils/helpers.js",
+                            "column": 16,
+                            "line": 94
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#id_username, [name=\"username\"], input[type=\"text\"]') to be visible\u001b[22m\n\n\n   at playwright/utils/helpers.js:94\n\n  92 |    */\n  93 |   static async waitForStableElement(page, selector, timeout = 5000) {\n> 94 |     await page.waitForSelector(selector, { state: 'visible', timeout });\n     |                ^\n  95 |     await page.waitForTimeout(100); // Small delay for animations\n  96 |   }\n  97 |\n    at Function.waitForStableElement (/tests/playwright/utils/helpers.js:94:16)\n    at LoginPage.waitForElement (/tests/playwright/pages/base-page.js:85:23)\n    at LoginPage.login (/tests/playwright/pages/login-page.js:63:16)\n    at /tests/playwright/tests/auth/login.spec.js:48:7"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "✅ [2025-06-15T15:45:02.847Z] Authentication data cleared\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:45:02.848Z] Attempting login with username: admin\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:45:02.848Z] Navigating to identity: https://identity.vfservices.viloforge.com\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:45:14.096Z] Authentication data cleared\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-15T15:45:02.763Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/tests/playwright/utils/helpers.js",
+                        "column": 16,
+                        "line": 94
+                      }
+                    },
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11729,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#id_username, [name=\"username\"], input[type=\"text\"]') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#id_username, [name=\"username\"], input[type=\"text\"]') to be visible\u001b[22m\n\n    at Function.waitForStableElement (/tests/playwright/utils/helpers.js:94:16)\n    at LoginPage.waitForElement (/tests/playwright/pages/base-page.js:85:23)\n    at LoginPage.login (/tests/playwright/pages/login-page.js:63:16)\n    at /tests/playwright/tests/auth/login.spec.js:48:7",
+                        "location": {
+                          "file": "/tests/playwright/utils/helpers.js",
+                          "column": 16,
+                          "line": 94
+                        },
+                        "snippet": "   at playwright/utils/helpers.js:94\n\n\u001b[0m \u001b[90m 92 |\u001b[39m \u001b[90m   */\u001b[39m\n \u001b[90m 93 |\u001b[39m   \u001b[36mstatic\u001b[39m \u001b[36masync\u001b[39m waitForStableElement(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 94 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 95 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m100\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Small delay for animations\u001b[39m\n \u001b[90m 96 |\u001b[39m   }\n \u001b[90m 97 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/tests/playwright/utils/helpers.js",
+                            "column": 16,
+                            "line": 94
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#id_username, [name=\"username\"], input[type=\"text\"]') to be visible\u001b[22m\n\n\n   at playwright/utils/helpers.js:94\n\n  92 |    */\n  93 |   static async waitForStableElement(page, selector, timeout = 5000) {\n> 94 |     await page.waitForSelector(selector, { state: 'visible', timeout });\n     |                ^\n  95 |     await page.waitForTimeout(100); // Small delay for animations\n  96 |   }\n  97 |\n    at Function.waitForStableElement (/tests/playwright/utils/helpers.js:94:16)\n    at LoginPage.waitForElement (/tests/playwright/pages/base-page.js:85:23)\n    at LoginPage.login (/tests/playwright/pages/login-page.js:63:16)\n    at /tests/playwright/tests/auth/login.spec.js:48:7"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "✅ [2025-06-15T15:45:14.968Z] Authentication data cleared\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:45:14.969Z] Attempting login with username: admin\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:45:14.969Z] Navigating to identity: https://identity.vfservices.viloforge.com\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:45:26.769Z] Authentication data cleared\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-06-15T15:45:14.872Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/tests/playwright/utils/helpers.js",
+                        "column": 16,
+                        "line": 94
+                      }
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11679,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#id_username, [name=\"username\"], input[type=\"text\"]') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#id_username, [name=\"username\"], input[type=\"text\"]') to be visible\u001b[22m\n\n    at Function.waitForStableElement (/tests/playwright/utils/helpers.js:94:16)\n    at LoginPage.waitForElement (/tests/playwright/pages/base-page.js:85:23)\n    at LoginPage.login (/tests/playwright/pages/login-page.js:63:16)\n    at /tests/playwright/tests/auth/login.spec.js:48:7",
+                        "location": {
+                          "file": "/tests/playwright/utils/helpers.js",
+                          "column": 16,
+                          "line": 94
+                        },
+                        "snippet": "   at playwright/utils/helpers.js:94\n\n\u001b[0m \u001b[90m 92 |\u001b[39m \u001b[90m   */\u001b[39m\n \u001b[90m 93 |\u001b[39m   \u001b[36mstatic\u001b[39m \u001b[36masync\u001b[39m waitForStableElement(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 94 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 95 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m100\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Small delay for animations\u001b[39m\n \u001b[90m 96 |\u001b[39m   }\n \u001b[90m 97 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/tests/playwright/utils/helpers.js",
+                            "column": 16,
+                            "line": 94
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#id_username, [name=\"username\"], input[type=\"text\"]') to be visible\u001b[22m\n\n\n   at playwright/utils/helpers.js:94\n\n  92 |    */\n  93 |   static async waitForStableElement(page, selector, timeout = 5000) {\n> 94 |     await page.waitForSelector(selector, { state: 'visible', timeout });\n     |                ^\n  95 |     await page.waitForTimeout(100); // Small delay for animations\n  96 |   }\n  97 |\n    at Function.waitForStableElement (/tests/playwright/utils/helpers.js:94:16)\n    at LoginPage.waitForElement (/tests/playwright/pages/base-page.js:85:23)\n    at LoginPage.login (/tests/playwright/pages/login-page.js:63:16)\n    at /tests/playwright/tests/auth/login.spec.js:48:7"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "✅ [2025-06-15T15:45:27.676Z] Authentication data cleared\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:45:27.677Z] Attempting login with username: admin\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:45:27.677Z] Navigating to identity: https://identity.vfservices.viloforge.com\n"
+                        },
+                        {
+                          "text": "✅ [2025-06-15T15:45:38.933Z] Authentication data cleared\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 2,
+                      "startTime": "2025-06-15T15:45:27.592Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry2/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry2/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/test-results/dev_20250615_184444/artifacts/playwright-tests-auth-logi-8744c-edentials-auth-critical-dev-chromium-retry2/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/tests/playwright/utils/helpers.js",
+                        "column": 16,
+                        "line": 94
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b5de489503d1ab33fcbf-5890ecde2ecbb8d504f4",
+              "file": "playwright/tests/auth/login.spec.js",
+              "line": 44,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-06-15T15:44:55.784Z",
+    "duration": 43045.092000000004,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

@@ -66,6 +66,13 @@ help:
 	@echo "  test-ui                 UI tests only"
 	@echo "  test-chrome             Single browser tests (Chrome)"
 	@echo ""
+	@echo "=== Specific Test Execution ==="
+	@echo "  test-file FILE=path     Run specific test file"
+	@echo "  test-dir DIR=auth       Run all tests in directory"
+	@echo "  test-grep PATTERN=text  Run tests matching pattern"
+	@echo "  test-specific FILE= TEST=  Run specific test by name"
+	@echo "  test-ls                 List available tests and directories"
+	@echo ""
 	@echo "=== Enhanced Docker Testing ==="
 	@echo "  test-docker-enhanced    Full test run with analysis (recommended)"
 	@echo "  test-docker-headed      Visual debugging with browser UI"
@@ -664,6 +671,108 @@ test-chrome:
 		-e TEST_RUN_ID=$$TEST_RUN_ID \
 		-e BASE_DOMAIN=$(BASE_DOMAIN) \
 		playwright-runner npm run test:chrome
+
+# =============================================================================
+# SPECIFIC TEST EXECUTION
+# =============================================================================
+
+# Run specific test file
+# Usage: make test-file FILE=auth/login.spec.js
+test-file:
+	@if [ -z "$(FILE)" ]; then \
+		echo "❌ Error: FILE parameter required"; \
+		echo "Usage: make test-file FILE=auth/login.spec.js"; \
+		echo "Available test files:"; \
+		find tests/playwright/tests -name "*.spec.js" | sed 's|tests/playwright/tests/||' | sort; \
+		exit 1; \
+	fi
+	@echo "🎯 Running specific test file: $(FILE)"
+	@export TEST_RUN_ID=file_$(shell date +%Y%m%d_%H%M%S) && \
+	mkdir -p test-results/$$TEST_RUN_ID && \
+	docker compose up -d && \
+	sleep 10 && \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
+		-e TEST_RUN_ID=$$TEST_RUN_ID \
+		-e BASE_DOMAIN=$(BASE_DOMAIN) \
+		playwright-runner npm run test:specific -- tests/playwright/tests/$(FILE)
+
+# Run tests matching specific pattern
+# Usage: make test-grep PATTERN="login.*successfully"
+test-grep:
+	@if [ -z "$(PATTERN)" ]; then \
+		echo "❌ Error: PATTERN parameter required"; \
+		echo "Usage: make test-grep PATTERN='login.*successfully'"; \
+		echo "Examples:"; \
+		echo "  make test-grep PATTERN='login'"; \
+		echo "  make test-grep PATTERN='should.*successfully'"; \
+		echo "  make test-grep PATTERN='@smoke.*login'"; \
+		exit 1; \
+	fi
+	@echo "🔍 Running tests matching pattern: $(PATTERN)"
+	@export TEST_RUN_ID=grep_$(shell date +%Y%m%d_%H%M%S) && \
+	mkdir -p test-results/$$TEST_RUN_ID && \
+	docker compose up -d && \
+	sleep 10 && \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
+		-e TEST_RUN_ID=$$TEST_RUN_ID \
+		-e BASE_DOMAIN=$(BASE_DOMAIN) \
+		playwright-runner npm run test:grep -- "$(PATTERN)"
+
+# Run specific test by name and file
+# Usage: make test-specific FILE=auth/login.spec.js TEST="should login successfully"
+test-specific:
+	@if [ -z "$(FILE)" ] || [ -z "$(TEST)" ]; then \
+		echo "❌ Error: Both FILE and TEST parameters required"; \
+		echo "Usage: make test-specific FILE=auth/login.spec.js TEST='should login successfully'"; \
+		echo "Available test files:"; \
+		find tests/playwright/tests -name "*.spec.js" | sed 's|tests/playwright/tests/||' | sort; \
+		exit 1; \
+	fi
+	@echo "🎯 Running specific test: '$(TEST)' in $(FILE)"
+	@export TEST_RUN_ID=specific_$(shell date +%Y%m%d_%H%M%S) && \
+	mkdir -p test-results/$$TEST_RUN_ID && \
+	docker compose up -d && \
+	sleep 10 && \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
+		-e TEST_RUN_ID=$$TEST_RUN_ID \
+		-e BASE_DOMAIN=$(BASE_DOMAIN) \
+		playwright-runner npm run test:specific -- tests/playwright/tests/$(FILE) --grep="$(TEST)"
+
+# Run tests in specific directory
+# Usage: make test-dir DIR=auth
+test-dir:
+	@if [ -z "$(DIR)" ]; then \
+		echo "❌ Error: DIR parameter required"; \
+		echo "Usage: make test-dir DIR=auth"; \
+		echo "Available test directories:"; \
+		find tests/playwright/tests -type d -mindepth 1 | sed 's|tests/playwright/tests/||' | sort; \
+		exit 1; \
+	fi
+	@echo "📁 Running tests in directory: $(DIR)"
+	@export TEST_RUN_ID=dir_$(shell date +%Y%m%d_%H%M%S) && \
+	mkdir -p test-results/$$TEST_RUN_ID && \
+	docker compose up -d && \
+	sleep 10 && \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
+		-e TEST_RUN_ID=$$TEST_RUN_ID \
+		-e BASE_DOMAIN=$(BASE_DOMAIN) \
+		playwright-runner npm run test:specific -- tests/playwright/tests/$(DIR)/
+
+# List available tests
+test-ls:
+	@echo "📋 Available Test Files:"
+	@echo "======================="
+	@find tests/playwright/tests -name "*.spec.js" | sed 's|tests/playwright/tests/||' | sort
+	@echo ""
+	@echo "📁 Available Test Directories:"
+	@echo "=============================="
+	@find tests/playwright/tests -type d -mindepth 1 | sed 's|tests/playwright/tests/||' | sort
+	@echo ""
+	@echo "🏷️ Usage Examples:"
+	@echo "  make test-file FILE=auth/login.spec.js"
+	@echo "  make test-dir DIR=auth"
+	@echo "  make test-grep PATTERN='login'"
+	@echo "  make test-specific FILE=auth/login.spec.js TEST='should login successfully'"
 
 # Quick test run (legacy - now points to test-dev)
 test-quick: test-dev
