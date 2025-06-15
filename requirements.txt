@@ -9,3 +9,4 @@ django-extensions
 psycopg2-binary
 drf-yasg
 coreapi
+django-cors-headers

@@ -46,6 +46,8 @@ services:
     volumes:
       - ./identity-provider:/code/identity-provider 
       - ./common:/code/common
+    ports:
+      - "8100:8000"
     environment:
       - PYTHONPATH=/code
       - DJANGO_ENV=development

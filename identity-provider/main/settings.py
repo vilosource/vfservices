@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-6)0i9dmc%av%+u03d0=1zcbecqw(!1^i=m8*@r+zc=o5h-r6h3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["identity.vfservices.viloforge.com", "localhost", "127.0.1", "[::1]"]
+ALLOWED_HOSTS = ["identity.vfservices.viloforge.com", "localhost", "127.0.0.1", "[::1]", "127.0.0.1:8100"]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://identity.vfservices.viloforge.com',
@@ -44,10 +44,12 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_extensions",
     "drf_yasg",
+    "corsheaders",
     "identity_app",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -174,11 +176,37 @@ SWAGGER_SETTINGS = {
     'DEEP_LINKING': True,
     'SHOW_EXTENSIONS': True,
     'SHOW_COMMON_EXTENSIONS': True,
+    'VALIDATOR_URL': None,  # Disable schema validation to avoid external requests
+    'DEFAULT_HOST': 'identity.vfservices.viloforge.com',
+    'DEFAULT_SCHEMES': ['https', 'http'],  # Support both HTTPS and HTTP
 }
 
 REDOC_SETTINGS = {
     'LAZY_RENDERING': False,
 }
+
+# CORS settings for API documentation
+CORS_ALLOWED_ORIGINS = [
+    "https://identity.vfservices.viloforge.com",
+    "http://identity.vfservices.viloforge.com",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8100",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 # JWT configuration
 JWT_SECRET = os.environ.get("VF_JWT_SECRET", "change-me")
