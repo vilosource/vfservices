@@ -66,6 +66,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "common.jwt_auth.middleware.JWTAuthenticationMiddleware",
+    "webapp.middleware.LoginRequiredMiddleware",  # Redirect unauthenticated users to login
     "webapp.middleware.RequestLoggingMiddleware",  # Custom logging middleware
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",

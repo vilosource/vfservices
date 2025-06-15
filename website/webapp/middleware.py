@@ -8,6 +8,7 @@ import json
 from django.utils.deprecation import MiddlewareMixin
 from django.http import HttpRequest, HttpResponse
 from typing import Callable, Optional
+from django.http import HttpResponseRedirect
 
 logger = logging.getLogger('webapp.middleware')
 
@@ -165,3 +166,57 @@ class RequestLoggingMiddleware(MiddlewareMixin):
                 filtered[key] = value
         
         return filtered
+
+
+class LoginRequiredMiddleware(MiddlewareMixin):
+    """Redirect unauthenticated users to login page."""
+    
+    # URLs that don't require authentication
+    EXEMPT_URLS = [
+        '/accounts/login/',
+        '/accounts/logout/',
+        '/admin/',
+        '/webdev/',  # Development template viewer
+        '/static/',  # Static files
+    ]
+    
+    def process_request(self, request: HttpRequest) -> Optional[HttpResponse]:
+        """Check if user is authenticated, redirect to login if not."""
+        
+        # Skip authentication check for exempt URLs
+        if any(request.path.startswith(url) for url in self.EXEMPT_URLS):
+            return None
+        
+        # Check if user is authenticated
+        if not hasattr(request, 'user') or not request.user.is_authenticated:
+            client_ip = self._get_client_ip(request)
+            
+            logger.info(
+                f"Unauthenticated access to {request.path}, redirecting to login",
+                extra={
+                    'path': request.path,
+                    'method': request.method,
+                    'ip': client_ip,
+                    'user_agent': request.META.get('HTTP_USER_AGENT', 'Unknown'),
+                }
+            )
+            
+            # Build login URL with next parameter
+            from django.urls import reverse
+            
+            login_url = reverse('accounts:login')
+            if request.path != '/':
+                login_url += f'?next={request.path}'
+            
+            return HttpResponseRedirect(login_url)
+        
+        return None
+    
+    def _get_client_ip(self, request: HttpRequest) -> str:
+        """Extract client IP address from request."""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0].strip()
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip or 'Unknown'
