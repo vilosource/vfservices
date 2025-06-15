@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  playwright:
+    build:
+      context: ./tests
+      dockerfile: playwright/docker/Dockerfile.playwright
+    volumes:
+      - ./tests:/tests
+      - ./test-results:/test-results
+    networks:
+      - vfnet
+    environment:
+      - NODE_ENV=test
+      - BASE_URL=https://vfservices.viloforge.com
+      - IDENTITY_URL=https://identity.vfservices.viloforge.com
+      - WEBSITE_URL=https://website.vfservices.viloforge.com
+      - BILLING_URL=https://billing.vfservices.viloforge.com
+      - INVENTORY_URL=https://inventory.vfservices.viloforge.com
+      - PWDEBUG=0
+    depends_on:
+      - traefik
+      - website
+      - identity-provider
+      - billing-api
+      - inventory-api
+    profiles:
+      - testing
+    command: >
+      sh -c "
+        echo 'Waiting for services to be ready...' &&
+        sleep 10 &&
+        npm run test
+      "
+
+networks:
+  vfnet:
+    external: true

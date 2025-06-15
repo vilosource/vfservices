@@ -1,0 +1,164 @@
+name: End-to-End Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  # Use development environment for CI testing
+  TEST_ENV: development
+  BASE_DOMAIN: vfservices.viloforge.com
+  
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+      fail-fast: false
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: tests/package-lock.json
+          
+      - name: Create environment file
+        run: |
+          cp tests/.env.example tests/.env
+          echo "BASE_URL=https://${{ env.BASE_DOMAIN }}" >> tests/.env
+          echo "IDENTITY_URL=https://identity.${{ env.BASE_DOMAIN }}" >> tests/.env
+          echo "WEBSITE_URL=https://website.${{ env.BASE_DOMAIN }}" >> tests/.env
+          echo "BILLING_URL=https://billing.${{ env.BASE_DOMAIN }}" >> tests/.env
+          echo "INVENTORY_URL=https://inventory.${{ env.BASE_DOMAIN }}" >> tests/.env
+          echo "TEST_ENV=development" >> tests/.env
+          
+      - name: Start services
+        run: |
+          # Start the main services
+          docker-compose up -d
+          
+          # Wait for services to be ready
+          echo "Waiting for services to start..."
+          sleep 30
+          
+          # Health check
+          for service in traefik postgres identity-provider website billing-api inventory-api; do
+            echo "Checking $service..."
+            docker-compose ps $service
+          done
+          
+      - name: Wait for services to be healthy
+        run: |
+          echo "Waiting for services to be healthy..."
+          timeout 300 bash -c '
+            until curl -k -s https://${{ env.BASE_DOMAIN }} > /dev/null; do
+              echo "Waiting for website..."
+              sleep 5
+            done
+            until curl -k -s https://identity.${{ env.BASE_DOMAIN }} > /dev/null; do
+              echo "Waiting for identity provider..."
+              sleep 5
+            done
+          '
+          echo "Services are ready!"
+          
+      - name: Install Playwright dependencies
+        working-directory: tests
+        run: |
+          npm ci
+          npx playwright install --with-deps ${{ matrix.browser }}
+          
+      - name: Run Playwright tests
+        working-directory: tests
+        run: |
+          npx playwright test --project=${{ matrix.browser }} --reporter=github
+        env:
+          CI: true
+          PLAYWRIGHT_HTML_REPORTER: false
+          
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: tests/test-results/
+          retention-days: 30
+          
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-artifacts-${{ matrix.browser }}
+          path: |
+            tests/test-results/
+            tests/playwright-report/
+          retention-days: 7
+          
+      - name: Collect service logs on failure
+        if: failure()
+        run: |
+          echo "Collecting service logs..."
+          mkdir -p service-logs
+          docker-compose logs traefik > service-logs/traefik.log 2>&1 || true
+          docker-compose logs identity-provider > service-logs/identity-provider.log 2>&1 || true
+          docker-compose logs website > service-logs/website.log 2>&1 || true
+          docker-compose logs billing-api > service-logs/billing-api.log 2>&1 || true
+          docker-compose logs inventory-api > service-logs/inventory-api.log 2>&1 || true
+          docker-compose logs postgres > service-logs/postgres.log 2>&1 || true
+          
+      - name: Upload service logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: service-logs-${{ matrix.browser }}
+          path: service-logs/
+          retention-days: 7
+          
+      - name: Cleanup
+        if: always()
+        run: |
+          docker-compose down -v
+          docker system prune -f
+          
+  test-summary:
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+    if: always()
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          
+      - name: Generate test summary
+        run: |
+          echo "# E2E Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          for browser in chromium firefox webkit; do
+            echo "## $browser Results" >> $GITHUB_STEP_SUMMARY
+            
+            if [ -d "artifacts/playwright-report-$browser" ]; then
+              echo "✅ Tests completed for $browser" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Tests failed for $browser" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+          done
+          
+          echo "## Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "Test reports and logs are available in the workflow artifacts." >> $GITHUB_STEP_SUMMARY

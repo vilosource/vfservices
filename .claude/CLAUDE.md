@@ -24,7 +24,7 @@ IMPORTANT: Claude must always follow these instructions when interacting with th
   - Run `git log` and `git diff` to understand the latest committed changes.
   - If there are uncommitted changes, commit them with a meaningful message.
 - After completing a task:
-  - Commit changes using a **comprehensive commit message** explaining what was done and why.
+  - git commit changes using a **comprehensive commit message** explaining what was done and why.
 
 ## ✅ Summary
 
