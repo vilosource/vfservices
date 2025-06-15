@@ -4,7 +4,7 @@ CERT_DIR ?= certs/live/$(BASE_DOMAIN)
 CERT_FILE ?= $(CERT_DIR)/fullchain.pem
 KEY_FILE ?= $(CERT_DIR)/privkey.pem
 
-.PHONY: help up dev-cert https-up http-up docker-dev-up docker-dev-down docker-dev-build docker-dev-logs docker-dev-https docker-dev-certbot-renew db-reset db-reset-dev db-shell db-list db-drop-all fresh-start dev-reset dev-fresh dev-backup dev-shell-db dev-logs-db restart-identity restart-website restart-billing restart-inventory dev-status prod-backup prod-restore archive
+.PHONY: help up dev-cert https-up http-up docker-dev-up docker-dev-down docker-dev-build docker-dev-logs docker-dev-https docker-dev-certbot-renew db-reset db-reset-dev db-shell db-list db-drop-all fresh-start dev-reset dev-fresh dev-backup dev-shell-db dev-logs-db restart-identity restart-website restart-billing restart-inventory dev-status prod-backup prod-restore archive test test-setup test-ui test-headed test-debug test-docker test-ci
 
 help:
 	@echo "Available make targets:"
@@ -39,6 +39,15 @@ help:
 	@echo "  restart-website     Restart website service"
 	@echo "  restart-billing     Restart billing-api service"
 	@echo "  restart-inventory   Restart inventory-api service"
+	@echo ""
+	@echo "=== Testing ==="
+	@echo "  test-setup          Install test dependencies and setup environment"
+	@echo "  test                Run all Playwright tests"
+	@echo "  test-ui             Run tests in interactive UI mode"
+	@echo "  test-headed         Run tests in headed mode (visible browser)"
+	@echo "  test-debug          Run tests in debug mode"
+	@echo "  test-docker         Run tests using Docker"
+	@echo "  test-ci             Run tests in CI mode (GitHub Actions compatible)"
 	@echo ""
 	@echo "=== Project Management ==="
 	@echo "  archive             Create a project archive excluding .gitignore files"
@@ -230,5 +239,85 @@ archive:
 	fi; \
 	echo "Archive created: $$PWD/$$ARCHIVE_NAME"; \
 	ls -lh "$$ARCHIVE_NAME"
+
+# Testing targets
+test-setup:
+	@echo "Setting up test environment..."
+	@if [ ! -f tests/.env ]; then \
+		echo "Creating default test environment file..."; \
+		$(MAKE) _create-test-env; \
+	fi
+	@echo "Installing test dependencies..."
+	cd tests && npm install
+	@echo "Installing Playwright browsers..."
+	cd tests && npx playwright install
+	@echo "Test environment setup complete!"
+
+test: test-setup
+	@echo "Running Playwright tests..."
+	@echo "Ensuring services are running..."
+	@docker compose ps traefik >/dev/null 2>&1 || { echo "Starting services..."; docker compose up -d; sleep 10; }
+	cd tests && npm test
+
+test-ui: test-setup
+	@echo "Running Playwright tests in UI mode..."
+	@docker compose ps traefik >/dev/null 2>&1 || { echo "Starting services..."; docker compose up -d; sleep 10; }
+	cd tests && npm run test:ui
+
+test-headed: test-setup
+	@echo "Running Playwright tests in headed mode..."
+	@docker compose ps traefik >/dev/null 2>&1 || { echo "Starting services..."; docker compose up -d; sleep 10; }
+	cd tests && npm run test:headed
+
+test-debug: test-setup
+	@echo "Running Playwright tests in debug mode..."
+	@docker compose ps traefik >/dev/null 2>&1 || { echo "Starting services..."; docker compose up -d; sleep 10; }
+	cd tests && npm run test:debug
+
+test-docker:
+	@echo "Running tests using Docker..."
+	@echo "Starting all services including test runner..."
+	docker compose -f docker-compose.yml -f docker-compose.test.yml up --build playwright
+
+test-ci:
+	@echo "Running tests in CI mode..."
+	@if [ ! -f tests/.env ]; then \
+		echo "Creating CI test environment file..."; \
+		$(MAKE) _create-test-env; \
+	fi
+	cd tests && npm ci
+	cd tests && npx playwright install --with-deps
+	cd tests && CI=true npx playwright test --reporter=github
+
+_create-test-env:
+	@echo "# Auto-generated test environment file" > tests/.env
+	@echo "# Based on docker-compose.yml variables" >> tests/.env
+	@echo "" >> tests/.env
+	@echo "# Environment configuration" >> tests/.env
+	@echo "NODE_ENV=test" >> tests/.env
+	@echo "TEST_ENV=development" >> tests/.env
+	@echo "" >> tests/.env
+	@echo "# Service URLs (using BASE_DOMAIN from docker-compose)" >> tests/.env
+	@echo "BASE_URL=https://$(BASE_DOMAIN)" >> tests/.env
+	@echo "IDENTITY_URL=https://identity.$(BASE_DOMAIN)" >> tests/.env
+	@echo "WEBSITE_URL=https://website.$(BASE_DOMAIN)" >> tests/.env
+	@echo "BILLING_URL=https://billing.$(BASE_DOMAIN)" >> tests/.env
+	@echo "INVENTORY_URL=https://inventory.$(BASE_DOMAIN)" >> tests/.env
+	@echo "" >> tests/.env
+	@echo "# Playwright configuration" >> tests/.env
+	@echo "PWDEBUG=0" >> tests/.env
+	@echo "PLAYWRIGHT_BROWSERS_PATH=/ms-playwright" >> tests/.env
+	@echo "" >> tests/.env
+	@echo "# Test credentials (from docker-compose defaults)" >> tests/.env
+	@echo "TEST_ADMIN_USERNAME=admin" >> tests/.env
+	@echo "TEST_ADMIN_PASSWORD=admin123" >> tests/.env
+	@echo "TEST_USER_USERNAME=testuser" >> tests/.env
+	@echo "TEST_USER_PASSWORD=testpass123" >> tests/.env
+	@echo "" >> tests/.env
+	@echo "# Database configuration (for API tests)" >> tests/.env
+	@echo "POSTGRES_HOST=postgres" >> tests/.env
+	@echo "POSTGRES_USER=vfuser" >> tests/.env
+	@echo "POSTGRES_PASSWORD=vfpass" >> tests/.env
+	@echo "POSTGRES_DB=vfdb" >> tests/.env
 
 .DEFAULT_GOAL := help

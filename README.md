@@ -11,6 +11,28 @@ with JWT-based SSO across several services. The projects included are:
 Shared JWT authentication utilities live under `common/jwt_auth` and are used by
 each project via middleware.
 
+## Testing
+
+This project includes comprehensive end-to-end testing using Playwright. Tests cover all services through the Traefik reverse proxy setup.
+
+### Quick Test Commands
+
+```bash
+# Setup and run all tests
+make test
+
+# Interactive test development
+make test-ui
+
+# Visual debugging
+make test-headed
+
+# Docker-based testing
+make test-docker
+```
+
+See the [Testing Documentation](tests/README.md) for detailed information.
+
 ## Running Locally
 
 Create a Python virtual environment, install the dependencies from

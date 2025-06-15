@@ -8,9 +8,39 @@ This directory contains end-to-end tests for the VF Services application using P
 
 - Docker and Docker Compose
 - Node.js 18+ (for local development)
-- All VF Services running via docker-compose
+- Make (for using Makefile targets)
 
-### Running Tests Locally
+### Running Tests with Make (Recommended)
+
+The easiest way to run tests is using the provided Makefile targets:
+
+```bash
+# Setup test environment and run all tests
+make test
+
+# Interactive UI mode
+make test-ui
+
+# Headed mode (visible browser)
+make test-headed
+
+# Debug mode
+make test-debug
+
+# Docker-based testing
+make test-docker
+
+# CI mode (like GitHub Actions)
+make test-ci
+```
+
+The `make test-setup` command will automatically:
+- Create a `.env` file based on your docker-compose.yml configuration
+- Install Node.js dependencies
+- Install Playwright browsers
+- Ensure services are running
+
+### Manual Setup (Alternative)
 
 1. **Start the services:**
    ```bash
@@ -27,6 +57,10 @@ This directory contains end-to-end tests for the VF Services application using P
 
 3. **Configure environment:**
    ```bash
+   # Auto-generate based on docker-compose.yml
+   make _create-test-env
+   
+   # Or manually copy and edit
    cp .env.example .env
    # Edit .env with your local configuration
    ```
@@ -46,12 +80,17 @@ This directory contains end-to-end tests for the VF Services application using P
    npm run test:headed
    ```
 
-### Running Tests with Docker
+### Available Make Targets
 
-```bash
-# From project root
-docker-compose -f docker-compose.yml -f docker-compose.test.yml up --build playwright
-```
+| Target | Description |
+|--------|-------------|
+| `make test-setup` | Install dependencies and setup environment |
+| `make test` | Run all tests (includes setup) |
+| `make test-ui` | Interactive UI mode for debugging |
+| `make test-headed` | Run tests with visible browser |
+| `make test-debug` | Debug mode with DevTools |
+| `make test-docker` | Run tests in Docker container |
+| `make test-ci` | CI mode for GitHub Actions |
 
 ## Test Structure
 
