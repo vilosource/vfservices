@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
-from .logging_utils import log_view_access, webapp_logger
+from .logging_utils import log_view_access, webapp_logger, get_client_ip
 
 # Get logger for this module
 logger = logging.getLogger(__name__)
@@ -11,14 +11,51 @@ logger = logging.getLogger(__name__)
 @log_view_access('home_page')
 def home(request: HttpRequest) -> HttpResponse:
     """Render the demo home page."""
+    logger.debug(
+        "Home page view started",
+        extra={
+            'user': str(request.user) if request.user.is_authenticated else 'Anonymous',
+            'ip': get_client_ip(request),
+            'method': request.method,
+            'path': request.path,
+            'user_agent': request.META.get('HTTP_USER_AGENT', 'Unknown'),
+        }
+    )
+    
     try:
         webapp_logger.info(
             "Home page accessed",
             user=str(request.user) if request.user.is_authenticated else 'Anonymous',
+            ip=get_client_ip(request),
+            session_key=request.session.session_key or "No session",
         )
-        return render(request, "webapp/index.html")
+        
+        logger.info("Rendering home page template")
+        response = render(request, "webapp/index.html")
+        
+        logger.debug(
+            "Home page rendered successfully",
+            extra={
+                'status_code': 200,
+                'template': 'webapp/index.html',
+                'user': str(request.user) if request.user.is_authenticated else 'Anonymous',
+            }
+        )
+        
+        return response
+        
     except Exception as e:
         webapp_logger.error(f"Failed to render home page: {str(e)}", exc_info=True)
+        logger.error(
+            f"Home page rendering failed: {str(e)}",
+            extra={
+                'template': 'webapp/index.html',
+                'error_type': type(e).__name__,
+                'user': str(request.user) if request.user.is_authenticated else 'Anonymous',
+                'ip': get_client_ip(request),
+            },
+            exc_info=True
+        )
         raise
 
 @login_required
@@ -27,17 +64,32 @@ def private(request: HttpRequest) -> HttpResponse:
     """Simplified request inspector for JWT middleware analysis."""
     
     logger.debug(
-        "Private page accessed by JWT user",
+        "Private page view started - JWT user authenticated",
         extra={
             'user': str(request.user) if request.user.is_authenticated else 'Anonymous',
-            'ip': _get_client_ip(request),
+            'ip': get_client_ip(request),
             'method': request.method,
             'path': request.path,
+            'user_agent': request.META.get('HTTP_USER_AGENT', 'Unknown'),
+            'auth_backend': getattr(request.user, 'backend', 'Unknown'),
         }
     )   
 
     try:
         access_time = timezone.now()
+        
+        logger.info(
+            f"Private page accessed by JWT user: {getattr(request.user, 'username', 'Unknown')}",
+            extra={
+                'user_id': getattr(request.user, 'id', 'No ID (JWT User)'),
+                'username': getattr(request.user, 'username', 'Unknown'),
+                'email': getattr(request.user, 'email', 'Unknown'),
+                'is_staff': getattr(request.user, 'is_staff', False),
+                'is_superuser': getattr(request.user, 'is_superuser', False),
+                'backend': getattr(request.user, 'backend', 'Unknown'),
+                'access_time': access_time.isoformat(),
+            }
+        )
         
         # Safely extract user details from JWT middleware (no DB access)
         user_details = {
@@ -82,7 +134,7 @@ def private(request: HttpRequest) -> HttpResponse:
                 http_headers[header] = request.META[header]
         
         # Get client IP
-        client_ip = _get_client_ip(request)
+        client_ip = get_client_ip(request)
         
         context = {
             "access_time": access_time,
@@ -101,12 +153,14 @@ def private(request: HttpRequest) -> HttpResponse:
         
     except Exception as e:
         webapp_logger.error(f"Failed to render private page: {str(e)}", exc_info=True)
+        logger.error(
+            f"Private page rendering failed: {str(e)}",
+            extra={
+                'template': 'webapp/private.html',
+                'error_type': type(e).__name__,
+                'user': str(request.user) if request.user.is_authenticated else 'Anonymous',
+                'ip': get_client_ip(request),
+            },
+            exc_info=True
+        )
         raise
-
-
-def _get_client_ip(request: HttpRequest) -> str:
-    """Get the client IP address from request."""
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        return x_forwarded_for.split(',')[0].strip()
-    return request.META.get('REMOTE_ADDR', 'Unknown')

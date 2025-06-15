@@ -141,3 +141,172 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 JWT_SECRET = os.environ.get("VF_JWT_SECRET", "change-me")
 SSO_COOKIE_DOMAIN = os.environ.get("SSO_COOKIE_DOMAIN", "localhost")
 DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL", "/")
+
+# Logging configuration
+LOG_BASE_DIR = os.environ.get("LOG_BASE_DIR", "/tmp")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {name} {module} {funcName} {lineno} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {asctime} {name} {message}",
+            "style": "{",
+        },
+        "detailed": {
+            "format": "[{asctime}] {levelname} {name} - {module}.{funcName}:{lineno} - {message}",
+            "style": "{",
+        },
+        "security": {
+            "format": "[{asctime}] {levelname} IDENTITY-PROVIDER SECURITY - {name} - {message}",
+            "style": "{",
+        },
+    },
+    "filters": {
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
+        },
+        "require_debug_false": {
+            "()": "django.utils.log.RequireDebugFalse",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "detailed",
+        },
+        "file": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_BASE_DIR, "identity_provider.log"),
+            "formatter": "verbose",
+            "maxBytes": 10485760,  # 10MB
+            "backupCount": 5,
+        },
+        "debug_console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "detailed",
+            "filters": ["require_debug_true"],
+        },
+        "debug_file": {
+            "level": "DEBUG",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_BASE_DIR, "identity_provider_debug.log"),
+            "formatter": "verbose",
+            "filters": ["require_debug_true"],
+            "maxBytes": 10485760,  # 10MB
+            "backupCount": 3,
+        },
+        "error_file": {
+            "level": "ERROR",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_BASE_DIR, "identity_provider_errors.log"),
+            "formatter": "verbose",
+            "maxBytes": 5242880,  # 5MB
+            "backupCount": 10,
+        },
+        "security_file": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler", 
+            "filename": os.path.join(LOG_BASE_DIR, "identity_provider_security.log"),
+            "formatter": "security",
+            "maxBytes": 10485760,  # 10MB
+            "backupCount": 10,
+        },
+        "auth_file": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_BASE_DIR, "identity_provider_auth.log"),
+            "formatter": "verbose",
+            "maxBytes": 10485760,  # 10MB
+            "backupCount": 5,
+        },
+    },
+    "root": {
+        "handlers": ["console", "file"],
+        "level": "INFO",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console", "error_file"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "django.security": {
+            "handlers": ["console", "error_file", "security_file"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["debug_console", "debug_file"],
+            "level": "DEBUG" if DEBUG else "WARNING",
+            "propagate": False,
+        },
+        # Main project loggers
+        "main": {
+            "handlers": ["console", "file", "debug_console", "debug_file"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
+        },
+        # Identity app loggers
+        "identity_app": {
+            "handlers": ["console", "file", "debug_console", "debug_file", "auth_file"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
+        },
+        "identity_app.views": {
+            "handlers": ["console", "file", "debug_console", "debug_file", "auth_file"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
+        },
+        "identity_app.models": {
+            "handlers": ["console", "file", "debug_console", "debug_file"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
+        },
+        # JWT Auth logger
+        "common.jwt_auth": {
+            "handlers": ["console", "file", "security_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        # Authentication and security loggers  
+        "identity_app.auth": {
+            "handlers": ["console", "file", "auth_file", "security_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "identity_app.security": {
+            "handlers": ["console", "file", "error_file", "security_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "identity_app.login": {
+            "handlers": ["console", "file", "auth_file", "security_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "identity_app.logout": {
+            "handlers": ["console", "file", "auth_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        # REST Framework logging
+        "rest_framework": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}

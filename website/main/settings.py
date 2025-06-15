@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_extensions",
     "webapp",
+    "accounts",
 ]
 
 MIDDLEWARE = [
@@ -140,20 +141,26 @@ SSO_COOKIE_DOMAIN = os.environ.get("SSO_COOKIE_DOMAIN", "localhost")
 DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL", "/")
 
 # Logging configuration
+LOG_BASE_DIR = os.environ.get("LOG_BASE_DIR", "/tmp")
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "format": "{levelname} {asctime} {name} {module} {funcName} {lineno} {process:d} {thread:d} {message}",
             "style": "{",
         },
         "simple": {
-            "format": "{levelname} {message}",
+            "format": "{levelname} {asctime} {name} {message}",
             "style": "{",
         },
         "json": {
-            "format": "{levelname} {asctime} {module} {message}",
+            "format": "{levelname} {asctime} {name} {module} {funcName} {message}",
+            "style": "{",
+        },
+        "detailed": {
+            "format": "[{asctime}] {levelname} {name} - {module}.{funcName}:{lineno} - {message}",
             "style": "{",
         },
     },
@@ -169,25 +176,54 @@ LOGGING = {
         "console": {
             "level": "INFO",
             "class": "logging.StreamHandler",
-            "formatter": "verbose",
+            "formatter": "detailed",
         },
         "file": {
             "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": "/tmp/website.log",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_BASE_DIR, "website.log"),
             "formatter": "verbose",
+            "maxBytes": 10485760,  # 10MB
+            "backupCount": 5,
         },
         "debug_console": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
+            "formatter": "detailed",
+            "filters": ["require_debug_true"],
+        },
+        "debug_file": {
+            "level": "DEBUG",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_BASE_DIR, "website_debug.log"),
             "formatter": "verbose",
             "filters": ["require_debug_true"],
+            "maxBytes": 10485760,  # 10MB
+            "backupCount": 3,
         },
         "error_file": {
             "level": "ERROR",
-            "class": "logging.FileHandler",
-            "filename": "/tmp/website_errors.log",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_BASE_DIR, "website_errors.log"),
             "formatter": "verbose",
+            "maxBytes": 5242880,  # 5MB
+            "backupCount": 10,
+        },
+        "performance_file": {
+            "level": "DEBUG",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_BASE_DIR, "website_performance.log"),
+            "formatter": "json",
+            "maxBytes": 10485760,  # 10MB
+            "backupCount": 5,
+        },
+        "security_file": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler", 
+            "filename": os.path.join(LOG_BASE_DIR, "website_security.log"),
+            "formatter": "verbose",
+            "maxBytes": 5242880,  # 5MB
+            "backupCount": 10,
         },
     },
     "root": {
@@ -202,31 +238,66 @@ LOGGING = {
         },
         "django.request": {
             "handlers": ["console", "error_file"],
-            "level": "ERROR",
-            "propagate": False,
-        },
-        "django.security": {
-            "handlers": ["console", "error_file"],
             "level": "WARNING",
             "propagate": False,
         },
-        "webapp": {
-            "handlers": ["console", "file", "debug_console"],
+        "django.security": {
+            "handlers": ["console", "error_file", "security_file"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["debug_console", "debug_file"],
+            "level": "DEBUG" if DEBUG else "WARNING",
+            "propagate": False,
+        },
+        # Main project loggers
+        "main": {
+            "handlers": ["console", "file", "debug_console", "debug_file"],
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": False,
         },
+        "main.views": {
+            "handlers": ["console", "file", "debug_console", "debug_file"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
+        },
+        # Webapp loggers
+        "webapp": {
+            "handlers": ["console", "file", "debug_console", "debug_file"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
+        },
+        "webapp.views": {
+            "handlers": ["console", "file", "debug_console", "debug_file"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
+        },
+        # Accounts loggers
+        "accounts": {
+            "handlers": ["console", "file", "debug_console", "debug_file"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
+        },
+        "accounts.views": {
+            "handlers": ["console", "file", "debug_console", "debug_file"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
+        },
+        # JWT Auth logger
         "common.jwt_auth": {
-            "handlers": ["console", "file"],
+            "handlers": ["console", "file", "security_file"],
             "level": "INFO",
             "propagate": False,
         },
+        # Specialized loggers
         "webapp.security": {
-            "handlers": ["console", "file", "error_file"],
+            "handlers": ["console", "file", "error_file", "security_file"],
             "level": "INFO",
             "propagate": False,
         },
         "webapp.performance": {
-            "handlers": ["console", "file"],
+            "handlers": ["console", "performance_file", "debug_console"],
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": False,
         },
@@ -236,8 +307,8 @@ LOGGING = {
             "propagate": False,
         },
         "webapp.middleware": {
-            "handlers": ["console", "file"],
-            "level": "INFO",
+            "handlers": ["console", "file", "debug_file"],
+            "level": "DEBUG" if DEBUG else "INFO",
             "propagate": False,
         },
     },
