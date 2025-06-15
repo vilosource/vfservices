@@ -2,6 +2,8 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.messages import get_messages
 from django.core.cache import cache
+from django.contrib.auth.models import User
+from django.conf import settings
 from unittest.mock import patch, Mock
 import json
 import requests
@@ -254,3 +256,314 @@ class IntegrationTest(TestCase):
         
         # Should be redirected or show CSRF error
         self.assertContains(response, "CSRF" or "Forbidden", status_code=403)
+
+
+class ProfileViewTest(TestCase):
+    """Test the profile view functionality."""
+    
+    def setUp(self):
+        self.client = Client()
+        self.profile_url = reverse('accounts:profile')
+        # Create a test user
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
+        
+    def test_profile_requires_login(self):
+        """Test that profile page requires authentication."""
+        response = self.client.get(self.profile_url)
+        
+        # Should redirect to login page
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/accounts/login/', response.url)
+        self.assertIn('next=/accounts/profile/', response.url)
+        
+    def test_profile_with_authenticated_user(self):
+        """Test profile page loads for authenticated user."""
+        # Mock JWT authentication middleware to set request.user
+        with patch('common.jwt_auth.middleware.JWTAuthenticationMiddleware') as mock_middleware:
+            # Simulate authenticated user
+            self.client.force_login(self.user)
+            
+            response = self.client.get(self.profile_url)
+            
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "User Profile")
+            self.assertContains(response, "Profile Information")
+            self.assertContains(response, "identity-api-client.js")
+            
+    def test_profile_page_contains_required_elements(self):
+        """Test profile page contains all required HTML elements."""
+        self.client.force_login(self.user)
+        
+        response = self.client.get(self.profile_url)
+        
+        # Check for essential page elements
+        self.assertContains(response, 'id="profile-content"')
+        self.assertContains(response, 'id="profile-loading"')
+        self.assertContains(response, 'id="profile-error"')
+        self.assertContains(response, 'id="profile-username"')
+        self.assertContains(response, 'id="profile-email"')
+        self.assertContains(response, 'id="refresh-profile-btn"')
+        
+    def test_profile_page_javascript_configuration(self):
+        """Test that JavaScript configuration is properly set."""
+        self.client.force_login(self.user)
+        
+        response = self.client.get(self.profile_url)
+        
+        # Check that identity service URL is passed to JavaScript
+        self.assertContains(response, 'window.IDENTITY_SERVICE_URL')
+        self.assertContains(response, settings.EXTERNAL_SERVICE_URLS['identity'])
+        
+    def test_profile_page_context_data(self):
+        """Test that proper context data is passed to template."""
+        self.client.force_login(self.user)
+        
+        response = self.client.get(self.profile_url)
+        
+        # Check context variables
+        self.assertIn('identity_service_url', response.context)
+        self.assertIn('user', response.context)
+        self.assertEqual(response.context['identity_service_url'], 
+                        settings.EXTERNAL_SERVICE_URLS['identity'])
+        self.assertEqual(response.context['user'], self.user)
+        
+    def test_profile_page_breadcrumb(self):
+        """Test profile page breadcrumb navigation."""
+        self.client.force_login(self.user)
+        
+        response = self.client.get(self.profile_url)
+        
+        self.assertContains(response, 'breadcrumb-item')
+        self.assertContains(response, 'Dashboard')
+        self.assertContains(response, 'Account')
+        self.assertContains(response, 'Profile')
+        
+    def test_profile_page_logout_link(self):
+        """Test profile page contains logout functionality."""
+        self.client.force_login(self.user)
+        
+        response = self.client.get(self.profile_url)
+        
+        logout_url = reverse('accounts:logout')
+        self.assertContains(response, logout_url)
+        self.assertContains(response, 'Logout')
+        
+    def test_profile_page_title(self):
+        """Test profile page has correct title."""
+        self.client.force_login(self.user)
+        
+        response = self.client.get(self.profile_url)
+        
+        self.assertContains(response, '<title>User Profile - VF Services</title>')
+        
+    def test_profile_page_css_styles(self):
+        """Test profile page includes custom CSS styles."""
+        self.client.force_login(self.user)
+        
+        response = self.client.get(self.profile_url)
+        
+        # Check for custom CSS classes
+        self.assertContains(response, 'profile-card')
+        self.assertContains(response, 'profile-info-item')
+        self.assertContains(response, 'profile-label')
+        self.assertContains(response, 'loading-spinner')
+        
+    @patch('accounts.views.logger')
+    def test_profile_view_logging(self, mock_logger):
+        """Test that profile view logs access appropriately."""
+        self.client.force_login(self.user)
+        
+        response = self.client.get(self.profile_url)
+        
+        # Verify logging was called
+        mock_logger.debug.assert_called()
+        mock_logger.info.assert_called()
+        
+    def test_profile_view_handles_exceptions(self):
+        """Test that profile view handles exceptions gracefully."""
+        self.client.force_login(self.user)
+        
+        # Mock settings to cause an exception
+        with patch('accounts.views.settings') as mock_settings:
+            mock_settings.EXTERNAL_SERVICE_URLS = None
+            
+            # This should raise an exception, but view should handle it
+            with self.assertRaises(Exception):
+                response = self.client.get(self.profile_url)
+
+
+class LoginFlowIntegrationTest(TestCase):
+    """Integration tests for the complete login flow and cookie handling."""
+    
+    def setUp(self):
+        self.client = Client()
+        self.login_url = reverse('accounts:login')
+        self.profile_url = reverse('accounts:profile')
+        
+    @patch('accounts.views.IdentityProviderClient')
+    def test_login_sets_both_jwt_cookies(self, mock_client_class):
+        """Test that login sets both httpOnly and JavaScript-accessible cookies."""
+        mock_client = Mock()
+        mock_client.authenticate_user.return_value = {"token": "test-jwt-token-12345"}
+        mock_client_class.return_value = mock_client
+        
+        response = self.client.post(self.login_url, {
+            'email': 'test@example.com',
+            'password': 'password'
+        })
+        
+        self.assertEqual(response.status_code, 302)
+        
+        # Check that both cookies are set
+        self.assertIn('jwt', response.cookies)
+        self.assertIn('jwt_token', response.cookies)
+        
+        # Verify cookie values are the same
+        jwt_cookie = response.cookies['jwt']
+        jwt_token_cookie = response.cookies['jwt_token']
+        self.assertEqual(jwt_cookie.value, jwt_token_cookie.value)
+        self.assertEqual(jwt_cookie.value, "test-jwt-token-12345")
+        
+        # Verify httpOnly settings
+        self.assertTrue(jwt_cookie['httponly'])  # Server-side cookie
+        self.assertFalse(jwt_token_cookie['httponly'])  # JavaScript-accessible cookie
+        
+    @patch('accounts.views.IdentityProviderClient')
+    def test_remember_me_affects_both_cookies(self, mock_client_class):
+        """Test that remember me affects both cookie max-age settings."""
+        mock_client = Mock()
+        mock_client.authenticate_user.return_value = {"token": "test-jwt-token-12345"}
+        mock_client_class.return_value = mock_client
+        
+        response = self.client.post(self.login_url, {
+            'email': 'test@example.com',
+            'password': 'password',
+            'remember': 'on'
+        })
+        
+        jwt_cookie = response.cookies['jwt']
+        jwt_token_cookie = response.cookies['jwt_token']
+        
+        # Both cookies should have 24-hour max-age
+        self.assertEqual(jwt_cookie['max-age'], 86400)
+        self.assertEqual(jwt_token_cookie['max-age'], 86400)
+        
+    def test_logout_clears_both_cookies(self):
+        """Test that logout clears both JWT cookies."""
+        # First set cookies to simulate logged in state
+        self.client.cookies['jwt'] = 'test-token'
+        self.client.cookies['jwt_token'] = 'test-token'
+        
+        response = self.client.post(reverse('accounts:logout'))
+        
+        # Check that both cookies are deleted
+        self.assertIn('jwt', response.cookies)
+        self.assertIn('jwt_token', response.cookies)
+        
+        # Verify cookies are cleared (empty value)
+        self.assertEqual(response.cookies['jwt'].value, '')
+        self.assertEqual(response.cookies['jwt_token'].value, '')
+        
+    @patch('accounts.views.IdentityProviderClient')
+    def test_profile_access_without_javascript_accessible_token(self, mock_client_class):
+        """Test profile page behavior when only httpOnly cookie is present."""
+        # This test simulates the original bug condition
+        mock_client = Mock()
+        mock_client.authenticate_user.return_value = {"token": "test-jwt-token-12345"}
+        mock_client_class.return_value = mock_client
+        
+        # Login to set cookies
+        login_response = self.client.post(self.login_url, {
+            'email': 'test@example.com',
+            'password': 'password'
+        })
+        
+        # Now test profile page access
+        response = self.client.get(self.profile_url)
+        
+        # Page should load (server-side authentication works)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "User Profile")
+        
+        # Check that JavaScript configuration is present
+        self.assertContains(response, 'window.IDENTITY_SERVICE_URL')
+        self.assertContains(response, 'identity-api-client.js')
+
+
+class ProfilePageIntegrationTest(TestCase):
+    """Integration tests for the profile page with JWT authentication."""
+    
+    def setUp(self):
+        self.client = Client()
+        self.profile_url = reverse('accounts:profile')
+        self.user = User.objects.create_user(
+            username='integrationuser',
+            email='integration@example.com',
+            password='integrationpass123'
+        )
+        
+    def test_complete_profile_workflow(self):
+        """Test the complete workflow from login to profile access."""
+        # First, simulate login
+        self.client.force_login(self.user)
+        
+        # Set a JWT cookie to simulate successful authentication
+        jwt_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20ifQ.test"
+        self.client.cookies['jwt'] = jwt_token
+        
+        # Access profile page
+        response = self.client.get(self.profile_url)
+        
+        # Verify successful access
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "User Profile")
+        
+        # Verify JWT token is available to JavaScript
+        self.assertContains(response, 'window.IDENTITY_SERVICE_URL')
+        
+    def test_profile_page_security_headers(self):
+        """Test that profile page includes proper security headers."""
+        self.client.force_login(self.user)
+        
+        response = self.client.get(self.profile_url)
+        
+        # Check for security-related headers
+        self.assertIn('X-Content-Type-Options', response)
+        self.assertIn('X-Frame-Options', response)
+        
+    def test_profile_page_responsive_elements(self):
+        """Test that profile page includes responsive design elements."""
+        self.client.force_login(self.user)
+        
+        response = self.client.get(self.profile_url)
+        
+        # Check for Bootstrap responsive classes
+        self.assertContains(response, 'col-lg-8')
+        self.assertContains(response, 'col-xl-6')
+        self.assertContains(response, 'd-grid')
+        
+    def test_profile_page_error_handling_elements(self):
+        """Test that profile page includes proper error handling UI."""
+        self.client.force_login(self.user)
+        
+        response = self.client.get(self.profile_url)
+        
+        # Check for error handling elements
+        self.assertContains(response, 'profile-error')
+        self.assertContains(response, 'profile-error-message')
+        self.assertContains(response, 'retry-profile-btn')
+        
+    def test_profile_page_accessibility(self):
+        """Test profile page accessibility features."""
+        self.client.force_login(self.user)
+        
+        response = self.client.get(self.profile_url)
+        
+        # Check for accessibility features
+        self.assertContains(response, 'aria-')  # ARIA attributes
+        self.assertContains(response, 'role=')   # Role attributes
+        self.assertContains(response, 'alt=')    # Alt text for images

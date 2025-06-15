@@ -1,5 +1,27 @@
 {
   "environments": {
+    "local": {
+      "baseUrl": "https://localhost",
+      "services": {
+        "identity": "https://localhost",
+        "website": "https://localhost",
+        "billing": "https://localhost",
+        "inventory": "https://localhost"
+      },
+      "hostHeaders": {
+        "identity": "identity.vfservices.viloforge.com",
+        "website": "website.vfservices.viloforge.com",
+        "billing": "billing.vfservices.viloforge.com",
+        "inventory": "inventory.vfservices.viloforge.com"
+      },
+      "testUsers": {
+        "admin": {
+          "username": "admin",
+          "password": "admin123",
+          "email": "admin@viloforge.com"
+        }
+      }
+    },
     "development": {
       "baseUrl": "https://vfservices.viloforge.com",
       "services": {

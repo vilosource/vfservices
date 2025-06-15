@@ -9,16 +9,24 @@ class ApiClient {
 
   /**
    * Create API request context
+   * @param {string} service - Service name for Host header (optional)
    * @returns {APIRequestContext} Playwright API request context
    */
-  async createContext() {
+  async createContext(service = null) {
+    const headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    // Add Host header for local testing if hostHeaders are configured
+    if (this.env.hostHeaders && service && this.env.hostHeaders[service]) {
+      headers['Host'] = this.env.hostHeaders[service];
+    }
+
     return await request.newContext({
       baseURL: this.env.baseUrl,
       ignoreHTTPSErrors: true,
-      extraHTTPHeaders: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
+      extraHTTPHeaders: headers
     });
   }
 
@@ -29,10 +37,10 @@ class ApiClient {
    * @returns {string} JWT token
    */
   async authenticate(username, password) {
-    const context = await this.createContext();
+    const context = await this.createContext('identity');
     
     try {
-      const response = await context.post(`${this.env.services.identity}/api/auth/login/`, {
+      const response = await context.post(`${this.env.services.identity}/api/login/`, {
         data: {
           username,
           password
@@ -45,6 +53,95 @@ class ApiClient {
 
       const data = await response.json();
       return data.token || data.access_token;
+    } finally {
+      await context.dispose();
+    }
+  }
+
+  /**
+   * Get user profile information
+   * @param {string} token - JWT token
+   * @returns {Object} User profile data
+   */
+  async getProfile(token) {
+    const context = await this.createContext('identity');
+    
+    try {
+      const response = await context.get(`${this.env.services.identity}/api/profile/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok()) {
+        throw new Error(`Profile request failed: ${response.status()}`);
+      }
+
+      return await response.json();
+    } finally {
+      await context.dispose();
+    }
+  }
+
+  /**
+   * Test profile endpoint with various authentication scenarios
+   * @param {string} token - JWT token (can be invalid/null for negative tests)
+   * @param {boolean} useCookie - Whether to use cookie instead of Authorization header
+   * @returns {Object} Response data and status
+   */
+  async testProfileEndpoint(token = null, useCookie = false) {
+    const context = await this.createContext('identity');
+    
+    try {
+      const options = {};
+      
+      if (token) {
+        if (useCookie) {
+          options.headers = {
+            'Cookie': `jwt=${token}`
+          };
+        } else {
+          options.headers = {
+            'Authorization': `Bearer ${token}`
+          };
+        }
+      }
+
+      const response = await context.get(`${this.env.services.identity}/api/profile/`, options);
+      
+      let data = null;
+      try {
+        data = await response.json();
+      } catch (e) {
+        // Response might not be JSON for some error cases
+        data = await response.text();
+      }
+
+      return {
+        status: response.status(),
+        ok: response.ok(),
+        data: data
+      };
+    } finally {
+      await context.dispose();
+    }
+  }
+
+  /**
+   * Get API information from identity service
+   * @returns {Object} API information
+   */
+  async getApiInfo() {
+    const context = await this.createContext('identity');
+    
+    try {
+      const response = await context.get(`${this.env.services.identity}/api/`);
+      
+      if (!response.ok()) {
+        throw new Error(`API info request failed: ${response.status()}`);
+      }
+
+      return await response.json();
     } finally {
       await context.dispose();
     }

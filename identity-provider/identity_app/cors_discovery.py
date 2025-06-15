@@ -210,6 +210,17 @@ class TraefikIntegratedCORS:
                 sanitized_services.append(validated)
         self.services = sanitized_services
         
+        # Add the main base domain (for main website access)
+        if self.environment == 'production':
+            # Production: HTTPS only
+            self.origins.append(f"https://{self.base_domain}")
+        else:
+            # Staging/Development: HTTP and HTTPS
+            self.origins.extend([
+                f"https://{self.base_domain}",
+                f"http://{self.base_domain}"
+            ])
+        
         # Base patterns for discovered services
         for service in self.services:
             service_domain = f"{service}.{self.base_domain}"

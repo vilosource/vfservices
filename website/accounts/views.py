@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
+from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from webapp.logging_utils import log_view_access, get_client_ip
 from .identity_client import IdentityProviderClient
@@ -136,6 +137,17 @@ def login_view(request: HttpRequest) -> HttpResponse:
             max_age=cookie_max_age
         )
         
+        # Set a separate cookie for JavaScript access (for API calls)
+        response.set_cookie(
+            'jwt_token',
+            result['token'],
+            domain=settings.SSO_COOKIE_DOMAIN,
+            httponly=False,  # JavaScript accessible
+            secure=not settings.DEBUG,
+            samesite='Lax',
+            max_age=cookie_max_age
+        )
+        
         messages.success(request, "Login successful")
         return response
 
@@ -160,11 +172,14 @@ def logout_view(request: HttpRequest) -> HttpResponse:
         # Clear JWT cookie for multiple domain variations to ensure logout works
         response.delete_cookie('jwt', domain=settings.SSO_COOKIE_DOMAIN)
         response.delete_cookie('jwt')  # Clear without domain specification
+        response.delete_cookie('jwt_token', domain=settings.SSO_COOKIE_DOMAIN)
+        response.delete_cookie('jwt_token')  # Clear without domain specification
         
         # Also clear for the current domain if different
         current_domain = request.get_host().split(':')[0]  # Remove port if present
         if current_domain != settings.SSO_COOKIE_DOMAIN.lstrip('.'):
             response.delete_cookie('jwt', domain=f'.{current_domain}')
+            response.delete_cookie('jwt_token', domain=f'.{current_domain}')
         
         logger.debug(
             f"Cleared JWT cookies for domains: {settings.SSO_COOKIE_DOMAIN}, {current_domain}",
@@ -199,3 +214,49 @@ def logout_view(request: HttpRequest) -> HttpResponse:
     )
     
     return render(request, 'accounts/logout.html')
+
+
+@log_view_access('profile_page')
+@login_required
+def profile_view(request: HttpRequest) -> HttpResponse:
+    """Render the user profile page."""
+    
+    logger.debug(
+        "Profile page accessed",
+        extra={
+            'user': str(request.user) if request.user.is_authenticated else 'Anonymous',
+            'ip': get_client_ip(request),
+            'path': request.path,
+            'method': request.method,
+        }
+    )
+    
+    try:
+        # Pass external service URLs to the template for JavaScript API calls
+        context = {
+            'identity_service_url': settings.EXTERNAL_SERVICE_URLS['identity'],
+            'user': request.user,
+        }
+        
+        logger.info(
+            f"Rendering profile page for user: {request.user}",
+            extra={
+                'user': str(request.user),
+                'ip': get_client_ip(request),
+                'template': 'accounts/profile.html',
+            }
+        )
+        
+        return render(request, 'accounts/profile.html', context)
+        
+    except Exception as e:
+        logger.error(
+            f"Failed to render profile page for user {request.user}: {str(e)}",
+            extra={
+                'user': str(request.user),
+                'ip': get_client_ip(request),
+                'error_type': type(e).__name__,
+            },
+            exc_info=True
+        )
+        raise

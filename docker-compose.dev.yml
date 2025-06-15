@@ -48,7 +48,7 @@ services:
       - ./common:/code/common
     ports:
       - "8100:8000"
-    eironment:
+    environment:
       - PYTHONPATH=/code
       - DJANGO_ENV=development
       - DEBUG=True

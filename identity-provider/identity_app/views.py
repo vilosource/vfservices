@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
@@ -611,6 +611,16 @@ class APIInfoView(APIView):
                     "description": "API health check and status",
                     "authentication": "None"
                 },
+                "/api/profile/": {
+                    "method": "GET",
+                    "description": "Get user profile information",
+                    "authentication": "JWT Token Required",
+                    "returns": {
+                        "username": "string",
+                        "email": "string",
+                        "timestamp": "ISO datetime"
+                    }
+                },
                 "/api/docs/": {
                     "method": "GET",
                     "description": "Interactive API documentation (Swagger UI)",
@@ -668,3 +678,74 @@ def api_status(request):
         "version": "1.0.0",
         "timestamp": timezone.now().isoformat()
     })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@swagger_auto_schema(
+    operation_description="Get user profile information",
+    responses={
+        200: openapi.Response(
+            description='User profile information',
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'username': openapi.Schema(type=openapi.TYPE_STRING, description='Username'),
+                    'email': openapi.Schema(type=openapi.TYPE_STRING, description='Email address'),
+                    'timestamp': openapi.Schema(type=openapi.TYPE_STRING, description='Response timestamp')
+                }
+            )
+        ),
+        401: 'Unauthorized - Valid JWT token required'
+    },
+    tags=['User Profile']
+)
+def api_profile(request):
+    """API endpoint to get user profile information."""
+    logger.debug(
+        "API profile endpoint accessed",
+        extra={
+            'user': str(request.user),
+            'ip': get_client_ip(request),
+            'user_agent': request.META.get('HTTP_USER_AGENT', 'Unknown'),
+        }
+    )
+    
+    try:
+        user_profile = {
+            "username": request.user.username,
+            "email": request.user.email,
+            "timestamp": timezone.now().isoformat()
+        }
+        
+        logger.info(
+            f"Profile retrieved for user: {request.user.username}",
+            extra={
+                'username': request.user.username,
+                'ip': get_client_ip(request),
+            }
+        )
+        
+        identity_logger.info(
+            "User profile retrieved successfully",
+            user=request.user.username,
+            client_ip=get_client_ip(request)
+        )
+        
+        return Response(user_profile)
+        
+    except Exception as e:
+        logger.error(
+            f"Failed to retrieve profile for user {request.user.username}: {str(e)}",
+            extra={
+                'username': request.user.username,
+                'error_type': type(e).__name__,
+                'ip': get_client_ip(request),
+            },
+            exc_info=True
+        )
+        
+        return Response(
+            {"detail": "Failed to retrieve profile"}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

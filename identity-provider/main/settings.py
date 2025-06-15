@@ -68,8 +68,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    # JWT middleware removed - identity provider uses session-based auth
-    # Other services will use JWT middleware to validate tokens issued by this service
+    "common.jwt_auth.middleware.JWTAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -198,54 +197,51 @@ REDOC_SETTINGS = {
     'LAZY_RENDERING': False,
 }
 
-# CORS settings - Using Traefik-Integrated CORS Discovery System
-# The CORS discovery system will automatically configure origins based on environment
-# and service discovery. Manual configuration below serves as fallback.
+# CORS settings - Simplified for debugging
+# Temporarily bypassing discovery system to ensure CORS works
 
-# Import and configure CORS discovery system
-try:
-    from identity_app.cors_discovery import configure_cors
-    cors_config = configure_cors()
-    if cors_config:
-        # CORS discovery successful - settings applied automatically
-        pass
-    else:
-        # Discovery failed - using manual fallback configuration
-        raise ImportError("CORS discovery failed")
-except ImportError:
-    # Fallback CORS configuration
-    CORS_ALLOWED_ORIGINS = [
-        "https://identity.vfservices.viloforge.com",
-        "http://identity.vfservices.viloforge.com",
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-        "http://127.0.0.1:8100",
-    ]
-    
-    CORS_ALLOW_CREDENTIALS = True
-    
-    CORS_ALLOWED_HEADERS = [
-        'accept',
-        'accept-encoding',
-        'authorization',
-        'content-type',
-        'dnt',
-        'origin',
-        'user-agent',
-        'x-csrftoken',
-        'x-requested-with',
-    ]
-    
-    CORS_ALLOW_METHODS = [
-        'DELETE',
-        'GET',
-        'OPTIONS',
-        'PATCH',
-        'POST',
-        'PUT',
-    ]
-    
-    CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
+# Simple CORS configuration for development
+CORS_ALLOWED_ORIGINS = [
+    "https://identity.vfservices.viloforge.com",
+    "http://identity.vfservices.viloforge.com", 
+    "https://vfservices.viloforge.com",  # Main website domain
+    "http://vfservices.viloforge.com",   # Main website domain (HTTP)
+    "https://website.vfservices.viloforge.com",  # Website subdomain
+    "http://website.vfservices.viloforge.com",   # Website subdomain (HTTP)
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8100",
+    "https://localhost",  # For local development/testing
+    "http://localhost",   # For local development/testing
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
+
+# Debug: Print CORS configuration for troubleshooting (can be removed in production)
+print(f"DEBUG: CORS_ALLOWED_ORIGINS configured with {len(CORS_ALLOWED_ORIGINS)} origins")
 
 # JWT configuration
 JWT_SECRET = os.environ.get("VF_JWT_SECRET", "change-me")
