@@ -48,6 +48,34 @@ graph TB
 
 ## Test Categories
 
+### 🎯 **CORS & Cross-Domain Testing**
+
+**Critical Addition**: Enhanced CORS testing to catch cross-domain issues that were previously missed.
+
+- **File**: `tests/playwright/tests/cors/cross-domain-api.spec.js`
+- **Purpose**: Test actual browser `fetch()` calls to detect CORS misconfigurations
+- **Why Important**: Playwright API tests bypass CORS; only browser context tests catch CORS issues
+
+**Key CORS Tests**:
+- Cross-domain API requests from website to identity service
+- Console error detection for CORS failures  
+- Network request monitoring for failed cross-domain calls
+- CORS headers validation in browser responses
+
+📖 **See**: [CORS Testing Strategy Documentation](./CORS_TESTING_STRATEGY.md) for detailed explanation.
+
+### 📱 **JavaScript Integration Testing**
+
+**File**: `tests/playwright/tests/website/javascript-api-integration.spec.js`
+
+Tests the actual JavaScript code execution in browser context:
+- Profile page JavaScript API client functionality
+- Error handling and loading states
+- Token management and authentication flows
+- Real browser security policy compliance
+
+## Original Test Categories
+
 ### 1. Authentication Tests
 - **Login/Logout Flows**: Validates basic authentication mechanisms
 - **Single Sign-On (SSO)**: Tests cross-domain authentication
