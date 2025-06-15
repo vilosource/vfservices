@@ -42,11 +42,11 @@ help:
 	@echo ""
 	@echo "=== Testing ==="
 	@echo "  test-setup          Install test dependencies and setup environment"
-	@echo "  test                Run all Playwright tests"
+	@echo "  test                Run all Playwright tests (use test-docker if dependency issues)"
+	@echo "  test-docker         Run tests using Docker (recommended for Linux)"
 	@echo "  test-ui             Run tests in interactive UI mode"
 	@echo "  test-headed         Run tests in headed mode (visible browser)"
 	@echo "  test-debug          Run tests in debug mode"
-	@echo "  test-docker         Run tests using Docker"
 	@echo "  test-ci             Run tests in CI mode (GitHub Actions compatible)"
 	@echo ""
 	@echo "=== Project Management ==="
@@ -256,7 +256,8 @@ test-setup:
 test: test-setup
 	@echo "Running Playwright tests..."
 	@echo "Ensuring services are running..."
-	@docker compose ps traefik >/dev/null 2>&1 || { echo "Starting services..."; docker compose up -d; sleep 10; }
+	@docker compose ps traefik >/dev/null 2>&1 || { echo "Starting services..."; docker compose up -d; sleep 15; }
+	@echo "Note: If you encounter browser dependency issues, use 'make test-docker' for containerized testing"
 	cd tests && npm test
 
 test-ui: test-setup

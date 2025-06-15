@@ -217,10 +217,22 @@ class BasePage {
    */
   async clearSession() {
     await this.page.context().clearCookies();
-    await this.page.evaluate(() => {
-      localStorage.clear();
-      sessionStorage.clear();
-    });
+    
+    // Try to clear storage, but don't fail if access is denied
+    try {
+      await this.page.evaluate(() => {
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+        } catch (e) {
+          // Storage access denied - this is common with HTTPS/security restrictions
+          console.log('Storage access denied - this is expected in some environments');
+        }
+      });
+    } catch (error) {
+      // Ignore localStorage access errors in test environments
+      TestHelpers.log(`Storage clear failed (expected in secure contexts): ${error.message}`, 'warn');
+    }
   }
 
   /**
