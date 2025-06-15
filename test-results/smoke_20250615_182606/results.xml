@@ -1,0 +1,622 @@
+<testsuites id="" name="" tests="5" failures="5" skipped="0" errors="0" time="36.033511">
+<testsuite name="playwright/tests/auth/login.spec.js" timestamp="2025-06-15T15:26:18.777Z" hostname="chromium" tests="1" failures="1" skipped="0" time="4.168" errors="0">
+<testcase name="Authentication Tests › should load login page successfully @smoke @fast @critical" classname="playwright/tests/auth/login.spec.js" time="4.168">
+<failure message="login.spec.js:26:3 should load login page successfully @smoke @fast @critical" type="FAILURE">
+<![CDATA[  [chromium] › playwright/tests/auth/login.spec.js:26:3 › Authentication Tests › should load login page successfully @smoke @fast @critical 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:26:19.223Z] Authentication data cleared
+✅ [2025-06-15T15:26:19.225Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:20.509Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium/error-context.md]]
+✅ [2025-06-15T15:26:21.072Z] Authentication data cleared
+✅ [2025-06-15T15:26:21.073Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:22.396Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/error-context.md]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry1/trace.zip]]
+✅ [2025-06-15T15:26:23.008Z] Authentication data cleared
+✅ [2025-06-15T15:26:23.009Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:24.315Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-chromium-retry2/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="playwright/tests/auth/login.spec.js" timestamp="2025-06-15T15:26:18.777Z" hostname="firefox" tests="1" failures="1" skipped="0" time="5.999" errors="0">
+<testcase name="Authentication Tests › should load login page successfully @smoke @fast @critical" classname="playwright/tests/auth/login.spec.js" time="5.999">
+<failure message="login.spec.js:26:3 should load login page successfully @smoke @fast @critical" type="FAILURE">
+<![CDATA[  [firefox] › playwright/tests/auth/login.spec.js:26:3 › Authentication Tests › should load login page successfully @smoke @fast @critical 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry2/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:26:25.820Z] Authentication data cleared
+✅ [2025-06-15T15:26:25.821Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:27.051Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox/error-context.md]]
+✅ [2025-06-15T15:26:28.944Z] Authentication data cleared
+✅ [2025-06-15T15:26:28.945Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:30.254Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry1/error-context.md]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry1/trace.zip]]
+✅ [2025-06-15T15:26:32.178Z] Authentication data cleared
+✅ [2025-06-15T15:26:32.179Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:33.416Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry2/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-firefox-retry2/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="playwright/tests/auth/login.spec.js" timestamp="2025-06-15T15:26:18.777Z" hostname="webkit" tests="1" failures="1" skipped="0" time="4.812" errors="0">
+<testcase name="Authentication Tests › should load login page successfully @smoke @fast @critical" classname="playwright/tests/auth/login.spec.js" time="4.812">
+<failure message="login.spec.js:26:3 should load login page successfully @smoke @fast @critical" type="FAILURE">
+<![CDATA[  [webkit] › playwright/tests/auth/login.spec.js:26:3 › Authentication Tests › should load login page successfully @smoke @fast @critical 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry2/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:26:34.585Z] Authentication data cleared
+✅ [2025-06-15T15:26:34.586Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:36.050Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit/error-context.md]]
+✅ [2025-06-15T15:26:36.629Z] Authentication data cleared
+✅ [2025-06-15T15:26:36.630Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:38.119Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry1/error-context.md]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry1/trace.zip]]
+✅ [2025-06-15T15:26:38.753Z] Authentication data cleared
+✅ [2025-06-15T15:26:38.754Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:40.180Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry2/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-webkit-retry2/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="playwright/tests/auth/login.spec.js" timestamp="2025-06-15T15:26:18.777Z" hostname="Mobile Chrome" tests="1" failures="1" skipped="0" time="5.679" errors="0">
+<testcase name="Authentication Tests › should load login page successfully @smoke @fast @critical" classname="playwright/tests/auth/login.spec.js" time="5.679">
+<failure message="login.spec.js:26:3 should load login page successfully @smoke @fast @critical" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › playwright/tests/auth/login.spec.js:26:3 › Authentication Tests › should load login page successfully @smoke @fast @critical 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry2/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:26:40.677Z] Authentication data cleared
+✅ [2025-06-15T15:26:40.678Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:42.488Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome/error-context.md]]
+✅ [2025-06-15T15:26:43.007Z] Authentication data cleared
+✅ [2025-06-15T15:26:43.008Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:44.836Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry1/error-context.md]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry1/trace.zip]]
+✅ [2025-06-15T15:26:45.449Z] Authentication data cleared
+✅ [2025-06-15T15:26:45.450Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:47.237Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry2/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Chrome-retry2/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="playwright/tests/auth/login.spec.js" timestamp="2025-06-15T15:26:18.777Z" hostname="Mobile Safari" tests="1" failures="1" skipped="0" time="5.273" errors="0">
+<testcase name="Authentication Tests › should load login page successfully @smoke @fast @critical" classname="playwright/tests/auth/login.spec.js" time="5.273">
+<failure message="login.spec.js:26:3 should load login page successfully @smoke @fast @critical" type="FAILURE">
+<![CDATA[  [Mobile Safari] › playwright/tests/auth/login.spec.js:26:3 › Authentication Tests › should load login page successfully @smoke @fast @critical 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      28 |       await loginPage.goto();
+      29 |       
+    > 30 |       expect(await loginPage.isOnLoginPage()).toBe(true);
+         |                                               ^
+      31 |       expect(await loginPage.isPageLoaded()).toBe(true);
+      32 |       
+      33 |       // Verify login form elements are present
+        at /tests/playwright/tests/auth/login.spec.js:30:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/smoke_20250615_182606/artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry2/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[✅ [2025-06-15T15:26:47.828Z] Authentication data cleared
+✅ [2025-06-15T15:26:47.829Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:49.435Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari/error-context.md]]
+✅ [2025-06-15T15:26:50.003Z] Authentication data cleared
+✅ [2025-06-15T15:26:50.005Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:51.651Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry1/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry1/error-context.md]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry1/trace.zip]]
+✅ [2025-06-15T15:26:52.255Z] Authentication data cleared
+✅ [2025-06-15T15:26:52.256Z] Navigating to identity: https://identity.vfservices.viloforge.com
+✅ [2025-06-15T15:26:53.847Z] Authentication data cleared
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry2/test-failed-1.png]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry2/video.webm]]
+
+[[ATTACHMENT|artifacts/playwright-tests-auth-logi-30f81-ssfully-smoke-fast-critical-Mobile-Safari-retry2/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

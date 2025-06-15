@@ -23,7 +23,7 @@ test.describe('Authentication Tests', () => {
     }
   });
 
-  test('should load login page successfully', async () => {
+  test('should load login page successfully @smoke @fast @critical', async () => {
     try {
       await loginPage.goto();
       
@@ -41,7 +41,7 @@ test.describe('Authentication Tests', () => {
     }
   });
 
-  test('should login successfully with valid admin credentials', async () => {
+  test('should login successfully with valid admin credentials @auth @critical @dev', async () => {
     const testUser = TestHelpers.getTestUser('admin');
     
     try {

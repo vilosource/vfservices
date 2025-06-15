@@ -57,11 +57,19 @@ help:
 	@echo "  test-debug          Run tests in debug mode"
 	@echo "  test-ci             Run tests in CI mode (GitHub Actions compatible)"
 	@echo ""
+	@echo "=== Development Testing (Fast Feedback) ==="
+	@echo "  test-smoke              Quick smoke tests (~30s)"
+	@echo "  test-dev                Development subset (Chrome only, ~2min)"
+	@echo "  test-critical           Critical path tests (~5min)"
+	@echo "  test-auth               Authentication tests only"
+	@echo "  test-api                API tests only (fastest)"
+	@echo "  test-ui                 UI tests only"
+	@echo "  test-chrome             Single browser tests (Chrome)"
+	@echo ""
 	@echo "=== Enhanced Docker Testing ==="
 	@echo "  test-docker-enhanced    Full test run with analysis (recommended)"
 	@echo "  test-docker-headed      Visual debugging with browser UI"
 	@echo "  test-docker-debug       Interactive debug shell"
-	@echo "  test-quick              Quick smoke tests"
 	@echo "  test-ci-docker          CI-optimized testing"
 	@echo "  test-analyze            Analyze specific test run"
 	@echo "  test-web                Start web server for reports"
@@ -280,7 +288,7 @@ test: _legacy-test-setup
 	@echo "Note: If you encounter browser dependency issues, use 'make test-docker-enhanced' for containerized testing"
 	cd tests && npm test
 
-test-ui: _legacy-test-setup
+test-ui-legacy: _legacy-test-setup
 	@echo "Running Playwright tests in UI mode..."
 	@docker compose ps traefik >/dev/null 2>&1 || { echo "Starting services..."; docker compose up -d; sleep 10; }
 	cd tests && npm run test:ui
@@ -569,17 +577,96 @@ test-status:
 	@echo "🌐 Web Server Status:"
 	@docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile web ps 2>/dev/null || echo "❌ Web server not running"
 
-# Quick test run (for development)
-test-quick:
-	@echo "⚡ Running quick test subset..."
-	@export TEST_RUN_ID=quick_$(shell date +%Y%m%d_%H%M%S) && \
+# =============================================================================
+# DEVELOPMENT-OPTIMIZED TESTING
+# =============================================================================
+
+# Quick smoke tests (fastest - ~30 seconds)
+test-smoke:
+	@echo "💨 Running smoke tests (fast development feedback)..."
+	@export TEST_RUN_ID=smoke_$(shell date +%Y%m%d_%H%M%S) && \
+	mkdir -p test-results/$$TEST_RUN_ID && \
+	docker compose up -d && \
+	sleep 10 && \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
+		-e TEST_RUN_ID=$$TEST_RUN_ID \
+		-e BASE_DOMAIN=$(BASE_DOMAIN) \
+		playwright-runner npm run test:smoke
+
+# Fast development tests (Chrome only - ~2 minutes)
+test-dev:
+	@echo "🚀 Running development test subset (Chrome only)..."
+	@export TEST_RUN_ID=dev_$(shell date +%Y%m%d_%H%M%S) && \
+	mkdir -p test-results/$$TEST_RUN_ID && \
+	docker compose up -d && \
+	sleep 10 && \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
+		-e TEST_RUN_ID=$$TEST_RUN_ID \
+		-e BASE_DOMAIN=$(BASE_DOMAIN) \
+		playwright-runner npm run test:dev
+
+# Critical path tests only (~5 minutes)
+test-critical:
+	@echo "🎯 Running critical path tests..."
+	@export TEST_RUN_ID=critical_$(shell date +%Y%m%d_%H%M%S) && \
 	mkdir -p test-results/$$TEST_RUN_ID && \
 	docker compose up -d && \
 	sleep 15 && \
 	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
 		-e TEST_RUN_ID=$$TEST_RUN_ID \
 		-e BASE_DOMAIN=$(BASE_DOMAIN) \
-		playwright-runner npm run test -- --grep="@smoke"
+		playwright-runner npm run test:critical
+
+# Authentication tests only
+test-auth:
+	@echo "🔐 Running authentication tests..."
+	@export TEST_RUN_ID=auth_$(shell date +%Y%m%d_%H%M%S) && \
+	mkdir -p test-results/$$TEST_RUN_ID && \
+	docker compose up -d && \
+	sleep 10 && \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
+		-e TEST_RUN_ID=$$TEST_RUN_ID \
+		-e BASE_DOMAIN=$(BASE_DOMAIN) \
+		playwright-runner npm run test:auth
+
+# API tests only (fast)
+test-api:
+	@echo "🔌 Running API tests..."
+	@export TEST_RUN_ID=api_$(shell date +%Y%m%d_%H%M%S) && \
+	mkdir -p test-results/$$TEST_RUN_ID && \
+	docker compose up -d && \
+	sleep 5 && \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
+		-e TEST_RUN_ID=$$TEST_RUN_ID \
+		-e BASE_DOMAIN=$(BASE_DOMAIN) \
+		playwright-runner npm run test:api
+
+# UI tests only
+test-ui:
+	@echo "🖼️ Running UI tests..."
+	@export TEST_RUN_ID=ui_$(shell date +%Y%m%d_%H%M%S) && \
+	mkdir -p test-results/$$TEST_RUN_ID && \
+	docker compose up -d && \
+	sleep 10 && \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
+		-e TEST_RUN_ID=$$TEST_RUN_ID \
+		-e BASE_DOMAIN=$(BASE_DOMAIN) \
+		playwright-runner npm run test:ui-only
+
+# Single browser tests for development (Chrome only)
+test-chrome:
+	@echo "🔍 Running tests on Chrome only..."
+	@export TEST_RUN_ID=chrome_$(shell date +%Y%m%d_%H%M%S) && \
+	mkdir -p test-results/$$TEST_RUN_ID && \
+	docker compose up -d && \
+	sleep 10 && \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
+		-e TEST_RUN_ID=$$TEST_RUN_ID \
+		-e BASE_DOMAIN=$(BASE_DOMAIN) \
+		playwright-runner npm run test:chrome
+
+# Quick test run (legacy - now points to test-dev)
+test-quick: test-dev
 
 # List available test runs
 test-list:
@@ -603,11 +690,19 @@ test-help:
 	@echo "🧪 Enhanced Docker Testing Commands"
 	@echo "===================================="
 	@echo ""
+	@echo "⚡ Development Testing (Fast Feedback):"
+	@echo "  test-smoke              - Smoke tests (~30s, fastest feedback)"
+	@echo "  test-dev                - Dev subset (Chrome only, ~2min)"
+	@echo "  test-critical           - Critical path (~5min)"
+	@echo "  test-auth               - Authentication tests only"
+	@echo "  test-api                - API tests only (fastest)"
+	@echo "  test-ui                 - UI tests only"
+	@echo "  test-chrome             - Single browser (Chrome)"
+	@echo ""
 	@echo "🚀 Main Testing:"
 	@echo "  test-docker-enhanced    - Full test run with analysis (recommended)"
 	@echo "  test-docker-headed      - Visual debugging with browser UI"
 	@echo "  test-docker-debug       - Interactive debug shell"
-	@echo "  test-quick              - Quick smoke tests"
 	@echo ""
 	@echo "📊 Analysis & Reporting:"
 	@echo "  test-analyze           - Analyze specific test run"
