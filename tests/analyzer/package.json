@@ -1,0 +1,22 @@
+{
+  "name": "vf-test-analyzer",
+  "version": "1.0.0",
+  "description": "Comprehensive test result analyzer for VF Services Playwright tests",
+  "main": "analyze-results.js",
+  "scripts": {
+    "analyze": "node analyze-results.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "testing",
+    "playwright",
+    "analysis",
+    "reporting"
+  ],
+  "author": "VF Services Team",
+  "license": "MIT",
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

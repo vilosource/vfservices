@@ -354,7 +354,7 @@ test-docker-setup:
 	@mkdir -p test-results test-reports analysis-output public-reports
 	@docker network create vfnet 2>/dev/null || true
 	@echo "📦 Building enhanced test containers..."
-	@docker compose -f docker-compose.test.enhanced.yml build --build-arg TEST_TARGET=$(TEST_TARGET)
+	@docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml build --build-arg TEST_TARGET=$(TEST_TARGET)
 	@echo "✅ Test environment setup complete"
 
 # Full enhanced test run with comprehensive result persistence
@@ -373,7 +373,7 @@ test-docker-enhanced: test-docker-setup
 	@docker compose up -d
 	@sleep 20
 	@echo "🧪 Running tests with result persistence..."
-	@docker compose -f docker-compose.test.enhanced.yml --profile testing run --rm \
+	@docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
 		-e TEST_RUN_ID=$(TEST_RUN_ID) \
 		-e TEST_TARGET=$(TEST_TARGET) \
 		-e TEST_MODE=$(TEST_MODE) \
@@ -403,7 +403,7 @@ test-docker-headed: test-docker-setup
 	mkdir -p test-results/$$TEST_RUN_ID && \
 	docker compose up -d && \
 	sleep 20 && \
-	docker compose -f docker-compose.test.enhanced.yml --profile testing run --rm \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
 		-e TEST_RUN_ID=$$TEST_RUN_ID \
 		-e TEST_MODE=headed \
 		-e PWDEBUG=1 \
@@ -422,7 +422,7 @@ test-docker-debug: test-docker-setup
 	@echo "  npm run test:headed         - Run with browser UI"
 	@echo "  npm run test:debug          - Run in debug mode"
 	@echo "  curl -k https://$(BASE_DOMAIN)/api/status/  - Test service"
-	@docker compose -f docker-compose.test.enhanced.yml --profile testing run --rm -it \
+	@docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm -it \
 		-e TEST_MODE=debug \
 		-e BASE_DOMAIN=$(BASE_DOMAIN) \
 		--entrypoint=/bin/bash \
@@ -445,7 +445,7 @@ test-analyze:
 		exit 1; \
 	fi
 	@echo "🔍 Running comprehensive analysis..."
-	@docker compose -f docker-compose.test.enhanced.yml --profile analysis run --rm \
+	@docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile analysis run --rm \
 		-e TEST_RUN_ID=$(TEST_RUN_ID) \
 		test-analyzer
 	@echo "✅ Analysis complete for run: $(TEST_RUN_ID)"
@@ -454,7 +454,7 @@ test-analyze:
 # Generate comprehensive test reports
 test-report:
 	@echo "📋 Generating comprehensive test reports..."
-	@docker compose -f docker-compose.test.enhanced.yml --profile reporting run --rm \
+	@docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile reporting run --rm \
 		-e REPORT_TYPE=comprehensive \
 		report-generator
 	@echo "✅ Comprehensive reports generated"
@@ -467,20 +467,20 @@ test-web:
 	@echo "📁 Direct report access:"
 	@echo "  http://localhost:$(TEST_WEB_PORT)/reports/     - Analysis reports"
 	@echo "  http://localhost:$(TEST_WEB_PORT)/public/      - Public reports"
-	@docker compose -f docker-compose.test.enhanced.yml --profile web up -d test-web-server
+	@docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile web up -d test-web-server
 	@echo "✅ Web server started on port $(TEST_WEB_PORT)"
 
 # Stop web server
 test-web-stop:
 	@echo "🛑 Stopping test results web server..."
-	@docker compose -f docker-compose.test.enhanced.yml --profile web down
+	@docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile web down
 	@echo "✅ Web server stopped"
 
 # Monitor test results in real-time
 test-monitor:
 	@echo "👁️ Starting real-time test monitoring..."
 	@echo "This will watch for changes in test results and trigger analysis"
-	@docker compose -f docker-compose.test.enhanced.yml --profile monitoring up test-monitor
+	@docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile monitoring up test-monitor
 
 # Archive test results for long-term storage
 test-archive:
@@ -503,7 +503,7 @@ test-archive:
 # Clean up test containers and volumes
 test-docker-clean:
 	@echo "🧹 Cleaning up Docker test environment..."
-	@docker compose -f docker-compose.test.enhanced.yml down -v --remove-orphans
+	@docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml down -v --remove-orphans
 	@docker system prune -f --filter label=testing=playwright 2>/dev/null || true
 	@echo "✅ Test environment cleaned"
 
@@ -536,7 +536,7 @@ test-ci-docker: test-docker-setup
 	echo "  CI Mode: enabled" && \
 	docker compose up -d && \
 	sleep 25 && \
-	docker compose -f docker-compose.test.enhanced.yml --profile testing run --rm \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
 		-e TEST_RUN_ID=$$TEST_RUN_ID \
 		-e TEST_TARGET=production \
 		-e CI=true \
@@ -567,7 +567,7 @@ test-status:
 	@ls -la test-reports/ 2>/dev/null | head -5 || echo "❌ No reports found"
 	@echo ""
 	@echo "🌐 Web Server Status:"
-	@docker compose -f docker-compose.test.enhanced.yml --profile web ps 2>/dev/null || echo "❌ Web server not running"
+	@docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile web ps 2>/dev/null || echo "❌ Web server not running"
 
 # Quick test run (for development)
 test-quick:
@@ -576,7 +576,7 @@ test-quick:
 	mkdir -p test-results/$$TEST_RUN_ID && \
 	docker compose up -d && \
 	sleep 15 && \
-	docker compose -f docker-compose.test.enhanced.yml --profile testing run --rm \
+	docker compose -f docker-compose.yml -f docker-compose.test.enhanced.yml --profile testing run --rm \
 		-e TEST_RUN_ID=$$TEST_RUN_ID \
 		-e BASE_DOMAIN=$(BASE_DOMAIN) \
 		playwright-runner npm run test -- --grep="@smoke" --output-dir=/test-results/$$TEST_RUN_ID

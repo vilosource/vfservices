@@ -15,11 +15,11 @@ WORKDIR /analyzer
 # Copy analyzer package files
 COPY analyzer/package*.json ./
 
-# Install Node.js dependencies
-RUN npm ci --only=production
+# Install Node.js dependencies (use npm install since we don't have package-lock.json)
+RUN npm install --only=production
 
-# Install Python analysis libraries
-RUN pip3 install --no-cache-dir \
+# Install Python analysis libraries (with break-system-packages for Alpine)
+RUN pip3 install --break-system-packages --no-cache-dir \
     pandas \
     matplotlib \
     seaborn \
