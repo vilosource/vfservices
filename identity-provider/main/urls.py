@@ -22,6 +22,10 @@ from django.conf.urls.static import static
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
+import os
+
+# Get BASE_DOMAIN from environment
+BASE_DOMAIN = os.environ.get("BASE_DOMAIN", "vfservices.viloforge.com")
 
 # Swagger/OpenAPI schema configuration
 schema_view = get_schema_view(
@@ -29,13 +33,13 @@ schema_view = get_schema_view(
         title="Identity Provider API",
         default_version='v1',
         description="Authentication and JWT token management service for VF Services platform",
-        terms_of_service="https://www.vfservices.viloforge.com/terms/",
+        terms_of_service=f"https://www.{BASE_DOMAIN}/terms/",
         contact=openapi.Contact(email="admin@viloforge.com"),
         license=openapi.License(name="MIT License"),
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
-    url='https://identity.vfservices.viloforge.com/',  # Set the base URL for HTTPS
+    url=f'https://identity.{BASE_DOMAIN}/',  # Set the base URL for HTTPS
     patterns=[
         path("", include("identity_app.urls")),
     ],

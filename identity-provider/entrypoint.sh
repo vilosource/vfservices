@@ -68,6 +68,17 @@ if [ "${DJANGO_ENV:-}" = "development" ]; then
     fi
 fi
 
+# Set up demo users for RBAC-ABAC testing
+echo "Setting up demo users for RBAC-ABAC..."
+python manage.py setup_demo_users --skip-missing-services || echo "Demo users setup completed with warnings or already exist"
+
+# Run delayed setup completion in background if not already running
+if [ ! -f /tmp/delayed_demo_setup.pid ] || ! kill -0 $(cat /tmp/delayed_demo_setup.pid) 2>/dev/null; then
+    echo "Starting delayed demo setup in background..."
+    nohup /code/identity-provider/scripts/delayed_demo_setup.sh > /tmp/delayed_demo_setup.log 2>&1 &
+    echo $! > /tmp/delayed_demo_setup.pid
+fi
+
 # Execute the main command
 echo "Starting Django application..."
 exec "$@"

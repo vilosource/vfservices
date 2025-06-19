@@ -27,10 +27,10 @@ SECRET_KEY = "django-insecure-88dibxfu8bp0stkg#@@e@s50zkatz1j8*0g&jy8u9wbja1^sk8
 DEBUG = True
 
 # Domain configuration from environment
-BASE_DOMAIN = os.environ.get("BASE_DOMAIN", "vfservices.viloforge.com")
+APPLICATION_SET_DOMAIN = os.environ.get("APPLICATION_SET_DOMAIN", "vfservices.viloforge.com")
 
 ALLOWED_HOSTS = [
-    f".{BASE_DOMAIN}",    # Allow all subdomains of the configured domain
+    f".{APPLICATION_SET_DOMAIN}",    # Allow all subdomains of the configured domain
     "localhost", 
     "127.0.0.1", 
     "[::1]"
@@ -38,7 +38,7 @@ ALLOWED_HOSTS = [
 
 # CSRF trusted origins - required for CSRF protection when using custom domains
 CSRF_TRUSTED_ORIGINS = [
-    f"https://*.{BASE_DOMAIN}",  # Allow all subdomains
+    f"https://*.{APPLICATION_SET_DOMAIN}",  # Allow all subdomains
     "http://localhost:8001",
     "http://127.0.0.1:8001",
 ]
@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "webapp",
     "accounts",
+    "demo",
 ]
 
 MIDDLEWARE = [
@@ -84,6 +85,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "webapp.context_processors.service_urls",  # Add service URLs to context
             ],
         },
     },
@@ -165,9 +167,28 @@ IDENTITY_PROVIDER_URL = os.environ.get(
 
 # For JavaScript API calls (external URLs via Traefik)
 EXTERNAL_SERVICE_URLS = {
-    'identity': os.environ.get('IDENTITY_EXTERNAL_URL', f'https://identity.{BASE_DOMAIN}'),
-    'billing': os.environ.get('BILLING_EXTERNAL_URL', f'https://billing.{BASE_DOMAIN}'),
-    'inventory': os.environ.get('INVENTORY_EXTERNAL_URL', f'https://inventory.{BASE_DOMAIN}'),
+    'identity': os.environ.get('IDENTITY_EXTERNAL_URL', f'https://identity.{APPLICATION_SET_DOMAIN}'),
+    'billing': os.environ.get('BILLING_EXTERNAL_URL', f'https://billing.{APPLICATION_SET_DOMAIN}'),
+    'inventory': os.environ.get('INVENTORY_EXTERNAL_URL', f'https://inventory.{APPLICATION_SET_DOMAIN}'),
+}
+
+# Menu System Configuration
+MENU_CACHE_TTL = int(os.environ.get('MENU_CACHE_TTL', 300))  # 5 minutes
+MENU_API_TIMEOUT = int(os.environ.get('MENU_API_TIMEOUT', 2))  # 2 seconds
+
+# Internal service URLs for menu aggregation
+INVENTORY_API_URL = os.environ.get("INVENTORY_API_URL", "http://inventory-api:8000")
+BILLING_API_URL = os.environ.get("BILLING_API_URL", "http://billing-api:8000")
+
+# Cache configuration for Redis
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.environ.get('REDIS_URL', 'redis://redis:6379/1'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
 }
 
 # Logging configuration

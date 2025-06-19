@@ -12,9 +12,13 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Add parent directory to Python path so we can import from common
+sys.path.insert(0, str(BASE_DIR.parent))
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,7 +30,17 @@ SECRET_KEY = "django-insecure-1$t^0ox9@04qg9sbl$yr)8^f^w%zt6w4)ffgp!l7ycavc#^9u=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["inventory.vfservices.viloforge.com", "localhost", "127.0.0.1", "[::1]"]
+# Domain configuration from environment
+APPLICATION_SET_DOMAIN = os.environ.get("APPLICATION_SET_DOMAIN", "vfservices.viloforge.com")
+
+ALLOWED_HOSTS = [
+    f"inventory.{APPLICATION_SET_DOMAIN}",
+    f".{APPLICATION_SET_DOMAIN}",
+    "localhost",
+    "127.0.0.1",
+    "[::1]",
+    "inventory-api"
+]
 
 
 # Application definition
@@ -303,8 +317,10 @@ LOGGING = {
 
 # CORS configuration for Traefik routing
 CORS_ALLOWED_ORIGINS = [
-    "https://website.vfservices.viloforge.com",
+    f"https://website.{APPLICATION_SET_DOMAIN}",
+    f"https://{APPLICATION_SET_DOMAIN}",
     "http://localhost:3000",  # Development
+    "http://localhost:8080",  # Development
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -320,3 +336,14 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
+# Redis configuration for RBAC-ABAC
+REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
+REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
+
+# Service name for RBAC-ABAC
+SERVICE_NAME = 'inventory_api'
+
+# RBAC-ABAC Cache settings
+RBAC_ABAC_CACHE_TTL = int(os.environ.get('RBAC_ABAC_CACHE_TTL', 86400))  # Default 24 hours
+IDENTITY_PROVIDER_URL = os.environ.get('IDENTITY_PROVIDER_URL', 'http://identity-provider:8000')

@@ -169,23 +169,33 @@ def logout_view(request: HttpRequest) -> HttpResponse:
         
         response = HttpResponseRedirect(reverse('accounts:login'))
         
-        # Clear JWT cookie for multiple domain variations to ensure logout works
-        response.delete_cookie('jwt', domain=settings.SSO_COOKIE_DOMAIN)
-        response.delete_cookie('jwt')  # Clear without domain specification
-        response.delete_cookie('jwt_token', domain=settings.SSO_COOKIE_DOMAIN)
-        response.delete_cookie('jwt_token')  # Clear without domain specification
+        # Set cookies to empty value with max_age=0 to ensure deletion
+        cookie_settings = {
+            'value': '',
+            'domain': settings.SSO_COOKIE_DOMAIN,
+            'path': '/',
+            'max_age': 0,
+            'expires': 'Thu, 01 Jan 1970 00:00:00 GMT',
+            'secure': not settings.DEBUG,
+            'httponly': True,
+            'samesite': 'Lax'
+        }
         
-        # Also clear for the current domain if different
-        current_domain = request.get_host().split(':')[0]  # Remove port if present
-        if current_domain != settings.SSO_COOKIE_DOMAIN.lstrip('.'):
-            response.delete_cookie('jwt', domain=f'.{current_domain}')
-            response.delete_cookie('jwt_token', domain=f'.{current_domain}')
+        # Clear jwt cookie (httponly)
+        response.set_cookie('jwt', **cookie_settings)
+        
+        # Clear jwt_token cookie (not httponly for JavaScript access)
+        cookie_settings['httponly'] = False
+        response.set_cookie('jwt_token', **cookie_settings)
+        
+        # Also delete using delete_cookie as a fallback
+        response.delete_cookie('jwt', domain=settings.SSO_COOKIE_DOMAIN, path='/')
+        response.delete_cookie('jwt_token', domain=settings.SSO_COOKIE_DOMAIN, path='/')
         
         logger.debug(
-            f"Cleared JWT cookies for domains: {settings.SSO_COOKIE_DOMAIN}, {current_domain}",
+            f"Cleared JWT cookies for domain: {settings.SSO_COOKIE_DOMAIN}",
             extra={
                 'sso_domain': settings.SSO_COOKIE_DOMAIN,
-                'current_domain': current_domain,
                 'user': str(user) if user else 'Anonymous',
             }
         )

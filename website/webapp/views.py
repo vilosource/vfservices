@@ -164,3 +164,57 @@ def private(request: HttpRequest) -> HttpResponse:
             exc_info=True
         )
         raise
+
+
+@log_view_access('dashboard_page')
+def dashboard(request: HttpRequest) -> HttpResponse:
+    """Render the dashboard page with dynamic menu."""
+    logger.debug(
+        "Dashboard page view started",
+        extra={
+            'user': str(request.user),
+            'ip': get_client_ip(request),
+            'method': request.method,
+            'path': request.path,
+        }
+    )
+    
+    try:
+        webapp_logger.info(
+            "Dashboard page accessed",
+            user=str(request.user),
+            ip=get_client_ip(request),
+        )
+        
+        context = {
+            'user': request.user,
+            'user_attrs': getattr(request, 'user_attrs', None),
+        }
+        
+        logger.info("Rendering dashboard page template")
+        response = render(request, "webapp/dashboard.html", context)
+        
+        logger.debug(
+            "Dashboard page rendered successfully",
+            extra={
+                'status_code': 200,
+                'template': 'webapp/dashboard.html',
+                'user': str(request.user),
+            }
+        )
+        
+        return response
+        
+    except Exception as e:
+        webapp_logger.error(f"Failed to render dashboard page: {str(e)}", exc_info=True)
+        logger.error(
+            f"Dashboard page rendering failed: {str(e)}",
+            extra={
+                'template': 'webapp/dashboard.html',
+                'error_type': type(e).__name__,
+                'user': str(request.user),
+                'ip': get_client_ip(request),
+            },
+            exc_info=True
+        )
+        raise
