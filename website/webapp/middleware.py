@@ -178,6 +178,8 @@ class LoginRequiredMiddleware(MiddlewareMixin):
         '/admin/',
         '/webdev/',  # Development template viewer
         '/static/',  # Static files
+        '/demo/',   # Demo pages should be accessible without authentication
+        '/dashboard/',  # Dashboard uses JWT authentication
     ]
     
     def process_request(self, request: HttpRequest) -> Optional[HttpResponse]:

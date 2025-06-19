@@ -1,0 +1,157 @@
+{% extends "demo/base.html" %}
+{% load demo_filters %}
+
+{% block demo_content %}
+<h1>Permission Matrix</h1>
+
+<div class="demo-card">
+    <h2>Role Assignment Matrix</h2>
+    <p>This matrix shows which roles are assigned to each user across all services.</p>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th rowspan="2">User</th>
+                    <th rowspan="2">Display Role</th>
+                    {% for service, roles in all_roles.items %}
+                    <th colspan="{{ roles|length }}" class="text-center">{{ service|title }}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for service, roles in all_roles.items %}
+                        {% for role in roles %}
+                        <th class="text-center small">{{ role|title }}</th>
+                        {% endfor %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for username, user in demo_users.items %}
+                <tr {% if username == current_user %}class="table-active"{% endif %}>
+                    <td>
+                        <strong>{{ user.name }}</strong>
+                        {% if username == current_user %}
+                        <span class="badge badge-primary">Current</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.display_role }}</td>
+                    
+                    {% for service, roles in all_roles.items %}
+                        {% for role in roles %}
+                        <td class="text-center">
+                            {% if role in user_permissions|get_item:username|get_item:service|default_if_none:"" %}
+                                <span class="permission-granted">✅</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="mt-3">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Legend:</h5>
+                <ul>
+                    <li><span class="permission-granted">✅</span> Role assigned</li>
+                    <li><span class="text-muted">-</span> Role not assigned</li>
+                </ul>
+                
+                {% if not all_roles %}
+                <div class="alert alert-warning">
+                    <strong>Note:</strong> No services registered yet. Run the setup_demo_users management command to initialize the demo data.
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h5>Setup Status:</h5>
+                <ul>
+                    <li><strong>Services:</strong> {{ all_roles|length }} registered</li>
+                    <li><strong>Total Roles:</strong> {{ total_roles }}</li>
+                    <li><strong>Demo Users:</strong> {{ demo_users|length }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="demo-card">
+    <h2>Attribute-Based Restrictions</h2>
+    <p>Some users have additional attribute-based restrictions that limit their access:</p>
+    
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Service</th>
+                    <th>Restriction Type</th>
+                    <th>Allowed Values</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Bob Brown</td>
+                    <td>Inventory</td>
+                    <td>Region</td>
+                    <td>US only</td>
+                </tr>
+                <tr>
+                    <td>Charlie Chen</td>
+                    <td>Billing</td>
+                    <td>Customer IDs</td>
+                    <td>CUST001, CUST002, CUST003</td>
+                </tr>
+                <tr>
+                    <td>David Davis</td>
+                    <td>All Services</td>
+                    <td>Actions</td>
+                    <td>Read-only (no create, update, or delete)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="demo-card">
+    <h2>Role Hierarchy</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Role Permissions</h4>
+            <ul>
+                <li><strong>SuperAdmin:</strong> Full access to all services and resources</li>
+                <li><strong>InventoryManager:</strong> Full access to inventory, read-only billing</li>
+                <li><strong>BillingViewer:</strong> Read billing for specific customers, read-only inventory</li>
+                <li><strong>ReadOnlyUser:</strong> Read-only access to all permitted resources</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h4>Visual Hierarchy</h4>
+            <div style="text-align: center; padding: 20px;">
+                <div style="display: inline-block; padding: 10px 20px; background: #e3f2fd; border-radius: 5px; margin: 5px;">
+                    SuperAdmin
+                </div>
+                <br>↓<br>
+                <div style="display: inline-block;">
+                    <span style="display: inline-block; padding: 10px 20px; background: #e8f5e9; border-radius: 5px; margin: 5px;">
+                        InventoryManager
+                    </span>
+                    <span style="display: inline-block; padding: 10px 20px; background: #fff3e0; border-radius: 5px; margin: 5px;">
+                        BillingViewer
+                    </span>
+                </div>
+                <br>↓<br>
+                <div style="display: inline-block; padding: 10px 20px; background: #fce4ec; border-radius: 5px; margin: 5px;">
+                    ReadOnlyUser
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

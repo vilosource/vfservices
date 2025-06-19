@@ -11,10 +11,32 @@
 
     {% block page_heading %}VFServices Navigator{% endblock %}
   {% block content %}
-    <ul>
-      <li><a href="https://identity.vfservices.viloforge.com">Identity Provider</a></li>
-      <li><a href="https://website.vfservices.viloforge.com">Website</a></li>
-      <li><a href="https://billing.vfservices.viloforge.com">Billing API</a></li>
-      <li><a href="https://inventory.vfservices.viloforge.com">Inventory API</a></li>
-    </ul>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Services</h4>
+            <ul class="list-unstyled">
+              <li><a href="{{ SERVICE_URLS.identity }}">Identity Provider</a></li>
+              <li><a href="{{ SERVICE_URLS.website }}">Website</a></li>
+              <li><a href="{{ SERVICE_URLS.billing }}">Billing API</a></li>
+              <li><a href="{{ SERVICE_URLS.inventory }}">Inventory API</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Demos & Tools</h4>
+            <ul class="list-unstyled">
+              <li><a href="/dashboard/" class="text-primary"><strong>📊 Dashboard</strong></a> - View dynamic menu based on your permissions</li>
+              <li><a href="/demo/" class="text-primary"><strong>🔐 RBAC-ABAC API Demo</strong></a> - Interactive access control demonstration</li>
+              <li><a href="/demo/api-explorer/">🔍 API Explorer</a> - Test API endpoints with different user permissions</li>
+              <li><a href="/demo/permissions/">📊 Permission Matrix</a> - Visual access control overview</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
   {% endblock %}

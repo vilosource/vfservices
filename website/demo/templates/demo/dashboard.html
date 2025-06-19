@@ -1,0 +1,156 @@
+{% extends "demo/base.html" %}
+
+{% block demo_content %}
+<h1>VF Services API Demo</h1>
+
+<div class="demo-card">
+    <h2>Welcome to the RBAC-ABAC Demo</h2>
+    <p>This interactive demo showcases the Role-Based and Attribute-Based Access Control system implemented across our microservices.</p>
+    
+    <h3>Demo Features:</h3>
+    <ul>
+        <li><strong>User Switching:</strong> Test different user personas with varying permissions</li>
+        <li><strong>Live API Testing:</strong> Make real API calls and see permission checks in action</li>
+        <li><strong>Visual Permission Matrix:</strong> See who has access to what at a glance</li>
+        <li><strong>Interactive Scenarios:</strong> Walk through real-world access patterns</li>
+    </ul>
+</div>
+
+<div class="demo-card">
+    <h2>Demo Users</h2>
+    <div class="row">
+        {% for username, user in demo_users.items %}
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ user.name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ user.display_role }}</h6>
+                    <p class="card-text">{{ user.description }}</p>
+                    <small class="text-muted">
+                        Department: {{ user.department }}
+                        {% if user.region %}<br>Region: {{ user.region }}{% endif %}
+                        {% if user.customer_ids %}<br>Customers: {{ user.customer_ids|join:", " }}{% endif %}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="demo-card">
+    <h2>Available Services</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <h4>Identity Provider</h4>
+            <p>Central authentication and authorization service</p>
+            <ul>
+                <li>User authentication</li>
+                <li>JWT token generation</li>
+                <li>Permission management</li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <h4>Billing API</h4>
+            <p>Customer billing and invoicing service</p>
+            <ul>
+                <li>Customer billing data</li>
+                <li>Invoice management</li>
+                <li>Payment processing</li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <h4>Inventory API</h4>
+            <p>Product and inventory management service</p>
+            <ul>
+                <li>Product catalog</li>
+                <li>Stock management</li>
+                <li>Regional inventory</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="demo-card">
+    <h2>Getting Started</h2>
+    <ol>
+        <li>Select a demo user from the dropdown in the top-right corner</li>
+        <li>Navigate to the API Explorer to test different endpoints</li>
+        <li>Check the Permission Matrix to understand access patterns</li>
+        <li>Try the interactive scenarios in the Playground</li>
+    </ol>
+    
+    {% if not current_user %}
+    <div class="alert alert-info mt-3">
+        <strong>Tip:</strong> Start by selecting a user from the dropdown above to begin exploring!
+    </div>
+    {% endif %}
+</div>
+
+<div class="demo-card">
+    <h2>Setup Status</h2>
+    
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="text-center">
+                <h4>{{ setup_status.services_registered }}/3</h4>
+                <small class="text-muted">Services Registered</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <h4>{{ setup_status.users_created }}/4</h4>
+                <small class="text-muted">Demo Users Created</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <h4>{{ setup_status.roles_assigned }}</h4>
+                <small class="text-muted">Roles Assigned</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <h4>
+                    {% if setup_status.is_complete %}
+                        <span class="text-success">✅ Ready</span>
+                    {% else %}
+                        <span class="text-warning">⏳ In Progress</span>
+                    {% endif %}
+                </h4>
+                <small class="text-muted">Overall Status</small>
+            </div>
+        </div>
+    </div>
+    
+    {% if not setup_status.is_complete %}
+    <div class="alert alert-info">
+        <strong>Setup in Progress:</strong> The demo users are being automatically configured. 
+        This process runs in the background and may take up to a minute after all services start.
+        <br><br>
+        <strong>Current Status:</strong>
+        <ul class="mb-0">
+            <li>Services: {{ setup_status.services_registered }}/3 registered</li>
+            <li>Users: {{ setup_status.users_created }}/4 created</li>
+            <li>Roles: {{ setup_status.roles_assigned }} assigned</li>
+        </ul>
+    </div>
+    {% else %}
+    <div class="alert alert-success">
+        <strong>✅ Setup Complete!</strong> All demo users have been created and configured with their roles and permissions.
+    </div>
+    {% endif %}
+    
+    <details class="mt-3">
+        <summary>Manual Setup Instructions</summary>
+        <div class="mt-2">
+            <p>The demo setup is automatic, but if needed, you can manually run:</p>
+            <pre class="bg-light p-2"><code># Complete setup for any missing roles
+docker exec -it vfservices-identity-provider-1 python manage.py complete_demo_setup
+
+# Or reset and recreate all demo users
+docker exec -it vfservices-identity-provider-1 python manage.py setup_demo_users --reset</code></pre>
+        </div>
+    </details>
+</div>
+{% endblock %}

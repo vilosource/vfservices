@@ -1,0 +1,330 @@
+{% load menu_tags %}
+<!-- Sidemenu -->
+<div id="sidebar-menu">
+    <ul id="side-menu">
+        {% if menu.items %}
+            {% for item in menu.items %}
+                {% if forloop.first %}
+                    <li class="menu-title">Navigation</li>
+                {% endif %}
+                {% render_menu_item item %}
+            {% endfor %}
+        {% else %}
+            <li class="menu-title">Navigation</li>
+            <li class="text-muted text-center py-3">No menu items available</li>
+        {% endif %}
+    </ul>
+    
+    {% if menu.sources %}
+        <div class="menu-debug mt-3" style="display: none;">
+            <small class="text-muted">Sources: {{ menu.sources|join:", " }}</small>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+/* Sidebar menu styles matching Material theme */
+#sidebar-menu {
+    padding-top: 20px;
+}
+
+#side-menu {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+/* Menu title styling */
+.menu-title {
+    padding: 10px 20px;
+    letter-spacing: .05em;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #6c757d;
+    margin-top: 10px;
+}
+
+.menu-title:first-child {
+    margin-top: 0;
+}
+
+/* Menu item styling */
+#side-menu > li > a {
+    display: block;
+    padding: 12px 20px;
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    position: relative;
+    transition: all .3s ease;
+}
+
+#side-menu > li > a:hover,
+#side-menu > li > a:focus,
+#side-menu > li > a.active {
+    color: #3d7eff;
+    background-color: rgba(61, 126, 255, 0.07);
+}
+
+/* Menu icons */
+#side-menu > li > a i {
+    width: 20px;
+    font-size: 18px;
+    margin-right: 10px;
+    text-align: center;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+/* Badges */
+#side-menu > li > a .badge {
+    margin-top: 1px;
+}
+
+/* Menu arrow for collapsible items */
+#side-menu > li > a:after {
+    content: "";
+    font-family: "Material Design Icons";
+    display: inline-block;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform .2s;
+}
+
+#side-menu > li > a[data-bs-toggle="collapse"]:after {
+    content: "\F0142";
+}
+
+#side-menu > li > a[aria-expanded="true"]:after {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+/* Submenu styling */
+.nav-second-level {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.nav-second-level li a {
+    padding: 10px 20px;
+    color: #6c757d;
+    display: block;
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.3s;
+}
+
+.nav-second-level li a:hover,
+.nav-second-level li a:focus,
+.nav-second-level li a.active {
+    color: #3d7eff;
+}
+
+/* Third level menu */
+.nav-third-level {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.nav-third-level li a {
+    padding: 10px 20px;
+    color: #6c757d;
+    display: block;
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.3s;
+}
+
+.nav-third-level li a:hover,
+.nav-third-level li a:focus,
+.nav-third-level li a.active {
+    color: #3d7eff;
+}
+
+/* Fourth level menu */
+.nav-fourth-level {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.nav-fourth-level li a {
+    padding: 10px 20px;
+    color: #6c757d;
+    display: block;
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.3s;
+}
+
+.nav-fourth-level li a:hover,
+.nav-fourth-level li a:focus,
+.nav-fourth-level li a.active {
+    color: #3d7eff;
+}
+
+/* Collapse animation */
+.collapse:not(.show) {
+    display: none;
+}
+
+.collapsing {
+    height: 0;
+    overflow: hidden;
+    transition: height .35s ease;
+}
+
+/* Active parent highlighting */
+#side-menu > li.menuitem-active > a {
+    color: #3d7eff;
+}
+
+/* Dark mode support */
+[data-layout-mode="dark"] #side-menu > li > a {
+    color: #adb5bd;
+}
+
+[data-layout-mode="dark"] #side-menu > li > a:hover,
+[data-layout-mode="dark"] #side-menu > li > a:focus,
+[data-layout-mode="dark"] #side-menu > li > a.active {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-layout-mode="dark"] .menu-title {
+    color: #6c757d;
+}
+
+[data-layout-mode="dark"] .nav-second-level li a,
+[data-layout-mode="dark"] .nav-third-level li a,
+[data-layout-mode="dark"] .nav-fourth-level li a {
+    color: #adb5bd;
+}
+
+[data-layout-mode="dark"] .nav-second-level li a:hover,
+[data-layout-mode="dark"] .nav-third-level li a:hover,
+[data-layout-mode="dark"] .nav-fourth-level li a:hover {
+    color: #ffffff;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize active menu item based on current URL
+    const currentPath = window.location.pathname;
+    const menuLinks = document.querySelectorAll('#side-menu a');
+    
+    menuLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+            
+            // Expand parent collapse elements
+            let parent = link.closest('.collapse');
+            while (parent) {
+                parent.classList.add('show');
+                
+                // Update the toggle link to show as expanded
+                const toggleLink = document.querySelector(`[data-bs-toggle="collapse"][href="#${parent.id}"]`);
+                if (toggleLink) {
+                    toggleLink.setAttribute('aria-expanded', 'true');
+                    toggleLink.closest('li').classList.add('menuitem-active');
+                }
+                
+                parent = parent.parentElement.closest('.collapse');
+            }
+        }
+    });
+    
+    // Add waves effect on click
+    const waveElements = document.querySelectorAll('.waves-effect');
+    waveElements.forEach(elem => {
+        elem.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('waves-ripple');
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        });
+    });
+    
+    // Handle menu state persistence
+    const sideMenu = document.getElementById('side-menu');
+    if (sideMenu) {
+        // Restore expanded state from localStorage
+        const expandedMenus = JSON.parse(localStorage.getItem('expandedMenus') || '[]');
+        expandedMenus.forEach(menuId => {
+            const menu = document.getElementById(menuId);
+            if (menu) {
+                menu.classList.add('show');
+                const toggleLink = document.querySelector(`[href="#${menuId}"]`);
+                if (toggleLink) {
+                    toggleLink.setAttribute('aria-expanded', 'true');
+                }
+            }
+        });
+        
+        // Save expanded state to localStorage
+        sideMenu.addEventListener('shown.bs.collapse', function(e) {
+            const expandedMenus = Array.from(document.querySelectorAll('#side-menu .collapse.show'))
+                .map(el => el.id)
+                .filter(id => id);
+            localStorage.setItem('expandedMenus', JSON.stringify(expandedMenus));
+        });
+        
+        sideMenu.addEventListener('hidden.bs.collapse', function(e) {
+            const expandedMenus = Array.from(document.querySelectorAll('#side-menu .collapse.show'))
+                .map(el => el.id)
+                .filter(id => id);
+            localStorage.setItem('expandedMenus', JSON.stringify(expandedMenus));
+        });
+    }
+});
+</script>
+
+<style>
+/* Waves effect styling */
+.waves-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.waves-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Menu arrow animation */
+.menu-arrow {
+    transition: transform 0.2s;
+}
+
+a[aria-expanded="true"] .menu-arrow {
+    transform: rotate(90deg);
+}
+</style>

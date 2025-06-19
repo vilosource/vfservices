@@ -1,0 +1,290 @@
+{% extends "demo/base.html" %}
+
+{% block demo_content %}
+<h1>RBAC-ABAC Dashboard</h1>
+
+{% if current_user_data %}
+<div class="demo-card">
+    <h2>Current User: {{ current_user_data.name }}</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h4>User Attributes</h4>
+            <table class="table">
+                <tr>
+                    <th>Username</th>
+                    <td>{{ current_user }}</td>
+                </tr>
+                <tr>
+                    <th>Role</th>
+                    <td><span class="badge badge-primary">{{ current_user_data.role }}</span></td>
+                </tr>
+                <tr>
+                    <th>Department</th>
+                    <td>{{ current_user_data.department }}</td>
+                </tr>
+                {% if current_user_data.region %}
+                <tr>
+                    <th>Region</th>
+                    <td>{{ current_user_data.region }}</td>
+                </tr>
+                {% endif %}
+                {% if current_user_data.customer_ids %}
+                <tr>
+                    <th>Customer IDs</th>
+                    <td>{{ current_user_data.customer_ids|join:", " }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        
+        <div class="col-md-6">
+            <h4>Access Summary</h4>
+            <div id="accessSummary">
+                <p>Loading permissions...</p>
+            </div>
+            
+            {% if current_user_data.actual_permissions %}
+            <h5 class="mt-3">Actual Permissions</h5>
+            <div class="small">
+                {% for service, perms in current_user_data.actual_permissions.items %}
+                <strong>{{ service|title }}:</strong>
+                {% if perms.roles %}
+                    <span class="badge badge-primary">{{ perms.roles|join:", " }}</span>
+                {% else %}
+                    <span class="text-muted">No roles</span>
+                {% endif %}
+                <br>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="demo-card">
+    <h2>Permission Details</h2>
+    <div id="permissionDetails">
+        <p>Loading detailed permissions...</p>
+    </div>
+</div>
+
+<div class="demo-card">
+    <h2>Test Access</h2>
+    <p>Click on any endpoint below to test your access:</p>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <h5>Identity Service</h5>
+            <button class="btn btn-sm btn-outline-primary mb-2 w-100" onclick="quickTest('identity', '/api/profile/')">
+                Get Profile
+            </button>
+            <button class="btn btn-sm btn-outline-primary mb-2 w-100" onclick="quickTest('identity', '/api/status/')">
+                Check Status
+            </button>
+        </div>
+        
+        <div class="col-md-4">
+            <h5>Billing Service</h5>
+            <button class="btn btn-sm btn-outline-primary mb-2 w-100" onclick="quickTest('billing', '/private/')">
+                Access Private Data
+            </button>
+            <button class="btn btn-sm btn-outline-primary mb-2 w-100" onclick="quickTest('billing', '/health/')">
+                Health Check
+            </button>
+        </div>
+        
+        <div class="col-md-4">
+            <h5>Inventory Service</h5>
+            <button class="btn btn-sm btn-outline-primary mb-2 w-100" onclick="quickTest('inventory', '/private/')">
+                Access Private Data
+            </button>
+            <button class="btn btn-sm btn-outline-primary mb-2 w-100" onclick="quickTest('inventory', '/health/')">
+                Health Check
+            </button>
+        </div>
+    </div>
+    
+    <div id="testResults" class="mt-3"></div>
+</div>
+
+{% else %}
+<div class="alert alert-info">
+    Please select a demo user to view their RBAC-ABAC permissions.
+</div>
+{% endif %}
+
+<script>
+    // Load user permissions on page load
+    if ('{{ current_user }}') {
+        loadUserPermissions();
+    }
+    
+    function loadUserPermissions() {
+        fetch('{% url "demo:get_user_permissions" %}')
+            .then(response => response.json())
+            .then(data => {
+                displayAccessSummary(data);
+                displayPermissionDetails(data);
+            })
+            .catch(error => {
+                console.error('Error loading permissions:', error);
+            });
+    }
+    
+    function displayAccessSummary(data) {
+        let html = '<ul class="list-unstyled">';
+        
+        html += `<li><strong>Display Role:</strong> ${data.user_data.display_role || 'Unknown'}</li>`;
+        html += `<li><strong>Token Status:</strong> ${data.has_token ? '✅ Active' : '❌ Not logged in'}</li>`;
+        html += `<li><strong>Department:</strong> ${data.user_data.department || 'Unknown'}</li>`;
+        
+        // Show expected vs actual comparison
+        if (data.actual_permissions && Object.keys(data.actual_permissions).length > 0) {
+            html += '<li class="mt-2"><strong>Permission Status:</strong></li>';
+            for (const [service, perms] of Object.entries(data.actual_permissions)) {
+                const hasRoles = perms.roles && perms.roles.length > 0;
+                html += `<li class="ms-3">${service}: ${hasRoles ? '✅ Configured' : '❌ Not configured'}</li>`;
+            }
+        }
+        
+        html += '</ul>';
+        document.getElementById('accessSummary').innerHTML = html;
+    }
+    
+    function displayPermissionDetails(data) {
+        let html = '';
+        
+        // Show expected vs actual permissions
+        if (data.expected_permissions && data.actual_permissions) {
+            html += '<div class="row">';
+            
+            // Expected permissions
+            html += '<div class="col-md-6">';
+            html += '<h5>Expected Permissions</h5>';
+            html += '<div class="table-responsive"><table class="table table-sm">';
+            html += '<thead><tr><th>Service</th><th>Roles</th></tr></thead><tbody>';
+            
+            for (const [service, roles] of Object.entries(data.expected_permissions.roles)) {
+                html += `<tr>
+                    <td>${service}</td>
+                    <td>${roles.join(', ')}</td>
+                </tr>`;
+            }
+            
+            html += '</tbody></table></div>';
+            html += '</div>';
+            
+            // Actual permissions
+            html += '<div class="col-md-6">';
+            html += '<h5>Actual Permissions</h5>';
+            html += '<div class="table-responsive"><table class="table table-sm">';
+            html += '<thead><tr><th>Service</th><th>Roles</th></tr></thead><tbody>';
+            
+            for (const [service, perms] of Object.entries(data.actual_permissions)) {
+                const roles = perms.roles || [];
+                const className = roles.length > 0 ? '' : 'text-danger';
+                html += `<tr class="${className}">
+                    <td>${service}</td>
+                    <td>${roles.length > 0 ? roles.join(', ') : 'No roles assigned'}</td>
+                </tr>`;
+            }
+            
+            html += '</tbody></table></div>';
+            html += '</div>';
+            
+            html += '</div>';
+            
+            // Show attributes
+            if (data.expected_permissions.attributes) {
+                html += '<h5 class="mt-3">User Attributes</h5>';
+                html += '<div class="table-responsive"><table class="table table-sm">';
+                html += '<thead><tr><th>Attribute</th><th>Expected Value</th><th>Actual Value</th></tr></thead><tbody>';
+                
+                for (const [attr, value] of Object.entries(data.expected_permissions.attributes)) {
+                    let actualValue = 'Not set';
+                    
+                    // Try to find actual value in any service's attributes
+                    for (const [service, perms] of Object.entries(data.actual_permissions)) {
+                        if (perms.attributes && perms.attributes[attr] !== undefined) {
+                            actualValue = JSON.stringify(perms.attributes[attr]);
+                            break;
+                        }
+                    }
+                    
+                    const match = JSON.stringify(value) === actualValue;
+                    const className = actualValue === 'Not set' ? 'text-warning' : (match ? 'text-success' : 'text-danger');
+                    
+                    html += `<tr>
+                        <td>${attr}</td>
+                        <td>${JSON.stringify(value)}</td>
+                        <td class="${className}">${actualValue}</td>
+                    </tr>`;
+                }
+                
+                html += '</tbody></table></div>';
+            }
+        } else {
+            html += '<p class="text-muted">No permission data available</p>';
+        }
+        
+        document.getElementById('permissionDetails').innerHTML = html;
+    }
+    
+    function getPermissionsForRole(role, userData) {
+        const permissionMap = {
+            'SuperAdmin': [
+                {service: 'All', resource: '*', actions: ['*'], conditions: null},
+            ],
+            'InventoryManager': [
+                {service: 'Inventory', resource: 'products', actions: ['read', 'write', 'delete'], conditions: `region = ${userData.region || 'ALL'}`},
+                {service: 'Inventory', resource: 'stock', actions: ['read', 'write'], conditions: `region = ${userData.region || 'ALL'}`},
+                {service: 'Billing', resource: '*', actions: ['read'], conditions: null},
+            ],
+            'BillingViewer': [
+                {service: 'Billing', resource: 'invoices', actions: ['read'], conditions: `customer_id IN (${userData.customer_ids ? userData.customer_ids.join(', ') : 'None'})`},
+                {service: 'Billing', resource: 'customers', actions: ['read'], conditions: `customer_id IN (${userData.customer_ids ? userData.customer_ids.join(', ') : 'None'})`},
+                {service: 'Inventory', resource: '*', actions: ['read'], conditions: null},
+            ],
+            'ReadOnlyUser': [
+                {service: 'All', resource: '*', actions: ['read'], conditions: null},
+            ]
+        };
+        
+        return permissionMap[role] || [];
+    }
+    
+    function quickTest(service, endpoint) {
+        const resultDiv = document.getElementById('testResults');
+        resultDiv.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div> Testing...';
+        
+        fetch('{% url "demo:test_api_endpoint" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                service: service,
+                endpoint: endpoint,
+                method: 'GET'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const icon = data.success ? '✅' : '❌';
+            const alertClass = data.success ? 'alert-success' : 'alert-danger';
+            
+            resultDiv.innerHTML = `
+                <div class="alert ${alertClass}">
+                    ${icon} <strong>${service}${endpoint}</strong> - 
+                    Status: ${data.status_code}
+                    ${data.body.detail ? ` - ${data.body.detail}` : ''}
+                </div>
+            `;
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${error}</div>`;
+        });
+    }
+</script>
+{% endblock %}

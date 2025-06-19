@@ -3,13 +3,18 @@
 This repository contains a multi-project Django monorepo used for experimenting
 with JWT-based SSO across several services. The projects included are:
 
-- `identity-provider` – central login and token issuance
+- `identity-provider` – central login and token issuance with RBAC/ABAC management
 - `website` – primary frontend website
 - `billing-api` – example API service
-- `inventory-api` – example API service
+- `inventory-api` – cloud resources inventory service
 
-Shared JWT authentication utilities live under `common/jwt_auth` and are used by
-each project via middleware.
+## Key Features
+
+- **JWT-based SSO**: Shared authentication across all services via `common/jwt_auth`
+- **RBAC/ABAC Authorization**: Fine-grained permissions combining roles and attributes via `common/rbac_abac`
+- **Redis Caching**: High-performance attribute storage with real-time updates
+- **Service Autonomy**: Each service manages its own authorization policies
+- **Django Integration**: Seamless integration with Django models and DRF
 
 ## Testing
 
@@ -83,7 +88,7 @@ Ensure your hosts file resolves the development subdomains to localhost:
 
 ## Docker-based Development
 
-You can also run the projects using Docker. Each project includes a `Dockerfile` and the main compose file `docker-compose.yml` starts them together with [Traefik](https://traefik.io) for routing **and a PostgreSQL container**. Services run on plain HTTP and are reloaded whenever code changes because the project directories are mounted as bind volumes.
+You can also run the projects using Docker. Each project includes a `Dockerfile` and the main compose file `docker-compose.yml` starts them together with [Traefik](https://traefik.io) for routing, **a PostgreSQL container** for data storage, and **Redis** for RBAC/ABAC attribute caching. Services run on plain HTTP and are reloaded whenever code changes because the project directories are mounted as bind volumes.
 
 Start the stack with:
 
@@ -111,4 +116,54 @@ The identity provider automatically creates a default administrative user named
 `admin` with password `admin123` the first time it starts if the user does not
 already exist. Use these credentials to sign into the Django admin or login
 page during development.
+
+## RBAC/ABAC Authorization System
+
+The project includes a comprehensive Role-Based Access Control (RBAC) and Attribute-Based Access Control (ABAC) system. Key features:
+
+- **Policy-based Authorization**: Define reusable authorization rules using decorators
+- **Model Integration**: Add authorization to Django models with `ABACModelMixin`
+- **Efficient Filtering**: Database-level permission filtering for QuerySets
+- **DRF Support**: Drop-in permission classes for REST APIs
+- **Redis Caching**: Sub-millisecond permission lookups with automatic invalidation
+
+See the [RBAC-ABAC Documentation](docs/RBAC-ABAC-IMPLEMENTATION.md) for detailed information and the [Implementation Plan](docs/PLAN-RBAC-ABAC-Implementation.md) for the current status.
+
+### Demo Users
+
+The system includes four pre-configured demo users that showcase different access patterns:
+- **Alice**: Senior Manager with cross-functional access
+- **Bob**: Billing Specialist focused on finance operations  
+- **Charlie**: Cloud Infrastructure Manager with resource management
+- **David**: Customer Service Representative with read-only access
+
+See the [RBAC-ABAC Demo Users Guide](docs/RBAC-ABAC-DEMO-USERS.md) for implementation details and test scenarios.
+
+### Interactive Demo Pages
+
+The website service includes comprehensive demo pages for exploring and testing the RBAC-ABAC system:
+
+- **Demo Dashboard** (`/demo/`): Main hub for accessing all demo features and checking system setup status
+- **RBAC Dashboard** (`/demo/rbac/`): View and compare user permissions across services
+- **API Explorer** (`/demo/api/`): Test API endpoints with different user permissions interactively
+- **Permission Matrix** (`/demo/matrix/`): Visual grid showing all roles and user assignments
+- **Access Playground** (`/demo/playground/`): Pre-configured scenarios demonstrating access patterns
+
+Access these pages after logging into the website service at `http://website.vfservices.viloforge.com/demo/`
+
+### Demo Setup Commands
+
+```bash
+# Complete demo setup (creates users, assigns roles, sets attributes)
+make demo-setup
+
+# Refresh Redis cache for all demo users
+python manage.py refresh_demo_cache
+
+# Setup demo users only
+python manage.py setup_demo_users
+
+# Complete the full demo setup
+python manage.py complete_demo_setup
+```
 

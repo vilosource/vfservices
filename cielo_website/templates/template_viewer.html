@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ viewer.title }}{% endblock %}
+
+
+{% block content %}
+<ul style="list-style: none; padding: 0;">
+{% for template in templates %}
+    {% if template.name == viewer.template %}
+        <li style="margin-bottom: 8px;">
+            <a href="/webdev/template_viewer/{{template}}" style="text-decoration: none; color: #007bff; font-weight: bold;">
+                {{template}}
+            </a>
+        </li>
+    {% endif %}
+{% endfor %}
+</ul>
+{% endblock %}
+
+{% block page_heading %}{{ viewer.title }}{% endblock %}
+
+{% block breadcrumb %}{% endblock %}

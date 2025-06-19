@@ -12,9 +12,13 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Add parent directory to Python path so we can import from common
+sys.path.insert(0, str(BASE_DIR.parent))
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,10 +31,13 @@ SECRET_KEY = "django-insecure-6)0i9dmc%av%+u03d0=1zcbecqw(!1^i=m8*@r+zc=o5h-r6h3
 DEBUG = True
 
 # Domain configuration from environment
-BASE_DOMAIN = os.environ.get("BASE_DOMAIN", "vfservices.viloforge.com")
+# Support multiple application domains
+ALLOWED_APPLICATION_DOMAINS = os.environ.get(
+    "ALLOWED_APPLICATION_DOMAINS", 
+    "vfservices.viloforge.com"
+).split(",")
 
 ALLOWED_HOSTS = [
-    f".{BASE_DOMAIN}",    # Allow all subdomains of the configured domain
     "localhost", 
     "127.0.0.1", 
     "[::1]", 
@@ -41,9 +48,20 @@ ALLOWED_HOSTS = [
     "inventory-api",     # Docker internal hostname
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    f'https://*.{BASE_DOMAIN}',  # Allow all subdomains
-]
+# Add all application domains and their subdomains to allowed hosts
+for domain in ALLOWED_APPLICATION_DOMAINS:
+    ALLOWED_HOSTS.extend([
+        f".{domain}",  # All subdomains
+        domain,         # Main domain
+    ])
+
+CSRF_TRUSTED_ORIGINS = []
+# Build CSRF origins for all application domains
+for domain in ALLOWED_APPLICATION_DOMAINS:
+    CSRF_TRUSTED_ORIGINS.extend([
+        f'https://{domain}',
+        f'https://*.{domain}',
+    ])
 
 # Application definition
 
@@ -152,6 +170,16 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Redis configuration for RBAC-ABAC
+REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
+REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
+
+# Service name for RBAC-ABAC
+SERVICE_NAME = 'identity_provider'
+
+# RBAC-ABAC Cache settings
+RBAC_ABAC_CACHE_TTL = int(os.environ.get('RBAC_ABAC_CACHE_TTL', 86400))  # Default 24 hours
+
 # REST Framework configuration
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
@@ -189,7 +217,7 @@ SWAGGER_SETTINGS = {
     'SHOW_EXTENSIONS': True,
     'SHOW_COMMON_EXTENSIONS': True,
     'VALIDATOR_URL': None,  # Disable schema validation to avoid external requests
-    'DEFAULT_HOST': 'identity.vfservices.viloforge.com',
+    'DEFAULT_HOST': f'identity.{ALLOWED_APPLICATION_DOMAINS[0]}',
     'DEFAULT_SCHEMES': ['https', 'http'],  # Support both HTTPS and HTTP
 }
 
@@ -197,23 +225,33 @@ REDOC_SETTINGS = {
     'LAZY_RENDERING': False,
 }
 
-# CORS settings - Simplified for debugging
-# Temporarily bypassing discovery system to ensure CORS works
-
-# Simple CORS configuration for development
+# CORS settings - Support multiple application domains
 CORS_ALLOWED_ORIGINS = [
-    "https://identity.vfservices.viloforge.com",
-    "http://identity.vfservices.viloforge.com", 
-    "https://vfservices.viloforge.com",  # Main website domain
-    "http://vfservices.viloforge.com",   # Main website domain (HTTP)
-    "https://website.vfservices.viloforge.com",  # Website subdomain
-    "http://website.vfservices.viloforge.com",   # Website subdomain (HTTP)
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "http://127.0.0.1:8100",
-    "https://localhost",  # For local development/testing
-    "http://localhost",   # For local development/testing
+    "https://localhost",
+    "http://localhost",
 ]
+
+# Build CORS origins for all application domains
+for domain in ALLOWED_APPLICATION_DOMAINS:
+    CORS_ALLOWED_ORIGINS.extend([
+        f"https://{domain}",
+        f"http://{domain}",
+        f"https://www.{domain}",
+        f"http://www.{domain}",
+        f"https://identity.{domain}",
+        f"http://identity.{domain}",
+        f"https://website.{domain}",
+        f"http://website.{domain}",
+        f"https://billing.{domain}",
+        f"http://billing.{domain}",
+        f"https://inventory.{domain}",
+        f"http://inventory.{domain}",
+        f"https://cielo.{domain}",
+        f"http://cielo.{domain}",
+    ])
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -246,7 +284,25 @@ print(f"DEBUG: CORS_ALLOWED_ORIGINS configured with {len(CORS_ALLOWED_ORIGINS)} 
 # JWT configuration
 JWT_SECRET = os.environ.get("VF_JWT_SECRET", "change-me")
 SSO_COOKIE_DOMAIN = os.environ.get("SSO_COOKIE_DOMAIN", "localhost")
-DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL", f"https://website.{BASE_DOMAIN}")
+DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL", f"https://{ALLOWED_APPLICATION_DOMAINS[0]}")
+
+# Allowed redirect domains for multi-domain support
+ALLOWED_REDIRECT_DOMAINS = [
+    "localhost",
+    "127.0.0.1"
+]
+
+# Build allowed redirect domains for all application domains
+for domain in ALLOWED_APPLICATION_DOMAINS:
+    ALLOWED_REDIRECT_DOMAINS.extend([
+        domain,
+        f"www.{domain}",
+        f"website.{domain}",
+        f"billing.{domain}",
+        f"inventory.{domain}",
+        f"identity.{domain}",
+        f"cielo.{domain}",
+    ])
 
 # Logging configuration
 LOG_BASE_DIR = os.environ.get("LOG_BASE_DIR", "/tmp")

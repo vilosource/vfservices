@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/l
 COPY . /code/identity-provider
 ENV PYTHONPATH=/code
 COPY identity-provider/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY identity-provider/scripts /code/identity-provider/scripts
+RUN chmod +x /entrypoint.sh && \
+    chmod +x /code/identity-provider/scripts/*.sh || true
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
