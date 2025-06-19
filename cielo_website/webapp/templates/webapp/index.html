@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cielo - Azure Cloud Management{% endblock %}
+
+{% block content %}
+    <div class="content-page">
+        <div class="content">
+            <!-- Start Content-->
+            <div class="container-fluid">
+                
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box">
+                            <h4 class="page-title">Welcome to Cielo</h4>
+                            <div class="page-title-right">
+                                <ol class="breadcrumb m-0">
+                                    <li class="breadcrumb-item active">Dashboard</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>     
+                <!-- end page title --> 
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="header-title">Azure Cloud Management Platform</h4>
+                                <p class="text-muted">
+                                    Welcome to Cielo, your comprehensive Azure cloud management solution. 
+                                    This platform provides insights into your Azure resources, cost analytics, and optimization recommendations.
+                                </p>
+                                
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Access Granted!</strong> You have successfully authenticated and have permission to access Cielo.
+                                </div>
+                                
+                                {% if user.is_authenticated %}
+                                <p>Logged in as: <strong>{{ user.username }}</strong></p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- container -->
+        </div> <!-- content -->
+    </div>
+{% endblock %}

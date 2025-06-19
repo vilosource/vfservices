@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}CIELO - Cloud Infrastructure Excellence{% endblock %}
+
+{% block page_heading %}CIELO Dashboard{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="javascript: void(0);">CIELO</a></li>
+<li class="breadcrumb-item"><a href="javascript: void(0);">Cloud Management</a></li>
+<li class="breadcrumb-item active">Dashboard</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="knob-chart" dir="ltr">
+                        <input data-plugin="knob" data-width="70" data-height="70" data-fgColor="#1abc9c"
+                            data-bgColor="#d1f2eb" value="58"
+                            data-skin="tron" data-angleOffset="0" data-readOnly=true
+                            data-thickness=".15"/>
+                    </div>
+                    <div class="text-end">
+                        <h3 class="mb-1 mt-0"> <span data-plugin="counterup">268</span> </h3>
+                        <p class="text-muted mb-0">Azure Resources</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- end col -->
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="knob-chart" dir="ltr">
+                        <input data-plugin="knob" data-width="70" data-height="70" data-fgColor="#0056c1"
+                            data-bgColor="#d6e5f7" value="80"
+                            data-skin="tron" data-angleOffset="0" data-readOnly=true
+                            data-thickness=".15"/>
+                    </div>
+                    <div class="text-end">
+                        <h3 class="mb-1 mt-0"> <span data-plugin="counterup">8574</span> </h3>
+                        <p class="text-muted mb-0">Cloud Operations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- end col -->
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="knob-chart" dir="ltr">
+                        <input data-plugin="knob" data-width="70" data-height="70" data-fgColor="#f672a7"
+                            data-bgColor="#fde3ed" value="77"
+                            data-skin="tron" data-angleOffset="0" data-readOnly=true
+                            data-thickness=".15"/>
+                    </div>
+                    <div class="text-end">
+                        <h3 class="mb-1 mt-0"> $<span data-plugin="counterup">958.25</span>K </h3>
+                        <p class="text-muted mb-0">Monthly Cloud Spend</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- end col -->
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="knob-chart" dir="ltr">
+                        <input data-plugin="knob" data-width="70" data-height="70" data-fgColor="#ffb822"
+                            data-bgColor="#fef5d5" value="41"
+                            data-skin="tron" data-angleOffset="0" data-readOnly=true
+                            data-thickness=".15"/>
+                    </div>
+                    <div class="text-end">
+                        <h3 class="mb-1 mt-0"> <span data-plugin="counterup">78.41</span>% </h3>
+                        <p class="text-muted mb-0">Cost Optimization</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- end col -->
+</div>
+<!-- end row -->
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3">Cloud Cost Trends</h4>
+                <div id="mixed-chart" class="apex-charts" data-colors="#1abc9c,#4a90e2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3">Resource Distribution</h4>
+                <div id="donut-chart" class="apex-charts" data-colors="#1abc9c,#4a90e2,#f672a7,#ffb822"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end row -->
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'assets/js/pages/dashboard-sales.init.js' %}"></script>
+{% endblock %}

@@ -12,7 +12,7 @@ TEST_PARALLEL ?= 4
 TEST_TIMEOUT ?= 30000
 TEST_WEB_PORT ?= 8080
 
-.PHONY: help up dev-cert https-up http-up docker-dev-up docker-dev-down docker-dev-build docker-dev-logs docker-dev-https docker-dev-certbot-renew db-reset db-reset-dev db-shell db-list db-drop-all fresh-start dev-reset dev-fresh dev-backup dev-shell-db dev-logs-db restart-identity restart-website restart-billing restart-inventory dev-status prod-backup prod-restore archive test test-setup test-ui test-headed test-debug test-docker test-ci test-docker-enhanced test-docker-setup test-docker-run test-docker-headed test-docker-debug test-docker-clean test-analyze test-report test-archive test-monitor test-web test-quick test-ci-docker test-status test-list test-help
+.PHONY: help up cert https-up http-up docker-up docker-down docker-build docker-logs docker-https certbot-renew db-reset db-shell db-list db-drop-all fresh-start db-fresh db-backup db-logs db-status db-restore restart-identity restart-website restart-billing restart-inventory archive test test-setup test-ui test-headed test-debug test-docker test-ci test-docker-enhanced test-docker-setup test-docker-run test-docker-headed test-docker-debug test-docker-clean test-analyze test-report test-archive test-monitor test-web test-quick test-ci-docker test-status test-list test-help
 
 help:
 	@echo "Available make targets:"
@@ -21,26 +21,31 @@ help:
 	@echo "  up                  Run all Django apps with HTTPS (runserver_plus) on 0.0.0.0"
 	@echo "  https-up            Same as 'up' (HTTPS with runserver_plus)"
 	@echo "  http-up             Run all Django apps with HTTP only (runserver) on 0.0.0.0"
-	@echo "  dev-cert            Generate development certificates"
+	@echo "  cert                Generate certificates for BASE_DOMAIN"
 	@echo ""
-	@echo "=== Docker Development ==="
-	@echo "  docker-dev-up       Start all dev containers (docker-compose.dev.yml)"
-	@echo "  docker-dev-https    Start all dev containers with HTTPS support"
-	@echo "  docker-dev-down     Stop all dev containers (docker-compose.dev.yml)"
-	@echo "  docker-dev-build    Build all dev containers (docker-compose.dev.yml)"
-	@echo "  docker-dev-logs     View logs for dev containers (docker-compose.dev.yml)"
-	@echo "  docker-dev-certbot-renew  Renew Let's Encrypt certificates using Cloudflare DNS challenge"
+	@echo "=== Docker Operations ==="
+	@echo "  docker-up           Start all containers"
+	@echo "  docker-https        Start all containers with HTTPS support"
+	@echo "  docker-down         Stop all containers"
+	@echo "  docker-build        Build all containers"
+	@echo "  docker-logs         View logs for containers"
+	@echo ""
+	@echo "=== Certificate Management ==="
+	@echo "  cert                Generate or retrieve certificates (auto-detects method)"
+	@echo "  generate-self-signed-cert  Generate self-signed certificates"
+	@echo "  certbot-renew       Renew Let's Encrypt certificates using Cloudflare DNS"
 	@echo ""
 	@echo "=== Database Management ==="
-	@echo "  dev-reset           Reset all development databases (removes volume)"
-	@echo "  dev-fresh           Fresh start: reset DB, rebuild containers, start services"
-	@echo "  dev-backup          Backup all development databases"
-	@echo "  dev-shell-db        Open PostgreSQL shell for development"
-	@echo "  dev-logs-db         Show PostgreSQL logs for development"
-	@echo "  dev-status          Show development environment status"
+	@echo "  db-reset            Reset all databases (removes volume)"
+	@echo "  db-fresh            Fresh start: reset DB, rebuild containers, start services"
+	@echo "  db-backup           Backup all databases"
+	@echo "  db-shell            Open PostgreSQL shell"
+	@echo "  db-logs             Show PostgreSQL logs"
+	@echo "  db-status           Show database environment status"
+	@echo "  db-list             List all databases"
 	@echo "  db-drop-all         Drop all application databases (keep PostgreSQL running)"
-	@echo "  prod-backup         Backup production databases"
-	@echo "  prod-restore        Restore production databases from backup"
+	@echo "  db-restore          Restore databases from backup"
+	@echo "  fresh-start         Complete fresh start (alias for db-fresh)"
 	@echo ""
 	@echo "=== Service Management ==="
 	@echo "  restart-identity    Restart identity-provider service"
@@ -85,6 +90,20 @@ help:
 	@echo ""
 	@echo "=== Project Management ==="
 	@echo "  archive             Create a project archive excluding .gitignore files"
+	@echo ""
+	@echo "=== Environment Variables ==="
+	@echo "  BASE_DOMAIN         Domain for all services (default: vfservices.viloforge.com)"
+	@echo "  VF_JWT_SECRET       JWT secret for authentication (default: change-me)"
+	@echo "  POSTGRES_USER       PostgreSQL username (default: vfuser)"
+	@echo "  POSTGRES_PASSWORD   PostgreSQL password (default: vfpass)"
+	@echo "  CLOUDFLARE_API_TOKEN  Token for Let's Encrypt DNS challenge"
+	@echo "  LETSENCRYPT_EMAIL   Email for Let's Encrypt certificates"
+	@echo ""
+	@echo "Example usage:"
+	@echo "  make docker-up                     # Start with default domain"
+	@echo "  BASE_DOMAIN=mycompany.com make docker-up  # Start with custom domain"
+	@echo "  make db-fresh                      # Reset and start fresh"
+	@echo "  make test-docker-enhanced          # Run comprehensive tests"
 
 up:
 	$(MAKE) -j4 run-identity-0 run-website-0 run-billing-0 run-inventory-0
@@ -125,35 +144,33 @@ run-inventory-0:
 	PYTHONPATH=$(PWD) python inventory-api/manage.py runserver_plus 0.0.0.0:8004 \
 	   --cert-file $(CERT_FILE) --key-file $(KEY_FILE)
 
-device-cert:
-	@echo "Deprecated target name: use dev-cert"
-
-dev-cert:
-	./scripts/get_dev_certs.sh
+cert:
+	./scripts/renew_all_certs.sh
 
 generate-self-signed-cert:
-	./scripts/generate_dev_certs.sh
+	./scripts/generate_certs.sh
 
-docker-dev-up:
-	docker compose -f docker-compose.dev.yml up
+docker-up:
+	docker compose up
 
-docker-dev-down:
-	docker compose -f docker-compose.dev.yml down
+docker-down:
+	docker compose down
 
-docker-dev-build:
-	docker compose -f docker-compose.dev.yml build
+docker-build:
+	docker compose build
 
-docker-dev-logs:
-	docker compose -f docker-compose.dev.yml logs -f
+docker-logs:
+	docker compose logs -f
 
-docker-dev-https: dev-cert
+docker-https: cert
 	@echo "Starting services with HTTPS support..."
 	@echo "Certificates should be available in ./certs/live/${BASE_DOMAIN}/"
-	docker compose -f docker-compose.dev.yml up
+	docker compose up
 
-docker-dev-certbot-renew:
+certbot-renew:
 	@echo "Renewing Let's Encrypt certificates..."
 	@echo "This will force renewal even if the certificate is not due for renewal"
+	@echo "Domains: ${BASE_DOMAIN}, *.${BASE_DOMAIN}, cielo.viloforge.com, *.cielo.viloforge.com"
 	@echo "dns_cloudflare_api_token=${CLOUDFLARE_API_TOKEN}" > /tmp/cloudflare.ini
 	@chmod 600 /tmp/cloudflare.ini
 	docker run --rm \
@@ -170,87 +187,76 @@ docker-dev-certbot-renew:
 	  --dns-cloudflare-propagation-seconds 60 \
 	  -d "${BASE_DOMAIN}" \
 	  -d "*.${BASE_DOMAIN}" \
+	  -d "cielo.viloforge.com" \
+	  -d "*.cielo.viloforge.com" \
 	  --cert-name "${BASE_DOMAIN}"
 	@rm -f /tmp/cloudflare.ini
 
 # Database management targets
-db-reset: docker-dev-down
+db-reset: docker-down
 	@echo "Removing PostgreSQL volume to reset all databases..."
 	docker volume rm vfservices_pgdata 2>/dev/null || true
 	@echo "All databases will be recreated on next startup"
 
 db-drop-all:
 	@echo "Dropping all application databases..."
-	./scripts/manage_db.sh docker-compose.dev.yml drop-all
+	./scripts/manage_db.sh docker-compose.yml drop-all
 
 db-shell:
 	@echo "Connecting to PostgreSQL as superuser..."
-	./scripts/manage_db.sh docker-compose.dev.yml shell
+	./scripts/manage_db.sh docker-compose.yml shell
 
 db-list:
 	@echo "Listing all databases..."
-	./scripts/manage_db.sh docker-compose.dev.yml list
+	./scripts/manage_db.sh docker-compose.yml list
 
-# Development workflow targets
-dev-reset: 
-	@echo "Resetting development environment..."
-	./scripts/manage_db.sh docker-compose.dev.yml reset
+# Database workflow targets
+db-fresh: db-reset docker-build docker-up
+	@echo "Fresh environment started!"
 
-dev-fresh: dev-reset docker-dev-build docker-dev-up
-	@echo "Fresh development environment started!"
+db-backup:
+	@echo "Backing up databases..."
+	./scripts/manage_db.sh docker-compose.yml backup
 
-dev-backup:
-	@echo "Backing up development databases..."
-	./scripts/manage_db.sh docker-compose.dev.yml backup
-
-dev-shell-db:
-	@echo "Opening development database shell..."
-	./scripts/manage_db.sh docker-compose.dev.yml shell
-
-dev-logs-db:
+db-logs:
 	@echo "Showing PostgreSQL logs..."
-	docker compose -f docker-compose.dev.yml logs -f postgres
+	docker compose logs -f postgres
 
-dev-status:
-	@echo "=== Development Environment Status ==="
+db-status:
+	@echo "=== Environment Status ==="
 	@echo ""
 	@echo "=== Container Status ==="
-	docker compose -f docker-compose.dev.yml ps
+	docker compose ps
 	@echo ""
 	@echo "=== Database Status ==="
-	./scripts/manage_db.sh docker-compose.dev.yml status 2>/dev/null || echo "PostgreSQL not running"
+	./scripts/manage_db.sh docker-compose.yml status 2>/dev/null || echo "PostgreSQL not running"
+
+db-restore:
+	@read -p "Enter backup directory path: " backup_dir; \
+	echo "Restoring databases from $$backup_dir..."; \
+	./scripts/manage_db.sh docker-compose.yml restore "$$backup_dir"
 
 # Individual service management
 restart-identity:
 	@echo "Restarting identity-provider service..."
-	docker compose -f docker-compose.dev.yml restart identity-provider
+	docker compose restart identity-provider
 
 restart-website:
 	@echo "Restarting website service..."
-	docker compose -f docker-compose.dev.yml restart website
+	docker compose restart website
 
 restart-billing:
 	@echo "Restarting billing-api service..."
-	docker compose -f docker-compose.dev.yml restart billing-api
+	docker compose restart billing-api
 
 restart-inventory:
 	@echo "Restarting inventory-api service..."
-	docker compose -f docker-compose.dev.yml restart inventory-api
-
-# Production database management
-prod-backup:
-	@echo "Backing up production databases..."
-	./scripts/manage_db.sh docker-compose.yml backup
-
-prod-restore:
-	@read -p "Enter backup directory path: " backup_dir; \
-	echo "Restoring production databases from $$backup_dir..."; \
-	./scripts/manage_db.sh docker-compose.yml restore "$$backup_dir"
+	docker compose restart inventory-api
 
 # Fresh start - rebuild everything
-fresh-start: docker-dev-down db-reset docker-dev-build
+fresh-start: docker-down db-reset docker-build
 	@echo "Fresh environment ready. Starting services..."
-	docker compose -f docker-compose.dev.yml up
+	docker compose up
 
 # Archive project excluding .gitignore files
 archive:
@@ -859,5 +865,19 @@ test-setup:
 	@cd tests && npx playwright install
 	@echo "✅ Complete test environment setup finished!"
 	@echo "💡 Tip: Use 'make test-docker-enhanced' for containerized testing"
+
+# Backward compatibility aliases
+docker-dev-up: docker-up
+docker-dev-down: docker-down
+docker-dev-build: docker-build
+docker-dev-logs: docker-logs
+docker-dev-https: docker-https
+dev-cert: cert
+dev-reset: db-reset
+dev-fresh: db-fresh
+dev-backup: db-backup
+dev-shell-db: db-shell
+dev-logs-db: db-logs
+dev-status: db-status
 
 .DEFAULT_GOAL := help
