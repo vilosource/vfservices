@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  azure-costs:
+    build: .
+    container_name: azure-costs
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - POSTGRES_DB=azure_costs_db
+      - POSTGRES_USER=vfuser
+      - POSTGRES_PASSWORD=vfpass
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
+      - SSO_COOKIE_DOMAIN=${SSO_COOKIE_DOMAIN:-cielo}
+      - APPLICATION_SET_DOMAIN=${APPLICATION_SET_DOMAIN:-cielo}
+      - IDENTITY_PROVIDER_URL=http://identity-provider:8000
+      - LOG_BASE_DIR=/var/log/azure-costs
+    volumes:
+      - ./logs:/var/log/azure-costs
+      - static_volume:/code/staticfiles
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - vfservices_default
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.azure-costs.rule=Host(`azure-costs.${APPLICATION_SET_DOMAIN:-cielo}`)"
+      - "traefik.http.routers.azure-costs.entrypoints=websecure"
+      - "traefik.http.routers.azure-costs.tls=true"
+      - "traefik.http.routers.azure-costs.tls.certresolver=myresolver"
+      - "traefik.http.services.azure-costs.loadbalancer.server.port=8000"
+      - "traefik.docker.network=traefik"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: postgres:15
+    container_name: azure-costs-postgres
+    environment:
+      - POSTGRES_DB=azure_costs_db
+      - POSTGRES_USER=vfuser
+      - POSTGRES_PASSWORD=vfpass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - vfservices_default
+
+  redis:
+    image: redis:7-alpine
+    container_name: azure-costs-redis
+    networks:
+      - vfservices_default
+
+volumes:
+  postgres_data:
+  static_volume:
+
+networks:
+  vfservices_default:
+    external: true
+  traefik:
+    external: true

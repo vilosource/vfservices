@@ -464,7 +464,7 @@ def test_cielo_full_login_logout_flow():
             
             # Cielo website uses 'email' as the field name but accepts username
             page.fill('input[name="email"]', 'alice')
-            page.fill('input[name="password"]', 'alice123')
+            page.fill('input[name="password"]', 'password123')
             
             # Take screenshot before login
             page.screenshot(path="cielo_alice_login_form.png")

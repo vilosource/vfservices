@@ -18,7 +18,7 @@ def test_cielo_logout_debug():
         print("\n1. Logging in...")
         page.goto("https://cielo.viloforge.com/accounts/login/")
         page.fill('input[name="email"]', 'alice')
-        page.fill('input[name="password"]', 'alice123')
+        page.fill('input[name="password"]', 'password123')
         page.click('button[type="submit"]')
         page.wait_for_load_state("networkidle")
         
@@ -134,7 +134,7 @@ def test_cielo_logout_network_trace():
         # Quick login
         page.goto("https://cielo.viloforge.com/accounts/login/")
         page.fill('input[name="email"]', 'alice')
-        page.fill('input[name="password"]', 'alice123')
+        page.fill('input[name="password"]', 'password123')
         page.click('button[type="submit"]')
         page.wait_for_load_state("networkidle")
         

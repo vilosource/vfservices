@@ -34,7 +34,7 @@ def test_cielo_login_debug():
             # Step 2: Fill login form
             print("\n=== Step 2: Fill login form ===")
             page.fill('input[name="email"]', 'alice')
-            page.fill('input[name="password"]', 'alice123')
+            page.fill('input[name="password"]', 'password123')
             print("Credentials entered")
             
             # Step 3: Submit form and track navigation

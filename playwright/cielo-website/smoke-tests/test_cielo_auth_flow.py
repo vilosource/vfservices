@@ -39,7 +39,7 @@ def test_cielo_complete_auth_flow():
             # Step 2: Login as alice
             print("\nStep 2: Logging in as alice...")
             page.fill('input[name="email"]', 'alice')
-            page.fill('input[name="password"]', 'alice123')
+            page.fill('input[name="password"]', 'password123')
             
             # Take screenshot before login
             page.screenshot(path="cielo_01_login_form.png")
@@ -214,7 +214,7 @@ def test_cielo_logout_persistence():
             print("\nLogging in as alice...")
             page.goto("https://cielo.viloforge.com/accounts/login/", wait_until="networkidle")
             page.fill('input[name="email"]', 'alice')
-            page.fill('input[name="password"]', 'alice123')
+            page.fill('input[name="password"]', 'password123')
             page.click('button[type="submit"]')
             page.wait_for_load_state("networkidle")
             
@@ -285,7 +285,7 @@ def test_cielo_concurrent_sessions():
             print("\nLogging in on Browser 1...")
             page1.goto("https://cielo.viloforge.com/accounts/login/", wait_until="networkidle")
             page1.fill('input[name="email"]', 'alice')
-            page1.fill('input[name="password"]', 'alice123')
+            page1.fill('input[name="password"]', 'password123')
             page1.click('button[type="submit"]')
             page1.wait_for_load_state("networkidle")
             assert "cielo.viloforge.com" in page1.url and "/login" not in page1.url
@@ -294,7 +294,7 @@ def test_cielo_concurrent_sessions():
             print("\nLogging in on Browser 2...")
             page2.goto("https://cielo.viloforge.com/accounts/login/", wait_until="networkidle")
             page2.fill('input[name="email"]', 'alice')
-            page2.fill('input[name="password"]', 'alice123')
+            page2.fill('input[name="password"]', 'password123')
             page2.click('button[type="submit"]')
             page2.wait_for_load_state("networkidle")
             assert "cielo.viloforge.com" in page2.url and "/login" not in page2.url

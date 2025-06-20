@@ -209,6 +209,35 @@ services:
       - "traefik.http.services.cielo-website.loadbalancer.server.port=8000"
       - "traefik.http.services.cielo-website.loadbalancer.passHostHeader=true"
 
+  azure-costs:
+    build:
+      context: .
+      dockerfile: azure-costs/Dockerfile
+    working_dir: /code/azure-costs
+    volumes:
+      - ./azure-costs:/code/azure-costs
+      - ./common:/code/common
+    environment:
+      - PYTHONPATH=/code
+      - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
+      - SSO_COOKIE_DOMAIN=.viloforge.com
+      - APPLICATION_SET_DOMAIN=cielo.viloforge.com
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=vfdb_azure_costs
+      - POSTGRES_USER=${POSTGRES_USER:-vfuser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-vfpass}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RBAC_ABAC_CACHE_TTL=${RBAC_ABAC_CACHE_TTL:-86400}
+      - IDENTITY_PROVIDER_URL=http://identity-provider:8000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.azure-costs.rule=Host(`azure-costs.cielo.viloforge.com`)"
+      - "traefik.http.routers.azure-costs.entrypoints=websecure"
+      - "traefik.http.routers.azure-costs.tls=true"
+      - "traefik.http.services.azure-costs.loadbalancer.server.port=8000"
+      - "traefik.http.services.azure-costs.loadbalancer.passHostHeader=true"
+
 networks:
   default:
     name: vfnet

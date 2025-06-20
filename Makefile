@@ -12,7 +12,7 @@ TEST_PARALLEL ?= 4
 TEST_TIMEOUT ?= 30000
 TEST_WEB_PORT ?= 8080
 
-.PHONY: help up cert https-up http-up docker-up docker-down docker-build docker-logs docker-https certbot-renew db-reset db-shell db-list db-drop-all fresh-start db-fresh db-backup db-logs db-status db-restore restart-identity restart-website restart-billing restart-inventory archive test test-setup test-ui test-headed test-debug test-docker test-ci test-docker-enhanced test-docker-setup test-docker-run test-docker-headed test-docker-debug test-docker-clean test-analyze test-report test-archive test-monitor test-web test-quick test-ci-docker test-status test-list test-help
+.PHONY: help up cert https-up http-up docker-up docker-down docker-build docker-logs docker-https certbot-renew db-reset db-shell db-list db-drop-all fresh-start db-fresh db-backup db-logs db-status db-restore restart-identity restart-website restart-billing restart-inventory archive test test-setup test-ui test-headed test-debug test-docker test-ci test-docker-enhanced test-docker-setup test-docker-run test-docker-headed test-docker-debug test-docker-clean test-analyze test-report test-archive test-monitor test-web test-quick test-ci-docker test-status test-list test-help test-cielo test-cielo-smoke test-cielo-integration test-cielo-all test-azure-costs test-billing test-cross-service test-cielo-help test-cielo-setup test-cielo-status _check-services
 
 help:
 	@echo "Available make targets:"
@@ -87,6 +87,15 @@ help:
 	@echo "  test-web                Start web server for reports"
 	@echo "  test-status             Show test environment status"
 	@echo "  test-help               Show detailed testing help"
+	@echo ""
+	@echo "=== CIELO Website Testing ==="
+	@echo "  test-cielo              Run all CIELO website tests"
+	@echo "  test-cielo-smoke        Run CIELO smoke tests only"
+	@echo "  test-cielo-integration  Run CIELO integration tests only"
+	@echo "  test-azure-costs        Test Azure Costs cross-service auth"
+	@echo "  test-billing            Test Billing API cross-service auth"
+	@echo "  test-cross-service      Test all cross-service authentication"
+	@echo "  test-cielo-help         Show CIELO testing help"
 	@echo ""
 	@echo "=== Project Management ==="
 	@echo "  archive             Create a project archive excluding .gitignore files"
@@ -879,5 +888,147 @@ dev-backup: db-backup
 dev-shell-db: db-shell
 dev-logs-db: db-logs
 dev-status: db-status
+
+# =============================================================================
+# CIELO WEBSITE PLAYWRIGHT TESTING
+# =============================================================================
+
+# Check if services are running
+_check-services:
+	@echo "Checking if services are running..."
+	@docker compose ps | grep -q "Up" || { echo "Services not running. Starting services..."; docker compose up -d; sleep 20; }
+	@echo "Services are running"
+
+# Run all CIELO website tests
+test-cielo: _check-services
+	@echo "Running all CIELO website tests..."
+	@echo "==============================================="
+	@echo "This includes:"
+	@echo "  - CIELO smoke tests (homepage, auth flow)"
+	@echo "  - Azure Costs integration tests"
+	@echo "  - Billing API integration tests"
+	@echo "  - Cross-service authentication tests"
+	@echo "==============================================="
+	@$(MAKE) test-cielo-smoke
+	@$(MAKE) test-cielo-integration
+	@echo ""
+	@echo "All CIELO tests completed!"
+
+# Run CIELO smoke tests only
+test-cielo-smoke: _check-services
+	@echo "Running CIELO smoke tests..."
+	@echo "Testing: Homepage, authentication flow, responsive design"
+	cd playwright/cielo-website/smoke-tests && python test_cielo_index.py
+	cd playwright/cielo-website/smoke-tests && python test_cielo_auth_flow.py
+	@echo "CIELO smoke tests completed!"
+
+# Run CIELO integration tests only
+test-cielo-integration: _check-services
+	@echo "Running CIELO integration tests..."
+	@echo "Testing: Cross-service authentication to Azure Costs and Billing APIs"
+	cd playwright/cielo-website/integration-tests && python test_azure_costs_access.py
+	cd playwright/cielo-website/integration-tests && python test_billing_access.py
+	@echo "CIELO integration tests completed!"
+
+# Test Azure Costs cross-service authentication specifically
+test-azure-costs: _check-services
+	@echo "Testing Azure Costs API cross-service authentication..."
+	@echo "Login via CIELO -> Access Azure Costs API -> Verify RBAC roles"
+	cd playwright/cielo-website/integration-tests && python test_azure_costs_access.py
+	@echo "Azure Costs authentication test completed!"
+
+# Test Billing API cross-service authentication specifically
+test-billing: _check-services
+	@echo "Testing Billing API cross-service authentication..."
+	@echo "Login via CIELO -> Access Billing API -> Verify authentication"
+	cd playwright/cielo-website/integration-tests && python test_billing_access.py
+	@echo "Billing API authentication test completed!"
+
+# Test all cross-service authentication
+test-cross-service: _check-services
+	@echo "Testing comprehensive cross-service authentication..."
+	@echo "Single login -> Multiple service access -> Security validation"
+	cd playwright/cielo-website/integration-tests && python test_all_services.py
+	@echo "Cross-service authentication test completed!"
+
+# Run all CIELO tests (alias for test-cielo)
+test-cielo-all: test-cielo
+
+# Show CIELO testing help
+test-cielo-help:
+	@echo "CIELO Website Testing Commands"
+	@echo "=================================="
+	@echo ""
+	@echo "Quick Tests:"
+	@echo "  test-cielo-smoke        - Homepage + auth flow (~2 min)"
+	@echo "  test-azure-costs        - Azure Costs cross-service auth (~1 min)"
+	@echo "  test-billing            - Billing API cross-service auth (~1 min)"
+	@echo ""
+	@echo "Integration Tests:"
+	@echo "  test-cielo-integration  - All cross-service auth tests (~3 min)"
+	@echo "  test-cross-service      - Comprehensive multi-service test (~2 min)"
+	@echo ""
+	@echo "Complete Testing:"
+	@echo "  test-cielo             - All CIELO tests (~5 min)"
+	@echo "  test-cielo-all         - Same as test-cielo"
+	@echo ""
+	@echo "What gets tested:"
+	@echo "  * CIELO website functionality (login/logout/responsive design)"
+	@echo "  * JWT authentication and cookie sharing"
+	@echo "  * Cross-service authentication (CIELO -> Azure Costs)"
+	@echo "  * Cross-service authentication (CIELO -> Billing API)"
+	@echo "  * RBAC role validation and permissions"
+	@echo "  * Security controls (unauthenticated access blocked)"
+	@echo ""
+	@echo "Test User: alice (password: password123)"
+	@echo "Test Domain: cielo.viloforge.com"
+	@echo ""
+	@echo "Test Files Location:"
+	@echo "  playwright/cielo-website/smoke-tests/"
+	@echo "  playwright/cielo-website/integration-tests/"
+	@echo ""
+	@echo "Prerequisites:"
+	@echo "  - Docker services running (make docker-up)"
+	@echo "  - Python 3.12+ with Playwright installed"
+	@echo "  - Services: identity-provider, cielo-website, azure-costs, billing-api"
+	@echo ""
+	@echo "Troubleshooting:"
+	@echo "  - Check services: docker compose ps"
+	@echo "  - View logs: docker compose logs <service-name>"
+	@echo "  - Restart services: make docker-down && make docker-up"
+	@echo "  - Fresh start: make fresh-start"
+
+# Install CIELO test dependencies
+test-cielo-setup:
+	@echo "Setting up CIELO test environment..."
+	@echo "Installing Python dependencies for Playwright tests..."
+	@python -m pip install playwright pytest requests
+	@playwright install chromium
+	@echo "CIELO test environment setup completed!"
+	@echo "Run 'make test-cielo' to execute all tests"
+
+# Check CIELO test status
+test-cielo-status:
+	@echo "CIELO Test Environment Status"
+	@echo "================================"
+	@echo ""
+	@echo "Docker Services:"
+	@docker compose ps | grep -E "(identity-provider|cielo-website|azure-costs|billing-api)" || echo "Required services not running"
+	@echo ""
+	@echo "Service Health Checks:"
+	@echo "CIELO Website:"
+	@curl -s -k https://cielo.viloforge.com/accounts/login/ > /dev/null && echo "  CIELO website accessible" || echo "  CIELO website not accessible"
+	@echo "Azure Costs API:"
+	@curl -s -k https://azure-costs.cielo.viloforge.com/api/health > /dev/null && echo "  Azure Costs API accessible" || echo "  Azure Costs API not accessible"
+	@echo "Billing API:"
+	@curl -s -k https://billing.vfservices.viloforge.com/health > /dev/null && echo "  Billing API accessible" || echo "  Billing API not accessible"
+	@echo ""
+	@echo "Python Environment:"
+	@python --version 2>/dev/null && echo "  Python available" || echo "  Python not available"
+	@python -c "import playwright; print('  Playwright installed')" 2>/dev/null || echo "  Playwright not installed (run: make test-cielo-setup)"
+	@echo ""
+	@echo "Test Files:"
+	@ls -la playwright/cielo-website/smoke-tests/*.py 2>/dev/null | wc -l | xargs -I {} echo "  Smoke tests: {} files"
+	@ls -la playwright/cielo-website/integration-tests/*.py 2>/dev/null | wc -l | xargs -I {} echo "  Integration tests: {} files"
 
 .DEFAULT_GOAL := help
