@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "webapp",
     "accounts",
+    "identity_admin",  # Identity Administration app
     "demo",
 ]
 
@@ -157,6 +158,14 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 JWT_SECRET = os.environ.get("VF_JWT_SECRET", "change-me")
 SSO_COOKIE_DOMAIN = os.environ.get("SSO_COOKIE_DOMAIN", "localhost")
 DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL", "/")
+
+# Service configuration for RBAC/ABAC
+SERVICE_NAME = 'website'
+
+# Redis configuration for RBAC/ABAC
+REDIS_HOST = os.environ.get('REDIS_HOST', 'redis')
+REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
+RBAC_ABAC_CACHE_TTL = int(os.environ.get('RBAC_ABAC_CACHE_TTL', 86400))
 
 # Identity Provider Integration
 # Use internal Docker network URLs for service-to-service communication

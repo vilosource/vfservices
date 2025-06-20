@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-topbar-color="brand">
+<head>
+    <meta charset="utf-8" />
+    <title>{% block title %}{{ page_title }}{% endblock %} | Identity Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Identity Administration for VFServices" name="description" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}">
+
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
+    
+    <!-- App CSS -->
+    <link href="{% static 'assets/css/app.min.css' %}" rel="stylesheet" type="text/css" id="app-stylesheet" />
+    
+    <!-- Icons CSS -->
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+    
+    <!-- DataTables CSS for user list -->
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Identity Admin CSS -->
+    <link href="{% static 'identity_admin/css/identity-admin.css' %}" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <!-- Begin page -->
+    <div id="wrapper">
+        
+        <!-- Topbar Start -->
+        <div class="navbar-custom">
+            <div class="container-fluid">
+                <ul class="list-unstyled topnav-menu float-end mb-0">
+                    <li class="dropdown notification-list topbar-dropdown">
+                        <a class="nav-link dropdown-toggle nav-user me-0" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                            <img src="{% static 'assets/images/users/avatar-1.jpg' %}" alt="user-image" class="rounded-circle">
+                            <span class="pro-user-name ms-1">
+                                {{ request.user.username }} <i class="mdi mdi-chevron-down"></i>
+                            </span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end profile-dropdown">
+                            <a href="{{ identity_provider_url|default:'https://identity.vfservices.viloforge.com' }}/logout/" class="dropdown-item notify-item">
+                                <i class="fe-log-out me-1"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+
+                <!-- LOGO -->
+                <div class="logo-box">
+                    <a href="{% url 'identity_admin:dashboard' %}" class="logo logo-light text-center">
+                        <span class="logo-sm">
+                            <span class="logo-lg-text-light">IA</span>
+                        </span>
+                        <span class="logo-lg">
+                            <span class="logo-lg-text-light">Identity Admin</span>
+                        </span>
+                    </a>
+                </div>
+
+                <ul class="list-unstyled topnav-menu topnav-menu-left m-0">
+                    <li>
+                        <button class="button-menu-mobile">
+                            <i class="fe-menu"></i>
+                        </button>
+                    </li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+        <!-- end Topbar -->
+
+        <!-- ========== Left Sidebar Start ========== -->
+        <div class="left-side-menu">
+            <div class="h-100" data-simplebar>
+                <!--- Sidemenu -->
+                <div id="sidebar-menu">
+                    <ul id="side-menu">
+                        <li class="menu-title">Navigation</li>
+                        
+                        <li>
+                            <a href="{% url 'identity_admin:dashboard' %}">
+                                <i data-feather="home"></i>
+                                <span> Dashboard </span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title mt-2">Management</li>
+
+                        <li>
+                            <a href="{% url 'identity_admin:user_list' %}">
+                                <i data-feather="users"></i>
+                                <span> Users </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'identity_admin:role_list' %}">
+                                <i data-feather="shield"></i>
+                                <span> Roles </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'identity_admin:service_list' %}">
+                                <i data-feather="server"></i>
+                                <span> Services </span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title mt-2">Quick Actions</li>
+
+                        <li>
+                            <a href="{% url 'identity_admin:user_create' %}">
+                                <i data-feather="user-plus"></i>
+                                <span> Create User </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'identity_admin:role_assign' %}">
+                                <i data-feather="user-check"></i>
+                                <span> Assign Roles </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- End Sidebar -->
+                <div class="clearfix"></div>
+            </div>
+        </div>
+        <!-- Left Sidebar End -->
+
+        <!-- ============================================================== -->
+        <!-- Start Page Content here -->
+        <!-- ============================================================== -->
+
+        <div class="content-page">
+            <div class="content">
+                <!-- Start Content-->
+                <div class="container-fluid">
+                    
+                    <!-- Page Title -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box">
+                                <div class="page-title-right">
+                                    {% block page_actions %}{% endblock %}
+                                </div>
+                                <h4 class="page-title">{% block page_title %}{{ page_title }}{% endblock %}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <!-- Main Content -->
+                    {% block content %}{% endblock %}
+                    
+                </div>
+                <!-- container -->
+            </div>
+            <!-- content -->
+
+            <!-- Footer Start -->
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <script>document.write(new Date().getFullYear())</script> &copy; VFServices Identity Admin
+                        </div>
+                    </div>
+                </div>
+            </footer>
+            <!-- end Footer -->
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- End Page content -->
+        <!-- ============================================================== -->
+
+    </div>
+    <!-- END wrapper -->
+
+    <!-- JavaScript -->
+    <script src="{% static 'assets/js/vendor.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.min.js' %}"></script>
+    
+    <!-- Set Identity Provider URL for JavaScript -->
+    <script>
+        window.IDENTITY_PROVIDER_URL = '{{ identity_provider_url|default:"https://identity.vfservices.viloforge.com" }}';
+        window.CSRF_TOKEN = '{{ csrf_token }}';
+    </script>
+    
+    <!-- Identity Admin JavaScript -->
+    <script src="{% static 'identity_admin/js/api-client.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

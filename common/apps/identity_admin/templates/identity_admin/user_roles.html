@@ -1,0 +1,429 @@
+{% extends "identity_admin/base.html" %}
+{% load static %}
+
+{% block title %}Manage Roles{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/libs/select2/css/select2.min.css' %}" />
+{% endblock %}
+
+{% block page_actions %}
+<a href="#" id="back-link" class="btn btn-light">
+    <i class="mdi mdi-arrow-left me-1"></i> Back to User
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Loading Spinner -->
+<div id="loading-spinner" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading user roles...</p>
+</div>
+
+<!-- Error Message -->
+<div id="error-message" class="alert alert-danger d-none"></div>
+
+<!-- Roles Management (hidden until loaded) -->
+<div class="row d-none" id="roles-content">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Current Roles for <span id="username-display"></span></h5>
+                
+                <!-- Current Roles Table -->
+                <div id="current-roles-container">
+                    <!-- Populated by JavaScript -->
+                </div>
+                
+                <hr>
+                
+                <h5 class="card-title mb-4">Assign New Role</h5>
+                
+                <form id="assignRoleForm">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="service" class="form-label">Service</label>
+                                <select class="form-select" id="service" name="service" required>
+                                    <option value="">Select a service...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Role</label>
+                                <select class="form-select" id="role" name="role" required disabled>
+                                    <option value="">Select a service first...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div>
+                                    <button type="submit" class="btn btn-primary" id="assignButton" disabled>
+                                        <i class="mdi mdi-plus-circle me-1"></i> Assign Role
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="roleDescription" class="alert alert-info d-none">
+                        <h6 class="alert-heading">Role Description</h6>
+                        <p class="mb-0" id="roleDescriptionText"></p>
+                    </div>
+                </form>
+                
+                <!-- Quick Role Assignment -->
+                <div class="mt-4">
+                    <h5 class="card-title mb-3">Quick Assignment</h5>
+                    <p class="text-muted mb-3">Assign common role profiles with a single click:</p>
+                    
+                    <div class="row" id="role-profiles">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Load Mock API and API Config (api-client.js is already loaded in base.html) -->
+<script src="{% static 'identity_admin/js/mock-api.js' %}"></script>
+<script src="{% static 'identity_admin/js/api-config.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+
+<script>
+// Use the configured API (mock or real based on configuration)
+const api = window.getIdentityAPI();
+const userId = {{ user_id|default:"window.location.pathname.split('/')[4]" }};
+let userData = null;
+let availableServices = [];
+let availableRoles = {};
+let currentUserRoles = [];
+
+// Role profiles
+const roleProfiles = {
+    billing_manager: {
+        name: 'Billing Manager',
+        description: 'Full access to billing operations',
+        roles: [
+            { service_name: 'billing_api', role_name: 'billing_admin' }
+        ]
+    },
+    support_agent: {
+        name: 'Support Agent',
+        description: 'Read-only access for customer support',
+        roles: [
+            { service_name: 'billing_api', role_name: 'billing_viewer' },
+            { service_name: 'inventory_api', role_name: 'inventory_viewer' },
+            { service_name: 'identity_provider', role_name: 'identity_viewer' }
+        ]
+    },
+    system_admin: {
+        name: 'System Administrator',
+        description: 'Full administrative access across all services',
+        roles: [
+            { service_name: 'identity_provider', role_name: 'identity_admin' },
+            { service_name: 'billing_api', role_name: 'billing_admin' },
+            { service_name: 'inventory_api', role_name: 'inventory_admin' },
+            { service_name: 'website', role_name: 'website_admin' }
+        ]
+    }
+};
+
+// Format date string
+function formatDate(dateString) {
+    if (!dateString) return 'Unknown';
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+}
+
+// Build current roles table
+function buildCurrentRolesTable() {
+    let html = '';
+    
+    if (currentUserRoles.length > 0) {
+        html = `
+            <div class="table-responsive mb-4">
+                <table class="table table-centered mb-0">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Role</th>
+                            <th>Granted By</th>
+                            <th>Granted At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        currentUserRoles.forEach(role => {
+            html += `
+                <tr>
+                    <td><span class="badge bg-secondary">${role.service_display_name || role.service_name}</span></td>
+                    <td><strong>${role.role_display_name || role.role_name}</strong></td>
+                    <td>${role.granted_by_username || 'System'}</td>
+                    <td>${formatDate(role.granted_at)}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="removeRole(${role.id})" title="Remove Role">
+                            <i class="mdi mdi-delete"></i> Remove
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } else {
+        html = `
+            <div class="alert alert-info mb-4">
+                <i class="mdi mdi-information me-1"></i> No roles currently assigned to this user.
+            </div>
+        `;
+    }
+    
+    document.getElementById('current-roles-container').innerHTML = html;
+}
+
+// Build role profiles
+function buildRoleProfiles() {
+    let html = '';
+    
+    Object.entries(roleProfiles).forEach(([key, profile]) => {
+        html += `
+            <div class="col-md-4 mb-3">
+                <div class="card border">
+                    <div class="card-body">
+                        <h6 class="card-title">${profile.name}</h6>
+                        <p class="card-text text-muted small">${profile.description}</p>
+                        <p class="card-text">
+                            ${profile.roles.map(r => `<span class="badge bg-primary me-1">${r.role_name}</span>`).join('')}
+                        </p>
+                        <button class="btn btn-sm btn-outline-primary" onclick="assignProfile('${key}')">
+                            Assign Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    document.getElementById('role-profiles').innerHTML = html;
+}
+
+// Load user and roles data
+async function loadUserRoles() {
+    const spinner = document.getElementById('loading-spinner');
+    const errorDiv = document.getElementById('error-message');
+    const contentDiv = document.getElementById('roles-content');
+    
+    try {
+        // Fetch user data
+        userData = await api.getUser(userId);
+        
+        // Fetch available services and roles
+        availableServices = await api.listServices();
+        const allRoles = await api.listRoles();
+        
+        // Group roles by service
+        availableRoles = {};
+        allRoles.forEach(role => {
+            if (!availableRoles[role.service_name]) {
+                availableRoles[role.service_name] = [];
+            }
+            availableRoles[role.service_name].push(role);
+        });
+        
+        // Get current user roles
+        currentUserRoles = await api.listUserRoles(userId);
+        
+        // Update page
+        document.querySelector('.page-title').textContent = `Manage Roles - ${userData.username}`;
+        document.getElementById('username-display').textContent = userData.username;
+        document.getElementById('back-link').href = `{% url 'identity_admin:user_detail' 0 %}`.replace('0', userId);
+        
+        // Populate service dropdown
+        const serviceSelect = document.getElementById('service');
+        serviceSelect.innerHTML = '<option value="">Select a service...</option>';
+        availableServices.forEach(service => {
+            serviceSelect.innerHTML += `<option value="${service.name}">${service.display_name}</option>`;
+        });
+        
+        // Build tables and profiles
+        buildCurrentRolesTable();
+        buildRoleProfiles();
+        
+        // Initialize Select2
+        $('#service').select2({
+            placeholder: 'Select a service...',
+            allowClear: true
+        });
+        
+        $('#role').select2({
+            placeholder: 'Select a role...',
+            allowClear: true
+        });
+        
+        // Hide spinner, show content
+        spinner.classList.add('d-none');
+        contentDiv.classList.remove('d-none');
+        
+    } catch (error) {
+        console.error('Error loading user roles:', error);
+        spinner.classList.add('d-none');
+        errorDiv.textContent = `Error loading user roles: ${error.message}`;
+        errorDiv.classList.remove('d-none');
+    }
+}
+
+// Handle service change
+document.getElementById('service').addEventListener('change', function() {
+    const service = this.value;
+    const roleSelect = document.getElementById('role');
+    const assignButton = document.getElementById('assignButton');
+    
+    // Clear and disable role select
+    roleSelect.innerHTML = '<option value="">Select a role...</option>';
+    
+    if (service) {
+        // Enable role select
+        roleSelect.disabled = false;
+        
+        // Populate roles for selected service
+        const roles = availableRoles[service] || [];
+        roles.forEach(role => {
+            // Check if user already has this role
+            const hasRole = currentUserRoles.some(ur => 
+                ur.service_name === service && ur.role_name === role.name
+            );
+            
+            if (!hasRole) {
+                roleSelect.innerHTML += `<option value="${role.name}">${role.display_name}</option>`;
+            }
+        });
+        
+        // Reinitialize Select2
+        $('#role').select2('destroy').select2({
+            placeholder: 'Select a role...',
+            allowClear: true
+        });
+    } else {
+        // Disable role select and button
+        roleSelect.disabled = true;
+        assignButton.disabled = true;
+    }
+    
+    // Hide role description
+    document.getElementById('roleDescription').classList.add('d-none');
+});
+
+// Handle role change
+document.getElementById('role').addEventListener('change', function() {
+    const service = document.getElementById('service').value;
+    const roleName = this.value;
+    const assignButton = document.getElementById('assignButton');
+    
+    if (service && roleName) {
+        // Enable assign button
+        assignButton.disabled = false;
+        
+        // Show role description
+        const roles = availableRoles[service] || [];
+        const role = roles.find(r => r.name === roleName);
+        if (role) {
+            document.getElementById('roleDescriptionText').textContent = role.description;
+            document.getElementById('roleDescription').classList.remove('d-none');
+        }
+    } else {
+        assignButton.disabled = true;
+        document.getElementById('roleDescription').classList.add('d-none');
+    }
+});
+
+// Handle form submission
+document.getElementById('assignRoleForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const service = document.getElementById('service').value;
+    const roleName = document.getElementById('role').value;
+    
+    if (!service || !roleName) return;
+    
+    try {
+        await api.assignRole(userId, {
+            service_name: service,
+            role_name: roleName
+        });
+        
+        identityAdminClient.showSuccess('Role assigned successfully');
+        
+        // Reload roles
+        await loadUserRoles();
+        
+        // Reset form
+        document.getElementById('service').value = '';
+        $('#service').trigger('change');
+        
+    } catch (error) {
+        identityAdminClient.showError(`Failed to assign role: ${error.message}`);
+    }
+});
+
+// Remove role
+async function removeRole(roleId) {
+    if (confirm('Are you sure you want to remove this role?')) {
+        try {
+            await api.revokeRole(userId, roleId);
+            identityAdminClient.showSuccess('Role removed successfully');
+            
+            // Reload roles
+            await loadUserRoles();
+            
+        } catch (error) {
+            identityAdminClient.showError(`Failed to remove role: ${error.message}`);
+        }
+    }
+}
+
+// Assign role profile
+async function assignProfile(profileKey) {
+    const profile = roleProfiles[profileKey];
+    if (!profile) return;
+    
+    if (confirm(`Are you sure you want to assign the ${profile.name} profile?`)) {
+        try {
+            // Assign all roles in the profile
+            const promises = profile.roles.map(role => 
+                api.assignRole(userId, role)
+            );
+            
+            await Promise.all(promises);
+            
+            identityAdminClient.showSuccess(`${profile.name} profile assigned successfully`);
+            
+            // Reload roles
+            await loadUserRoles();
+            
+        } catch (error) {
+            identityAdminClient.showError(`Failed to assign profile: ${error.message}`);
+        }
+    }
+}
+
+// Initialize on document ready
+$(document).ready(function() {
+    loadUserRoles();
+});
+</script>
+{% endblock %}

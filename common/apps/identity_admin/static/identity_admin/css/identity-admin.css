@@ -1,0 +1,131 @@
+/**
+ * Identity Admin Custom Styles
+ */
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Role badges */
+.role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    margin: 0.125rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+/* User status indicators */
+.user-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.user-status.active {
+    background-color: #28a745;
+}
+
+.user-status.inactive {
+    background-color: #dc3545;
+}
+
+/* Role profile cards */
+.role-profile-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.role-profile-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.role-profile-card.selected {
+    border-color: #007bff;
+    background-color: #f0f8ff;
+}
+
+/* Attribute editor */
+.attribute-input {
+    margin-bottom: 0.5rem;
+}
+
+.attribute-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Service icons */
+.service-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+}
+
+/* Responsive tables */
+@media (max-width: 768px) {
+    .table-responsive table {
+        font-size: 0.875rem;
+    }
+    
+    .btn-group-sm > .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Icon sizes */
+.mdi-48px {
+    font-size: 48px;
+}
+
+/* Alert improvements */
+.alert {
+    border-left: 4px solid;
+}
+
+.alert-success {
+    border-left-color: #28a745;
+}
+
+.alert-danger {
+    border-left-color: #dc3545;
+}
+
+.alert-warning {
+    border-left-color: #ffc107;
+}
+
+.alert-info {
+    border-left-color: #17a2b8;
+}

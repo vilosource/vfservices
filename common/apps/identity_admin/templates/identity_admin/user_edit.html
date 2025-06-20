@@ -1,0 +1,236 @@
+{% extends "identity_admin/base.html" %}
+{% load static %}
+
+{% block title %}Edit {{ user.username }}{% endblock %}
+
+{% block page_actions %}
+<a href="#" id="back-link" class="btn btn-light">
+    <i class="mdi mdi-arrow-left me-1"></i> Back to User
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Loading Spinner -->
+<div id="loading-spinner" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading user details...</p>
+</div>
+
+<!-- Error Message -->
+<div id="error-message" class="alert alert-danger d-none"></div>
+
+<!-- Edit Form (hidden until loaded) -->
+<div class="row d-none" id="edit-form">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form id="editUserForm">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="username" name="username" required readonly>
+                                <small class="text-muted">Username cannot be changed</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active">
+                                    <label class="form-check-label" for="is_active">
+                                        User is active
+                                    </label>
+                                </div>
+                                <small class="text-muted">Inactive users cannot log in</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Permissions</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="is_staff" name="is_staff">
+                                    <label class="form-check-label" for="is_staff">
+                                        Staff status
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="is_superuser" name="is_superuser">
+                                    <label class="form-check-label" for="is_superuser">
+                                        Superuser status
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="mb-3">Change Password (Optional)</h5>
+                            <p class="text-muted">Leave blank to keep current password</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="new_password" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="new_password" name="new_password">
+                                <small class="text-muted">At least 8 characters</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="confirm_password" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-end">
+                        <button type="button" class="btn btn-light me-1" id="cancel-btn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Load Mock API and API Config (api-client.js is already loaded in base.html) -->
+<script src="{% static 'identity_admin/js/mock-api.js' %}"></script>
+<script src="{% static 'identity_admin/js/api-config.js' %}"></script>
+
+<script>
+// Use the configured API (mock or real based on configuration)
+const api = window.getIdentityAPI();
+const userId = {{ user_id|default:"window.location.pathname.split('/')[4]" }};
+let userData = null;
+
+// Load user details
+async function loadUserDetails() {
+    const spinner = document.getElementById('loading-spinner');
+    const errorDiv = document.getElementById('error-message');
+    const formDiv = document.getElementById('edit-form');
+    
+    try {
+        // Fetch user data
+        userData = await api.getUser(userId);
+        
+        // Update page title
+        document.querySelector('.page-title').textContent = `Edit ${userData.username}`;
+        
+        // Update links
+        document.getElementById('back-link').href = `{% url 'identity_admin:user_detail' 0 %}`.replace('0', userId);
+        document.getElementById('cancel-btn').onclick = () => {
+            window.location.href = `{% url 'identity_admin:user_detail' 0 %}`.replace('0', userId);
+        };
+        
+        // Populate form
+        document.getElementById('username').value = userData.username;
+        document.getElementById('email').value = userData.email;
+        document.getElementById('first_name').value = userData.first_name || '';
+        document.getElementById('last_name').value = userData.last_name || '';
+        document.getElementById('is_active').checked = userData.is_active;
+        document.getElementById('is_staff').checked = userData.is_staff || false;
+        document.getElementById('is_superuser').checked = userData.is_superuser || false;
+        
+        // Hide spinner, show form
+        spinner.classList.add('d-none');
+        formDiv.classList.remove('d-none');
+        
+    } catch (error) {
+        console.error('Error loading user details:', error);
+        spinner.classList.add('d-none');
+        errorDiv.textContent = `Error loading user details: ${error.message}`;
+        errorDiv.classList.remove('d-none');
+    }
+}
+
+// Handle form submission
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    
+    // Validate passwords if provided
+    const newPassword = document.getElementById('new_password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    if (newPassword && newPassword !== confirmPassword) {
+        identityAdminClient.showError('Passwords do not match!');
+        return;
+    }
+    
+    if (newPassword && newPassword.length < 8) {
+        identityAdminClient.showError('Password must be at least 8 characters long!');
+        return;
+    }
+    
+    // Prepare update data
+    const updateData = {
+        email: document.getElementById('email').value,
+        first_name: document.getElementById('first_name').value,
+        last_name: document.getElementById('last_name').value,
+        is_active: document.getElementById('is_active').checked,
+        is_staff: document.getElementById('is_staff').checked,
+        is_superuser: document.getElementById('is_superuser').checked
+    };
+    
+    try {
+        // Update user
+        await api.updateUser(userId, updateData);
+        
+        // Update password if provided
+        if (newPassword) {
+            await api.setUserPassword(userId, newPassword);
+        }
+        
+        identityAdminClient.showSuccess('User updated successfully');
+        
+        // Redirect to user detail page after a short delay
+        setTimeout(() => {
+            window.location.href = `{% url 'identity_admin:user_detail' 0 %}`.replace('0', userId);
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Error updating user:', error);
+        identityAdminClient.showError(`Failed to update user: ${error.message}`);
+    }
+}
+
+// Initialize on document ready
+$(document).ready(function() {
+    loadUserDetails();
+    
+    // Attach form submit handler
+    document.getElementById('editUserForm').addEventListener('submit', handleFormSubmit);
+});
+</script>
+{% endblock %}

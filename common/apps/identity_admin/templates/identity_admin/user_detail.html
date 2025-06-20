@@ -1,0 +1,336 @@
+{% extends "identity_admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ user.username }}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group">
+    <a href="{% url 'identity_admin:user_edit' user.id %}" class="btn btn-primary">
+        <i class="mdi mdi-pencil me-1"></i> Edit User
+    </a>
+    <a href="{% url 'identity_admin:user_roles' user.id %}" class="btn btn-warning">
+        <i class="mdi mdi-shield-account me-1"></i> Manage Roles
+    </a>
+    <a href="{% url 'identity_admin:user_list' %}" class="btn btn-light">
+        <i class="mdi mdi-arrow-left me-1"></i> Back to List
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Loading Spinner -->
+<div id="loading-spinner" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading user details...</p>
+</div>
+
+<!-- Error Message -->
+<div id="error-message" class="alert alert-danger d-none"></div>
+
+<!-- User Details (hidden until loaded) -->
+<div class="row d-none" id="user-details">
+    <!-- User Information Card -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center">
+                    <img src="{% static 'assets/images/users/avatar-1.jpg' %}" class="rounded-circle avatar-lg img-thumbnail" alt="profile-image">
+                    
+                    <h4 class="mb-0 mt-2" id="user-fullname"></h4>
+                    <p class="text-muted font-14" id="user-username"></p>
+                    
+                    <div class="text-start mt-3">
+                        <p class="text-muted mb-2 font-13"><strong>Email:</strong> <span class="ms-2" id="user-email"></span></p>
+                        <p class="text-muted mb-2 font-13"><strong>Status:</strong> 
+                            <span class="ms-2" id="user-status">
+                            </span>
+                        </p>
+                        <p class="text-muted mb-2 font-13"><strong>Created:</strong> <span class="ms-2" id="user-created"></span></p>
+                        <p class="text-muted mb-2 font-13"><strong>Last Login:</strong> 
+                            <span class="ms-2" id="user-lastlogin">
+                            </span>
+                        </p>
+                        <p class="text-muted mb-2 font-13 d-none" id="user-superuser-row"><strong>Superuser:</strong> <span class="ms-2 badge bg-danger">Yes</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Quick Actions</h5>
+                <div class="d-grid gap-2" id="quick-actions">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Roles and Attributes -->
+    <div class="col-xl-8 col-lg-7">
+        <!-- User Roles Card -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Assigned Roles</h5>
+                <div id="roles-loading" class="text-center py-3">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Loading roles...</span>
+                    </div>
+                </div>
+                <div id="roles-content" class="d-none">
+                    <!-- Populated by JavaScript -->
+                </div>
+                <div class="mt-3">
+                    <a href="#" id="manage-roles-link" class="btn btn-primary btn-sm">
+                        <i class="mdi mdi-plus-circle me-1"></i> Manage Roles
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Attributes Card -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">User Attributes</h5>
+                {% if user.attributes %}
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Attribute</th>
+                                <th>Value</th>
+                                <th>Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attr in user.attributes %}
+                            <tr>
+                                <td>
+                                    {% if attr.service %}
+                                        <span class="badge bg-secondary">{{ attr.service }}</span>
+                                    {% else %}
+                                        <span class="badge bg-primary">Global</span>
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ attr.name }}</strong></td>
+                                <td><code>{{ attr.value }}</code></td>
+                                <td>{{ attr.updated_at|date:"Y-m-d H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No custom attributes defined for this user.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Activity Log Card -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Recent Activity</h5>
+                <p class="text-muted">Activity logging coming soon...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Load Mock API and API Config (api-client.js is already loaded in base.html) -->
+<script src="{% static 'identity_admin/js/mock-api.js' %}"></script>
+<script src="{% static 'identity_admin/js/api-config.js' %}"></script>
+
+<script>
+// Use the configured API (mock or real based on configuration)
+const api = window.getIdentityAPI();
+const userId = {{ user_id|default:"window.location.pathname.split('/')[4]" }};
+let userData = null;
+
+// Format date string
+function formatDate(dateString) {
+    if (!dateString) return 'Never';
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+}
+
+// Build role row HTML
+function buildRoleRow(role) {
+    return `
+        <tr>
+            <td><span class="badge bg-secondary">${role.service_name || role.service}</span></td>
+            <td><strong>${role.role_display_name || role.display_name}</strong></td>
+            <td>${role.description || ''}</td>
+            <td>${formatDate(role.granted_at)}</td>
+            <td>
+                <button class="btn btn-danger btn-sm" onclick="removeRole(${role.id})" title="Remove Role">
+                    <i class="mdi mdi-delete"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+}
+
+// Load user details
+async function loadUserDetails() {
+    const spinner = document.getElementById('loading-spinner');
+    const errorDiv = document.getElementById('error-message');
+    const detailsDiv = document.getElementById('user-details');
+    
+    try {
+        // Fetch user data
+        userData = await api.getUser(userId);
+        
+        // Update user information
+        document.getElementById('user-fullname').textContent = `${userData.first_name} ${userData.last_name}`;
+        document.getElementById('user-username').textContent = userData.username;
+        document.getElementById('user-email').textContent = userData.email;
+        
+        // Status badge
+        const statusHtml = userData.is_active 
+            ? '<span class="badge bg-success">Active</span>' 
+            : '<span class="badge bg-danger">Inactive</span>';
+        document.getElementById('user-status').innerHTML = statusHtml;
+        
+        // Dates
+        document.getElementById('user-created').textContent = formatDate(userData.date_joined);
+        document.getElementById('user-lastlogin').textContent = userData.last_login ? formatDate(userData.last_login) : 'Never';
+        
+        // Superuser badge
+        if (userData.is_superuser) {
+            document.getElementById('user-superuser-row').classList.remove('d-none');
+        }
+        
+        // Update page title and action buttons
+        document.querySelector('.page-title').textContent = userData.username;
+        document.querySelector('a[href*="user_edit"]').href = `{% url 'identity_admin:user_edit' 0 %}`.replace('0', userId);
+        document.querySelector('a[href*="user_roles"]').href = `{% url 'identity_admin:user_roles' 0 %}`.replace('0', userId);
+        document.getElementById('manage-roles-link').href = `{% url 'identity_admin:user_roles' 0 %}`.replace('0', userId);
+        
+        // Quick actions
+        const quickActionsHtml = `
+            ${userData.is_active 
+                ? '<button class="btn btn-danger btn-sm" onclick="toggleUserStatus(false)"><i class="mdi mdi-account-off me-1"></i> Deactivate User</button>'
+                : '<button class="btn btn-success btn-sm" onclick="toggleUserStatus(true)"><i class="mdi mdi-account-check me-1"></i> Activate User</button>'
+            }
+            <button class="btn btn-warning btn-sm" onclick="resetPassword()">
+                <i class="mdi mdi-lock-reset me-1"></i> Reset Password
+            </button>
+        `;
+        document.getElementById('quick-actions').innerHTML = quickActionsHtml;
+        
+        // Load roles
+        await loadUserRoles();
+        
+        // Hide spinner, show details
+        spinner.classList.add('d-none');
+        detailsDiv.classList.remove('d-none');
+        
+    } catch (error) {
+        console.error('Error loading user details:', error);
+        spinner.classList.add('d-none');
+        errorDiv.textContent = `Error loading user details: ${error.message}`;
+        errorDiv.classList.remove('d-none');
+    }
+}
+
+// Load user roles
+async function loadUserRoles() {
+    const rolesLoading = document.getElementById('roles-loading');
+    const rolesContent = document.getElementById('roles-content');
+    
+    try {
+        // Roles are included in user details for mock API
+        const roles = userData.roles || [];
+        
+        let rolesHtml = '';
+        if (roles.length > 0) {
+            rolesHtml = `
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Role</th>
+                                <th>Description</th>
+                                <th>Granted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${roles.map(role => buildRoleRow(role)).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        } else {
+            rolesHtml = '<p class="text-muted">No roles assigned to this user.</p>';
+        }
+        
+        rolesContent.innerHTML = rolesHtml;
+        rolesLoading.classList.add('d-none');
+        rolesContent.classList.remove('d-none');
+        
+    } catch (error) {
+        console.error('Error loading roles:', error);
+        rolesContent.innerHTML = '<p class="text-danger">Error loading roles</p>';
+        rolesLoading.classList.add('d-none');
+        rolesContent.classList.remove('d-none');
+    }
+}
+
+// Toggle user status
+async function toggleUserStatus(activate) {
+    const action = activate ? 'activate' : 'deactivate';
+    if (confirm(`Are you sure you want to ${action} this user?`)) {
+        try {
+            // Update user
+            await api.updateUser(userId, { is_active: activate });
+            identityAdminClient.showSuccess(`User ${action}d successfully`);
+            // Reload to show updated status
+            setTimeout(() => location.reload(), 1000);
+        } catch (error) {
+            identityAdminClient.showError(`Failed to ${action} user: ${error.message}`);
+        }
+    }
+}
+
+// Reset password
+async function resetPassword() {
+    if (confirm('Are you sure you want to reset this user\'s password?')) {
+        try {
+            // Generate random password for mock
+            const newPassword = 'TempPass123!';
+            await api.setUserPassword(userId, newPassword);
+            identityAdminClient.showSuccess('Password reset successfully. Temporary password sent to user.');
+        } catch (error) {
+            identityAdminClient.showError(`Failed to reset password: ${error.message}`);
+        }
+    }
+}
+
+// Remove role
+async function removeRole(roleId) {
+    if (confirm('Are you sure you want to remove this role?')) {
+        try {
+            await api.revokeRole(userId, roleId);
+            identityAdminClient.showSuccess('Role removed successfully');
+            // Reload roles
+            await loadUserDetails();
+        } catch (error) {
+            identityAdminClient.showError(`Failed to remove role: ${error.message}`);
+        }
+    }
+}
+
+// Initialize on document ready
+$(document).ready(function() {
+    loadUserDetails();
+});
+</script>
+{% endblock %}

@@ -289,6 +289,7 @@ def login_user(request: HttpRequest) -> HttpResponse:
 
         # Create JWT token
         payload = {
+            "user_id": user.id,  # Add user_id for RBAC lookups
             "username": user.username,
             "email": user.email,
             "iat": datetime.datetime.utcnow(),
@@ -868,16 +869,53 @@ def api_profile(request):
     )
     
     try:
+        # Get the Django user object
+        from django.contrib.auth.models import User
+        from .models import UserRole
+        
+        user = None
+        if hasattr(request.user, 'id'):
+            try:
+                user = User.objects.get(id=request.user.id)
+            except User.DoesNotExist:
+                pass
+        
+        if not user:
+            return Response(
+                {"detail": "User not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Get user's active roles
+        active_roles = UserRole.objects.filter(
+            user=user
+        ).select_related('role__service').order_by('-granted_at')
+        
+        roles_data = []
+        for user_role in active_roles:
+            if user_role.is_active:
+                roles_data.append({
+                    "role_name": user_role.role.name,
+                    "service_name": user_role.role.service.name,
+                    "is_active": True
+                })
+        
         user_profile = {
-            "username": request.user.username,
-            "email": request.user.email,
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "roles": roles_data,
             "timestamp": timezone.now().isoformat()
         }
         
         logger.info(
-            f"Profile retrieved for user: {request.user.username}",
+            f"Profile retrieved for user: {user.username}",
             extra={
-                'username': request.user.username,
+                'username': user.username,
+                'user_id': user.id,
+                'role_count': len(roles_data),
                 'ip': get_client_ip(request),
             }
         )
@@ -885,7 +923,7 @@ def api_profile(request):
         identity_logger.info(
             "User profile retrieved successfully",
             extra={
-                'user': request.user.username,
+                'user': user.username,
                 'client_ip': get_client_ip(request)
             }
         )

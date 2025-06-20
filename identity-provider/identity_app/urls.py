@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from rest_framework.views import APIView
 
@@ -12,4 +12,7 @@ urlpatterns = [
     path('api/profile/', views.api_profile, name='api_profile'),
     path('api/services/register/', views.ServiceRegisterView.as_view(), name='service_register'),
     path('api/refresh-user-cache/', views.RefreshUserCacheView.as_view(), name='refresh_user_cache'),
+    
+    # Admin API endpoints
+    path('api/admin/', include('identity_app.admin_urls')),
 ]

@@ -20,7 +20,10 @@ from django.urls import path, include
 from . import views 
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    # Replace Django admin with identity_admin
+    path("admin/", include("identity_admin.urls")),
+    # Keep Django admin available at different URL for emergency access
+    path("django-admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("demo/", include("demo.urls")),
     path("webdev/base.html", views.base, name="base"),
