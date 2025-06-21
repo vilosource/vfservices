@@ -200,14 +200,133 @@
     
     <!-- Initialize theme configuration to prevent JSON parse errors -->
     <script>
+        // Initialize localStorage with theme config if not present
+        (function() {
+            const defaultConfig = {
+                theme: 'light',
+                color: 'light',
+                layout: {
+                    color: 'light',
+                    mode: 'fluid',
+                    width: 'fluid',
+                    menuPosition: 'fixed',
+                    sidebar: {
+                        color: 'light',
+                        size: 'default',
+                        showuser: false
+                    },
+                    topbar: {
+                        color: 'dark'
+                    },
+                    showRightSidebarOnPageLoad: false
+                },
+                topbar: {
+                    color: 'dark'
+                },
+                sidebar: {
+                    color: 'light',
+                    size: 'default',
+                    showuser: false
+                }
+            };
+            
+            // Set all possible localStorage keys that might be used
+            const configKeys = ['config', '__CONFIG__', 'theme-config', 'adminto-config', '_UBOLD_CONFIG_'];
+            configKeys.forEach(key => {
+                if (!localStorage.getItem(key)) {
+                    localStorage.setItem(key, JSON.stringify(defaultConfig));
+                }
+            });
+        })();
+        
         // Temporarily override JSON.parse to handle undefined values
         const originalJSONParse = JSON.parse;
         JSON.parse = function(text) {
             if (text === undefined || text === 'undefined' || text === null || text === '') {
-                // Return default config for undefined values
+                // Return comprehensive default config for undefined values
                 return {
                     theme: 'light',
                     layout: {
+                        color: 'light',
+                        mode: 'fluid',
+                        width: 'fluid',
+                        menuPosition: 'fixed',
+                        sidebar: {
+                            color: 'light',
+                            size: 'default',
+                            showuser: false
+                        },
+                        topbar: {
+                            color: 'dark'
+                        },
+                        showRightSidebarOnPageLoad: false
+                    },
+                    // Additional properties that might be needed
+                    color: 'light',
+                    topbar: {
+                        color: 'dark'
+                    },
+                    sidebar: {
+                        color: 'light',
+                        size: 'default',
+                        showuser: false
+                    }
+                };
+            }
+            return originalJSONParse.apply(this, arguments);
+        };
+        
+        // Will restore original JSON.parse after app.min.js loads
+        window._originalJSONParse = originalJSONParse;
+    </script>
+    
+    <script src="{% static 'assets/js/app.min.js' %}"></script>
+    
+    <!-- Fix ThemeCustomizer and restore JSON.parse -->
+    <script>
+        // Restore original JSON.parse now that app.min.js has loaded
+        if (window._originalJSONParse) {
+            JSON.parse = window._originalJSONParse;
+            delete window._originalJSONParse;
+        }
+        
+        // Fix ThemeCustomizer methods to handle undefined values
+        if (window.ThemeCustomizer) {
+            // Wrap setSwitchFromConfig to handle undefined values
+            if (window.ThemeCustomizer.prototype.setSwitchFromConfig) {
+                const originalSetSwitch = window.ThemeCustomizer.prototype.setSwitchFromConfig;
+                window.ThemeCustomizer.prototype.setSwitchFromConfig = function() {
+                    try {
+                        // Ensure config exists with all required properties
+                        if (!this.config) {
+                            this.config = {};
+                        }
+                        if (!this.config.layout) {
+                            this.config.layout = {};
+                        }
+                        if (!this.config.layout.sidebar) {
+                            this.config.layout.sidebar = { color: 'light' };
+                        }
+                        if (!this.config.layout.topbar) {
+                            this.config.layout.topbar = { color: 'dark' };
+                        }
+                        if (!this.config.color) {
+                            this.config.color = 'light';
+                        }
+                        return originalSetSwitch.apply(this, arguments);
+                    } catch (e) {
+                        console.warn('ThemeCustomizer setSwitchFromConfig error:', e);
+                    }
+                };
+            }
+            
+            // Ensure any existing instance has proper config
+            if (window.themeCustomizer && !window.themeCustomizer.config) {
+                window.themeCustomizer.config = {
+                    theme: 'light',
+                    color: 'light',
+                    layout: {
+                        color: 'light',
                         mode: 'fluid',
                         width: 'fluid',
                         menuPosition: 'fixed',
@@ -223,21 +342,6 @@
                     }
                 };
             }
-            return originalJSONParse.apply(this, arguments);
-        };
-        
-        // Will restore original JSON.parse after app.min.js loads
-        window._originalJSONParse = originalJSONParse;
-    </script>
-    
-    <script src="{% static 'assets/js/app.min.js' %}"></script>
-    
-    <!-- Restore original JSON.parse -->
-    <script>
-        // Restore original JSON.parse now that app.min.js has loaded
-        if (window._originalJSONParse) {
-            JSON.parse = window._originalJSONParse;
-            delete window._originalJSONParse;
         }
     </script>
     
