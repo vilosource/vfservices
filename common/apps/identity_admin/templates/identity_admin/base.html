@@ -200,29 +200,46 @@
     
     <!-- Initialize theme configuration to prevent JSON parse errors -->
     <script>
-        // Initialize theme configuration if not present
-        if (!localStorage.getItem('config')) {
-            localStorage.setItem('config', JSON.stringify({
-                theme: 'light',
-                layout: {
-                    mode: 'fluid',
-                    width: 'fluid',
-                    menuPosition: 'fixed',
-                    sidebar: {
-                        color: 'light',
-                        size: 'default',
-                        showuser: false
-                    },
-                    topbar: {
-                        color: 'dark'
-                    },
-                    showRightSidebarOnPageLoad: false
-                }
-            }));
-        }
+        // Temporarily override JSON.parse to handle undefined values
+        const originalJSONParse = JSON.parse;
+        JSON.parse = function(text) {
+            if (text === undefined || text === 'undefined' || text === null || text === '') {
+                // Return default config for undefined values
+                return {
+                    theme: 'light',
+                    layout: {
+                        mode: 'fluid',
+                        width: 'fluid',
+                        menuPosition: 'fixed',
+                        sidebar: {
+                            color: 'light',
+                            size: 'default',
+                            showuser: false
+                        },
+                        topbar: {
+                            color: 'dark'
+                        },
+                        showRightSidebarOnPageLoad: false
+                    }
+                };
+            }
+            return originalJSONParse.apply(this, arguments);
+        };
+        
+        // Will restore original JSON.parse after app.min.js loads
+        window._originalJSONParse = originalJSONParse;
     </script>
     
     <script src="{% static 'assets/js/app.min.js' %}"></script>
+    
+    <!-- Restore original JSON.parse -->
+    <script>
+        // Restore original JSON.parse now that app.min.js has loaded
+        if (window._originalJSONParse) {
+            JSON.parse = window._originalJSONParse;
+            delete window._originalJSONParse;
+        }
+    </script>
     
     <!-- Set Identity Provider URL for JavaScript -->
     <script>
