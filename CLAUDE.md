@@ -1,10 +1,27 @@
-When markdown files are updated, always add a 1 linke changelog entry of the format:  <DATETIME_TIMESTAMP>: Reason for update 
-always test using traefik endpoints.
-when implementing views for the django projects always write a plywright smoke test. The tests should be written in playwright/<Django Project Name>/smoke-tests/. Always create a README.md about each test implemented and also how  to run the test
-Use docker compose instead of docker-compose command
-Remember that the common librarary used by Django projects is in the root of the project directory
-Unless told to do so, the identity-provider does not expose any web view. All interactions with the identity-provider is done via javascript api calls to the api.
-Test passwords should follow the template  <USERNAME>123!#QWERT
-when doing git commit do not add to the git commit message: 🤖 Generated with [Claude Code](https://claude.ai/code)
-When troubleshooting views and web pages, always consider that a lot of our html page contents are populated by javascript that makes API calls to our other services in the browser. 
-do not add anything like Claude <noreply@anthropic.com>  in git commits
+# Project Guidelines
+
+## identity-provider
+- The identity provider URL is https://identity.vfservices.viloforge.com (NOT identity-provider)
+- When integrating with the identity-provider always get the api schema /api/schema from the traefik endpoint of the identity-provider
+
+## Changelog
+- 2025-01-21T15:45:00Z: Added correct identity provider URL (identity.vfservices.viloforge.com)
+- 2025-01-21T10:30:00Z: Reorganized and made more concise while preserving all context
+
+## Testing
+- Always use Traefik endpoints for testing (e.g., https://website.vfservices.viloforge.com)
+- Write Playwright smoke tests for all Django views in `playwright/<Django Project Name>/smoke-tests/`
+- Include README.md for each test with instructions
+- Test passwords: `<USERNAME>123!#QWERT`
+
+## Development
+- Use `docker compose` (not `docker-compose`)
+- Common library is in project root directory
+- Identity Provider has no web views - only API endpoints
+- HTML content is populated via JavaScript API calls
+
+## Documentation
+- Add changelog to markdown files: `<DATETIME_TIMESTAMP>: Reason for update`
+
+## Git Commits
+- Do NOT include: `🤖 Generated with [Claude Code]` or `Claude <noreply@anthropic.com>`
