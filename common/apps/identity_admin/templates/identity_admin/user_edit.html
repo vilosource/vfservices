@@ -1,7 +1,7 @@
 {% extends "identity_admin/base.html" %}
 {% load static %}
 
-{% block title %}Edit {{ user.username }}{% endblock %}
+{% block title %}Edit User{% endblock %}
 
 {% block page_actions %}
 <a href="#" id="back-link" class="btn btn-light">
@@ -149,9 +149,9 @@ async function loadUserDetails() {
         document.querySelector('.page-title').textContent = `Edit ${userData.username}`;
         
         // Update links
-        document.getElementById('back-link').href = `{% url 'identity_admin:user_detail' 0 %}`.replace('0', userId);
+        document.getElementById('back-link').href = `/admin/users/${userId}/`;
         document.getElementById('cancel-btn').onclick = () => {
-            window.location.href = `{% url 'identity_admin:user_detail' 0 %}`.replace('0', userId);
+            window.location.href = `/admin/users/${userId}/`;
         };
         
         // Populate form

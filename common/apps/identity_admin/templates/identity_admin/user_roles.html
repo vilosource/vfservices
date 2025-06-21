@@ -251,7 +251,7 @@ async function loadUserRoles() {
         // Update page
         document.querySelector('.page-title').textContent = `Manage Roles - ${userData.username}`;
         document.getElementById('username-display').textContent = userData.username;
-        document.getElementById('back-link').href = `{% url 'identity_admin:user_detail' 0 %}`.replace('0', userId);
+        document.getElementById('back-link').href = `/admin/users/${userId}/`;
         
         // Populate service dropdown
         const serviceSelect = document.getElementById('service');

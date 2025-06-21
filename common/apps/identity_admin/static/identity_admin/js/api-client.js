@@ -40,9 +40,9 @@ class IdentityAdminClient {
     }
     
     /**
-     * Make API request
+     * Make API request with timeout
      */
-    async request(method, endpoint, data = null) {
+    async request(method, endpoint, data = null, timeout = 30000) {
         const url = this.baseUrl + endpoint;
         const options = {
             method: method,
@@ -59,7 +59,16 @@ class IdentityAdminClient {
         }
         
         try {
-            const response = await fetch(url, options);
+            // Create a timeout promise
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error(`Request timeout after ${timeout}ms`)), timeout);
+            });
+            
+            // Race between fetch and timeout
+            const response = await Promise.race([
+                fetch(url, options),
+                timeoutPromise
+            ]);
             
             if (!response.ok) {
                 let errorMessage = `HTTP ${response.status}`;

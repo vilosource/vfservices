@@ -149,6 +149,15 @@ function formatDate(dateString) {
 
 // Build user row HTML
 function buildUserRow(user) {
+    // Debug: log the user object to see what fields it has
+    if (!window.userDebugLogged) {
+        console.log('User object fields:', user);
+        window.userDebugLogged = true;
+    }
+    
+    // Try different possible ID fields
+    const userId = user.id || user.user_id || user.pk || 0;
+    
     const statusBadge = user.is_active 
         ? '<span class="badge bg-success">Active</span>' 
         : '<span class="badge bg-danger">Inactive</span>';
@@ -160,7 +169,7 @@ function buildUserRow(user) {
     return `
         <tr>
             <td>
-                <a href="{% url 'identity_admin:user_detail' 0 %}".replace('0', user.id) class="text-primary">
+                <a href="/admin/users/${userId}/" class="text-primary">
                     ${user.username}
                 </a>
             </td>
@@ -171,13 +180,13 @@ function buildUserRow(user) {
             <td>${formatDate(user.last_login)}</td>
             <td>
                 <div class="btn-group btn-group-sm">
-                    <a href="{% url 'identity_admin:user_detail' 0 %}".replace('0', user.id) class="btn btn-info" title="View">
+                    <a href="/admin/users/${userId}/" class="btn btn-info" title="View">
                         <i class="mdi mdi-eye"></i>
                     </a>
-                    <a href="{% url 'identity_admin:user_edit' 0 %}".replace('0', user.id) class="btn btn-primary" title="Edit">
+                    <a href="/admin/users/${userId}/edit/" class="btn btn-primary" title="Edit">
                         <i class="mdi mdi-pencil"></i>
                     </a>
-                    <a href="{% url 'identity_admin:user_roles' 0 %}".replace('0', user.id) class="btn btn-warning" title="Manage Roles">
+                    <a href="/admin/users/${userId}/roles/" class="btn btn-warning" title="Manage Roles">
                         <i class="mdi mdi-shield-account"></i>
                     </a>
                 </div>

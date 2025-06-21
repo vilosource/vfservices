@@ -1,14 +1,14 @@
 {% extends "identity_admin/base.html" %}
 {% load static %}
 
-{% block title %}{{ user.username }}{% endblock %}
+{% block title %}User Details{% endblock %}
 
 {% block page_actions %}
 <div class="btn-group">
-    <a href="{% url 'identity_admin:user_edit' user.id %}" class="btn btn-primary">
+    <a id="edit-user-btn" href="{% url 'identity_admin:user_edit' user_id %}" class="btn btn-primary">
         <i class="mdi mdi-pencil me-1"></i> Edit User
     </a>
-    <a href="{% url 'identity_admin:user_roles' user.id %}" class="btn btn-warning">
+    <a id="manage-roles-btn" href="{% url 'identity_admin:user_roles' user_id %}" class="btn btn-warning">
         <i class="mdi mdi-shield-account me-1"></i> Manage Roles
     </a>
     <a href="{% url 'identity_admin:user_list' %}" class="btn btn-light">
@@ -184,10 +184,12 @@ async function loadUserDetails() {
     
     try {
         // Fetch user data
+        console.log('Fetching user data for ID:', userId);
         userData = await api.getUser(userId);
+        console.log('User data received:', userData);
         
         // Update user information
-        document.getElementById('user-fullname').textContent = `${userData.first_name} ${userData.last_name}`;
+        document.getElementById('user-fullname').textContent = `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || userData.username;
         document.getElementById('user-username').textContent = userData.username;
         document.getElementById('user-email').textContent = userData.email;
         
@@ -206,11 +208,9 @@ async function loadUserDetails() {
             document.getElementById('user-superuser-row').classList.remove('d-none');
         }
         
-        // Update page title and action buttons
+        // Update page title
         document.querySelector('.page-title').textContent = userData.username;
-        document.querySelector('a[href*="user_edit"]').href = `{% url 'identity_admin:user_edit' 0 %}`.replace('0', userId);
-        document.querySelector('a[href*="user_roles"]').href = `{% url 'identity_admin:user_roles' 0 %}`.replace('0', userId);
-        document.getElementById('manage-roles-link').href = `{% url 'identity_admin:user_roles' 0 %}`.replace('0', userId);
+        // Action buttons already have correct URLs from Django template, no need to update them
         
         // Quick actions
         const quickActionsHtml = `
