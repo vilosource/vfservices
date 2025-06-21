@@ -111,17 +111,84 @@ def login_view(request: HttpRequest) -> HttpResponse:
             messages.error(request, result["error"])
             return render(request, 'accounts/login.html')
         
-        # Authentication successful - set JWT cookie and redirect
+        # Authentication successful - check CIELO access before redirecting
         redirect_url = request.GET.get('next', '/')
         
-        logger.info(
-            f"Login successful for user: {username}, redirecting to: {redirect_url}",
-            extra={
-                'username': username,
-                'ip': get_client_ip(request),
-                'redirect_url': redirect_url,
-            }
-        )
+        # Check if user has CIELO access rights
+        try:
+            from common.rbac_abac.redis_client import get_user_attributes
+            from webapp.middleware import CieloAccessMiddleware
+            from common.jwt_auth.utils import decode_jwt
+            
+            # Decode the JWT token to get user_id
+            token = result.get('token')
+            user_id = None
+            
+            if token:
+                try:
+                    decoded_token = decode_jwt(token)
+                    user_id = decoded_token.get('user_id')
+                except Exception as jwt_error:
+                    logger.error(
+                        f"Error decoding JWT token for {username}: {str(jwt_error)}",
+                        extra={
+                            'username': username,
+                            'error_type': type(jwt_error).__name__,
+                        }
+                    )
+            
+            if user_id:
+                user_attrs = get_user_attributes(user_id, 'cielo_website')
+                user_roles = user_attrs.roles if user_attrs else []
+                
+                # Check if user has any allowed CIELO roles
+                allowed_roles = CieloAccessMiddleware.ALLOWED_ROLES
+                has_cielo_access = any(role in allowed_roles for role in user_roles)
+                
+                if not has_cielo_access:
+                    logger.warning(
+                        f"Login successful but user {username} lacks CIELO access - redirecting to error page",
+                        extra={
+                            'username': username,
+                            'user_id': user_id,
+                            'user_roles': user_roles,
+                            'required_roles': allowed_roles,
+                            'ip': get_client_ip(request),
+                        }
+                    )
+                    # Redirect to access error page instead
+                    redirect_url = reverse('accounts:access_error')
+                else:
+                    logger.info(
+                        f"Login successful for user: {username} with CIELO access, redirecting to: {redirect_url}",
+                        extra={
+                            'username': username,
+                            'user_id': user_id,
+                            'user_roles': user_roles,
+                            'ip': get_client_ip(request),
+                            'redirect_url': redirect_url,
+                        }
+                    )
+            else:
+                # If we can't get user_id, log and proceed with normal redirect
+                logger.warning(
+                    f"Could not verify CIELO access - user_id not in auth result for {username}",
+                    extra={
+                        'username': username,
+                        'ip': get_client_ip(request),
+                    }
+                )
+        except Exception as e:
+            # If there's an error checking access, log it but proceed with normal flow
+            logger.error(
+                f"Error checking CIELO access during login for {username}: {str(e)}",
+                extra={
+                    'username': username,
+                    'error_type': type(e).__name__,
+                    'ip': get_client_ip(request),
+                },
+                exc_info=True
+            )
         
         response = HttpResponseRedirect(redirect_url)
         
@@ -270,3 +337,43 @@ def profile_view(request: HttpRequest) -> HttpResponse:
             exc_info=True
         )
         raise
+
+
+@log_view_access('access_error_page')
+@never_cache
+def access_error_view(request: HttpRequest) -> HttpResponse:
+    """Display error page for users without CIELO access rights."""
+    
+    logger.info(
+        f"Access error page displayed for user: {request.user}",
+        extra={
+            'user': str(request.user) if request.user.is_authenticated else 'Anonymous',
+            'user_id': request.user.id if request.user.is_authenticated else None,
+            'ip': get_client_ip(request),
+        }
+    )
+    
+    # Get user's actual roles if authenticated
+    user_roles = []
+    if request.user.is_authenticated:
+        try:
+            from common.rbac_abac.redis_client import get_user_attributes
+            user_attrs = get_user_attributes(request.user.id, 'cielo_website')
+            if user_attrs:
+                user_roles = user_attrs.roles
+        except Exception as e:
+            logger.error(
+                f"Error fetching user roles for access error page: {str(e)}",
+                extra={
+                    'user': str(request.user),
+                    'error_type': type(e).__name__,
+                }
+            )
+    
+    context = {
+        'user_roles': user_roles,
+        'required_roles': ['cielo_admin', 'cielo_user', 'cloud_architect', 'cost_analyst'],
+        'support_email': getattr(settings, 'SUPPORT_EMAIL', 'admin@vfservices.com'),
+    }
+    
+    return render(request, 'accounts/access_error.html', context)

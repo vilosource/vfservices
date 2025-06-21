@@ -176,6 +176,7 @@ class LoginRequiredMiddleware(MiddlewareMixin):
     EXEMPT_URLS = [
         '/accounts/login/',
         '/accounts/logout/',
+        '/accounts/access-error/',
         '/admin/',
         '/webdev/',  # Development template viewer
         '/static/',  # Static files
@@ -230,6 +231,7 @@ class CieloAccessMiddleware(MiddlewareMixin):
     EXEMPT_URLS = [
         '/accounts/login/',
         '/accounts/logout/',
+        '/accounts/access-error/',
         '/admin/',
         '/static/',
     ]
@@ -242,31 +244,70 @@ class CieloAccessMiddleware(MiddlewareMixin):
         
         # Skip permission check for exempt URLs
         if any(request.path.startswith(url) for url in self.EXEMPT_URLS):
+            logger.debug(
+                f"CieloAccessMiddleware: Skipping check for exempt URL",
+                extra={
+                    'path': request.path,
+                    'user': str(getattr(request, 'user', 'Anonymous')),
+                }
+            )
             return None
         
-        # Only check authenticated users
-        if hasattr(request, 'user') and request.user.is_authenticated:
-            # Check if user has any CIELO roles
-            user_has_access = self._check_cielo_access(request.user)
+        # Log authentication status
+        if not hasattr(request, 'user') or not request.user.is_authenticated:
+            logger.debug(
+                f"CieloAccessMiddleware: User not authenticated, skipping CIELO access check",
+                extra={
+                    'path': request.path,
+                    'has_user': hasattr(request, 'user'),
+                    'is_authenticated': getattr(request.user, 'is_authenticated', False) if hasattr(request, 'user') else False,
+                }
+            )
+            return None
+        
+        # Check if user has any CIELO roles
+        logger.info(
+            f"CieloAccessMiddleware: Checking CIELO access for user {request.user.username}",
+            extra={
+                'user_id': request.user.id,
+                'username': request.user.username,
+                'path': request.path,
+                'method': request.method,
+            }
+        )
+        
+        user_has_access = self._check_cielo_access(request.user)
+        
+        if not user_has_access:
+            client_ip = self._get_client_ip(request)
             
-            if not user_has_access:
-                client_ip = self._get_client_ip(request)
-                
-                logger.warning(
-                    f"User {request.user} denied access to Cielo - no CIELO roles assigned",
-                    extra={
-                        'path': request.path,
-                        'method': request.method,
-                        'user': str(request.user),
-                        'ip': client_ip,
-                        'user_agent': request.META.get('HTTP_USER_AGENT', 'Unknown'),
-                    }
-                )
-                
-                # Redirect to main VF Services site
-                redirect_url = "https://www.vfservices.viloforge.com/"
-                
-                return HttpResponseRedirect(redirect_url)
+            logger.warning(
+                f"CieloAccessMiddleware: Access DENIED - User {request.user.username} lacks required CIELO roles",
+                extra={
+                    'user_id': request.user.id,
+                    'username': request.user.username,
+                    'required_roles': self.ALLOWED_ROLES,
+                    'path': request.path,
+                    'method': request.method,
+                    'ip': client_ip,
+                    'user_agent': request.META.get('HTTP_USER_AGENT', 'Unknown'),
+                    'redirect_to': 'https://www.vfservices.viloforge.com/',
+                }
+            )
+            
+            # Redirect to main VF Services site
+            redirect_url = "https://www.vfservices.viloforge.com/"
+            
+            return HttpResponseRedirect(redirect_url)
+        
+        logger.info(
+            f"CieloAccessMiddleware: Access GRANTED for user {request.user.username}",
+            extra={
+                'user_id': request.user.id,
+                'username': request.user.username,
+                'path': request.path,
+            }
+        )
         
         return None
     
@@ -281,31 +322,74 @@ class CieloAccessMiddleware(MiddlewareMixin):
             # Import here to avoid circular imports
             from common.rbac_abac.redis_client import get_user_attributes
             
+            logger.debug(
+                f"CieloAccessMiddleware: Fetching RBAC attributes for user {user.username}",
+                extra={
+                    'user_id': user.id,
+                    'username': user.username,
+                    'service': 'cielo_website',
+                }
+            )
+            
             # Get user attributes for CIELO service
             user_attrs = get_user_attributes(user.id, 'cielo_website')
             
             if not user_attrs:
-                logger.debug(f"No attributes found for user {user.username} in CIELO service")
+                logger.warning(
+                    f"CieloAccessMiddleware: No RBAC attributes found for user {user.username}",
+                    extra={
+                        'user_id': user.id,
+                        'username': user.username,
+                        'service': 'cielo_website',
+                        'access_decision': 'DENY',
+                        'reason': 'no_attributes',
+                    }
+                )
                 return False
             
             # Check if user has any of the allowed CIELO roles
             user_roles = user_attrs.roles
-            has_cielo_role = any(role in self.ALLOWED_ROLES for role in user_roles)
+            matching_roles = [role for role in user_roles if role in self.ALLOWED_ROLES]
+            has_cielo_role = len(matching_roles) > 0
             
             if has_cielo_role:
-                logger.debug(
-                    f"User {user.username} has CIELO access via roles: {user_roles}"
+                logger.info(
+                    f"CieloAccessMiddleware: User {user.username} has CIELO access",
+                    extra={
+                        'user_id': user.id,
+                        'username': user.username,
+                        'all_roles': user_roles,
+                        'matching_roles': matching_roles,
+                        'required_roles': self.ALLOWED_ROLES,
+                        'access_decision': 'GRANT',
+                    }
                 )
                 return True
             else:
-                logger.debug(
-                    f"User {user.username} has no CIELO roles. Current roles: {user_roles}"
+                logger.warning(
+                    f"CieloAccessMiddleware: User {user.username} lacks required CIELO roles",
+                    extra={
+                        'user_id': user.id,
+                        'username': user.username,
+                        'user_roles': user_roles,
+                        'required_roles': self.ALLOWED_ROLES,
+                        'access_decision': 'DENY',
+                        'reason': 'no_matching_roles',
+                    }
                 )
                 return False
                 
         except Exception as e:
             logger.error(
-                f"Error checking CIELO access for user {user.username}: {str(e)}",
+                f"CieloAccessMiddleware: Error checking access for user {user.username}",
+                extra={
+                    'user_id': user.id,
+                    'username': user.username,
+                    'error_type': type(e).__name__,
+                    'error_message': str(e),
+                    'access_decision': 'DENY',
+                    'reason': 'error',
+                },
                 exc_info=True
             )
             # Fail closed - deny access if we can't verify

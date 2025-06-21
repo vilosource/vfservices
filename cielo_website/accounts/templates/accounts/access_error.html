@@ -1,0 +1,131 @@
+{% extends "page.html" %}
+{% load static %}
+
+{% block title %}Access Denied - CIELO{% endblock %}
+
+{% block body_class %} class="auth-fluid-pages pb-0"{% endblock %}
+
+{% block body_content %}
+<div class="auth-fluid">
+    <!-- Auth fluid right content -->
+    <div class="auth-fluid-right bg-transparent">
+        <div class="auth-user-testimonial">
+            <h3 class="mb-3 text-white">Access Restricted</h3>
+            <p class="lead fw-normal text-white">
+                CIELO (Cloud Infrastructure Engineering and Lifecycle Optimization) is restricted to authorized personnel only. 
+                Access is granted based on specific roles assigned by your organization's administrators.
+            </p>
+        </div>
+    </div>
+    <!-- end Auth fluid right content -->
+
+    <!--Auth fluid left content -->
+    <div class="auth-fluid-form-box">
+        <div class="align-items-center d-flex h-100">
+            <div class="card-body">
+
+                <!-- Logo -->
+                <div class="auth-brand text-center text-lg-start">
+                    <div class="auth-logo">
+                        <a href="/" class="logo logo-dark text-center">
+                            <span class="logo-lg">
+                                <img src="{% static 'assets/images/logo-dark.png' %}" alt="Logo dark" height="22">
+                            </span>
+                        </a>
+    
+                        <a href="/" class="logo logo-light text-center">
+                            <span class="logo-lg">
+                                <img src="{% static 'assets/images/logo-light.png' %}" alt="Logo light" height="22">
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Access Denied Content -->
+                <div class="mt-4">
+                    <h2 class="text-danger">
+                        <i class="mdi mdi-shield-alert-outline me-2"></i>Access Denied
+                    </h2>
+                    
+                    <div class="alert alert-danger mt-3" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="mdi mdi-alert-circle me-2"></i>Insufficient Access Rights
+                        </h5>
+                        <p>
+                            You have successfully authenticated, but you do not have the required permissions to access CIELO.
+                        </p>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5>Why am I seeing this?</h5>
+                        <p>Access to CIELO requires one of the following roles:</p>
+                        <ul class="list-unstyled">
+                            {% for role in required_roles %}
+                            <li>
+                                <i class="mdi mdi-chevron-right text-muted"></i>
+                                <code>{{ role }}</code>
+                                {% if role == 'cielo_admin' %}- Full administrative access
+                                {% elif role == 'cielo_user' %}- Standard user access
+                                {% elif role == 'cloud_architect' %}- Cloud architecture permissions
+                                {% elif role == 'cost_analyst' %}- Cost analysis permissions
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                        {% if user_roles %}
+                        <div class="mt-3">
+                            <p><strong>Your current roles:</strong></p>
+                            <p>
+                                {% for role in user_roles %}
+                                    <span class="badge bg-secondary me-1">{{ role }}</span>
+                                {% endfor %}
+                            </p>
+                        </div>
+                        {% else %}
+                        <div class="mt-3">
+                            <p class="text-muted">You currently have no roles assigned in the CIELO service.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-4">
+                        <h5>What should I do?</h5>
+                        <ol>
+                            <li>Contact your system administrator or manager</li>
+                            <li>Request access to CIELO with one of the required roles</li>
+                            <li>Reference this error when contacting support</li>
+                        </ol>
+                        
+                        <div class="alert alert-info mt-3" role="alert">
+                            <i class="mdi mdi-email-outline me-2"></i>
+                            For assistance, contact: <a href="mailto:{{ support_email }}" class="alert-link">{{ support_email }}</a>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-grid gap-2">
+                        <a href="https://www.vfservices.viloforge.com/" class="btn btn-primary">
+                            <i class="mdi mdi-home me-2"></i>Go to VF Services Home
+                        </a>
+                        <a href="{% url 'accounts:logout' %}" class="btn btn-secondary">
+                            <i class="mdi mdi-logout me-2"></i>Logout
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Footer-->
+                <footer class="footer footer-alt mt-4">
+                    <p class="text-muted">
+                        {% if user.is_authenticated %}
+                            Logged in as: <strong>{{ user.username }}</strong>
+                        {% endif %}
+                    </p>
+                </footer>
+
+            </div> <!-- end .card-body -->
+        </div> <!-- end .align-items-center.d-flex.h-100-->
+    </div>
+    <!-- end auth-fluid-form-box-->
+</div>
+<!-- end auth-fluid-->
+{% endblock %}

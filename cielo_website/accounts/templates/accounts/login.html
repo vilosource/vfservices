@@ -61,7 +61,7 @@
                 {% endif %}
 
                 <!-- form -->
-                <form action="{% url 'accounts:login' %}" method="post" id="loginForm">
+                <form action="{% url 'accounts:login' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}" method="post" id="loginForm">
                     {% csrf_token %}
                     <div class="mb-2">
                         <label for="username" class="form-label">Username</label>
