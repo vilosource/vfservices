@@ -135,9 +135,21 @@
                             <i class="ri-settings-3-line"></i>
                             <span>Settings</span>
                         </a>
-                        {% user_has_role 'identity_admin' as has_admin_role %}
-                        {% if has_admin_role %}
+                        {% user_has_role 'identity_admin' as has_identity_admin %}
+                        {% user_has_role 'cielo_admin' as has_cielo_admin %}
+                        
+                        {% if has_identity_admin or has_cielo_admin %}
                         <div class="dropdown-divider"></div>
+                        {% endif %}
+                        
+                        {% if has_cielo_admin %}
+                        <a href="https://identity.cielo.viloforge.com/admin/" class="dropdown-item notify-item">
+                            <i class="ri-shield-check-line"></i>
+                            <span>CIELO Admin</span>
+                        </a>
+                        {% endif %}
+                        
+                        {% if has_identity_admin %}
                         <a href="https://identity.vfservices.viloforge.com/admin/" class="dropdown-item notify-item">
                             <i class="ri-admin-line"></i>
                             <span>Identity Admin</span>
