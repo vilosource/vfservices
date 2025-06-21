@@ -32,8 +32,9 @@ class IsIdentityAdmin(BasePermission):
                 try:
                     db_user = User.objects.get(id=request.user.id)
                     identity_service = Service.objects.get(name='identity_provider')
-                    user_attrs = RBACService.get_user_attributes(db_user, identity_service)
-                    return 'identity_admin' in user_attrs.get('roles', [])
+                    user_roles = RBACService.get_user_roles(db_user, identity_service)
+                    role_names = [ur.role.name for ur in user_roles]
+                    return 'identity_admin' in role_names
                 except (User.DoesNotExist, Service.DoesNotExist):
                     pass
             

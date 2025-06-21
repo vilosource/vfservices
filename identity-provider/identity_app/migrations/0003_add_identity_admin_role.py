@@ -14,7 +14,7 @@ def create_identity_admin_role(apps, schema_editor):
         defaults={
             'display_name': 'Identity Provider',
             'description': 'Core identity and authentication service',
-            'version': '1.0.0'
+            'manifest_version': '1.0'
         }
     )
     

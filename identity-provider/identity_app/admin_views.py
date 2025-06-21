@@ -240,7 +240,7 @@ class UserViewSet(ModelViewSet):
         serializer = UserRoleSerializer(roles, many=True)
         return Response(serializer.data)
     
-    @action(detail=True, methods=['post'], url_path='roles')
+    @action(detail=True, methods=['post'])
     def assign_role(self, request, pk=None):
         """Assign role to user"""
         user = self.get_object()
