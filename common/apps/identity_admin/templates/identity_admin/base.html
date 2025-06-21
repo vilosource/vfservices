@@ -197,6 +197,31 @@
 
     <!-- JavaScript -->
     <script src="{% static 'assets/js/vendor.min.js' %}"></script>
+    
+    <!-- Initialize theme configuration to prevent JSON parse errors -->
+    <script>
+        // Initialize theme configuration if not present
+        if (!localStorage.getItem('config')) {
+            localStorage.setItem('config', JSON.stringify({
+                theme: 'light',
+                layout: {
+                    mode: 'fluid',
+                    width: 'fluid',
+                    menuPosition: 'fixed',
+                    sidebar: {
+                        color: 'light',
+                        size: 'default',
+                        showuser: false
+                    },
+                    topbar: {
+                        color: 'dark'
+                    },
+                    showRightSidebarOnPageLoad: false
+                }
+            }));
+        }
+    </script>
+    
     <script src="{% static 'assets/js/app.min.js' %}"></script>
     
     <!-- Set Identity Provider URL for JavaScript -->
