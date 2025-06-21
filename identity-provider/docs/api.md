@@ -242,18 +242,10 @@ All admin endpoints require the `identity_admin` role and use JWT cookie authent
     "roles": [
         {
             "id": 1,
-            "role": {
-                "id": 1,
-                "name": "identity_admin",
-                "display_name": "Identity Administrator",
-                "description": "Full administrative access",
-                "is_global": true
-            },
-            "service": {
-                "id": 1,
-                "name": "identity_provider",
-                "display_name": "Identity Provider"
-            },
+            "role_name": "identity_admin",
+            "role_display_name": "Identity Administrator",
+            "service_name": "identity_provider",
+            "service_display_name": "Identity Provider",
             "granted_at": "2024-01-01T00:00:00Z",
             "granted_by": {
                 "id": 1,
@@ -343,23 +335,12 @@ All admin endpoints require the `identity_admin` role and use JWT cookie authent
 [
     {
         "id": 1,
-        "role": {
-            "id": 1,
-            "name": "identity_admin",
-            "display_name": "Identity Administrator",
-            "description": "Full administrative access",
-            "is_global": true
-        },
-        "service": {
-            "id": 1,
-            "name": "identity_provider",
-            "display_name": "Identity Provider"
-        },
+        "role_name": "identity_admin",
+        "role_display_name": "Identity Administrator",
+        "service_name": "identity_provider",
+        "service_display_name": "Identity Provider",
         "granted_at": "2024-01-01T00:00:00Z",
-        "granted_by": {
-            "id": 1,
-            "username": "admin"
-        },
+        "granted_by_username": "admin",
         "expires_at": null,
         "is_active": true
     }
@@ -404,8 +385,9 @@ All admin endpoints require the `identity_admin` role and use JWT cookie authent
         "description": "Core identity and access management service",
         "is_active": true,
         "manifest_version": 1,
-        "created_at": "2024-01-01T00:00:00Z",
-        "updated_at": "2024-01-01T00:00:00Z"
+        "registered_at": "2024-01-01T00:00:00Z",
+        "role_count": 1,
+        "user_count": 1
     }
 ]
 ```
@@ -427,11 +409,9 @@ All admin endpoints require the `identity_admin` role and use JWT cookie authent
         "display_name": "Identity Administrator",
         "description": "Full administrative access to identity provider",
         "is_global": true,
-        "service": {
-            "id": 1,
-            "name": "identity_provider",
-            "display_name": "Identity Provider"
-        }
+        "service_name": "identity_provider",
+        "service_display_name": "Identity Provider",
+        "created_at": "2024-01-01T00:00:00Z"
     }
 ]
 ```
@@ -447,12 +427,12 @@ All admin endpoints require the `identity_admin` role and use JWT cookie authent
 {
     "assignments": [
         {
-            "username": "user1",
+            "user_id": 1,
             "role_name": "billing_viewer",
             "service_name": "billing_api"
         },
         {
-            "username": "user2",
+            "user_id": 2,
             "role_name": "costs_admin",
             "service_name": "azure_costs"
         }
