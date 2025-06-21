@@ -58,12 +58,17 @@ graph TD
 #### Identity Provider Service
 - **Purpose**: Central authority for authentication and authorization
 - **Responsibilities**:
-  - User authentication (login/logout)
+  - User authentication API endpoints (`/api/login/`) for programmatic JWT token retrieval
+  - Web-based login forms (`/login/`, `/logout/`) for browser SSO with JWT cookies
   - JWT token generation and validation
   - Service registration and manifest storage
   - Role and attribute management
   - Cache population and invalidation
 - **Technology**: Django + Django REST Framework
+- **Authentication Methods**:
+  - **API Authentication**: POST to `/api/login/` with credentials returns JWT token
+  - **Web SSO**: Form-based login at `/login/` sets httpOnly JWT cookie for domain-wide SSO
+  - **Integration**: Other Django projects and applications consume authentication via JavaScript API calls
 
 #### Redis Cache Layer
 - **Purpose**: High-performance attribute storage
@@ -130,25 +135,50 @@ graph TD
 ## Data Flow
 
 ### Authentication Flow
+
+There are two primary authentication flows:
+
+#### 1. Web-Based SSO Authentication (Browser)
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant CW as CIELO Website
+    participant B as Browser
     participant IP as Identity Provider
     participant DB as Database
     participant R as Redis
-    participant S as Services
+    participant CW as CIELO/Other Apps
     
-    U->>CW: Access Login Form
-    CW->>IP: Submit Credentials
+    U->>B: Navigate to protected page
+    B->>CW: Request page (no JWT cookie)
+    CW->>B: Redirect to Identity Provider
+    B->>IP: GET /login/?redirect_uri=...
+    IP->>B: Return login form
+    U->>IP: Submit credentials
     IP->>DB: Validate Credentials
     DB-->>IP: User Valid
     IP->>IP: Generate JWT
-    IP->>U: Set JWT Cookie
+    IP->>B: Set httpOnly JWT Cookie + Redirect
     IP->>R: Cache User Attributes
-    R->>S: Pub/Sub Notification
-    IP-->>CW: Login Success
-    CW-->>U: Redirect to Dashboard
+    B->>CW: Request with JWT Cookie
+    CW-->>U: Protected Content
+```
+
+#### 2. API Authentication (JavaScript/Programmatic)
+```mermaid
+sequenceDiagram
+    participant A as Application/JS
+    participant IP as Identity Provider API
+    participant DB as Database
+    participant R as Redis
+    
+    A->>IP: POST /api/login/ {username, password}
+    IP->>DB: Validate Credentials
+    DB-->>IP: User Valid
+    IP->>IP: Generate JWT
+    IP->>R: Cache User Attributes
+    IP-->>A: Return {token: "JWT..."}
+    A->>A: Store token for API calls
+    Note over A: Use token in Authorization header
 ```
 
 ### Authorization Flow
@@ -198,6 +228,41 @@ sequenceDiagram
         IP-->>S: Validation Error
     end
 ```
+
+## Integration Pattern for Django Projects
+
+### Consuming Identity Provider Authentication
+
+Django projects in the VF Services ecosystem integrate with the Identity Provider through:
+
+1. **Frontend JavaScript API Calls**
+   ```javascript
+   // Example: Login via JavaScript
+   fetch('https://identity.viloforge.com/api/login/', {
+     method: 'POST',
+     headers: {'Content-Type': 'application/json'},
+     body: JSON.stringify({
+       username: 'user@example.com',
+       password: 'password'
+     })
+   })
+   .then(response => response.json())
+   .then(data => {
+     // Store JWT token for subsequent API calls
+     localStorage.setItem('jwt', data.token);
+   });
+   ```
+
+2. **JWT Middleware Integration**
+   - Services use the common JWT authentication middleware
+   - Validates JWT tokens from cookies or Authorization headers
+   - Extracts user context for authorization decisions
+
+3. **No Direct Web Views**
+   - Identity Provider does NOT expose application-specific web views
+   - All authentication UI is either:
+     - The Identity Provider's own login/logout forms
+     - Custom forms in each Django project that call the API
 
 ## Design Patterns
 
