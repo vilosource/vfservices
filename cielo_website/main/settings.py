@@ -12,9 +12,15 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Add common/apps to Python path for identity_admin
+COMMON_APPS_PATH = Path(__file__).resolve().parent.parent.parent / 'common' / 'apps'
+if str(COMMON_APPS_PATH) not in sys.path:
+    sys.path.insert(0, str(COMMON_APPS_PATH))
 
 
 # Quick-start development settings - unsuitable for production
@@ -57,6 +63,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "webapp",
     "accounts",
+    "identity_admin",  # Identity Administration app
 ]
 
 MIDDLEWARE = [

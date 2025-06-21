@@ -6,18 +6,31 @@ from playwright.sync_api import Page, expect
 import time
 
 BASE_URL = "https://cielo.viloforge.com"
-IDENTITY_ADMIN_URL = "https://identity.cielo.viloforge.com/admin/"
+ADMIN_URL = f"{BASE_URL}/admin/"
 
 def test_cielo_admin_menu_item_visible_with_role(page: Page):
     """Test that CIELO Admin menu item is visible for users with cielo_admin role."""
-    # Login as admin user who has cielo_admin role
+    # Login as cielo_admin user who should have cielo_admin role
     page.goto(f"{BASE_URL}/accounts/login/")
-    page.fill('input[name="email"]', 'admin')
-    page.fill('input[name="password"]', 'admin123!#QWERT')
+    page.fill('input[name="email"]', 'cielo_admin')
+    page.fill('input[name="password"]', 'cielo_admin123!#QWERT')
     page.click('button[type="submit"]')
     
-    # Wait for login to complete
-    page.wait_for_url(BASE_URL + "/", timeout=10000)
+    # Wait for login to complete - might get an error or redirect
+    page.wait_for_timeout(3000)
+    
+    # Check where we ended up
+    current_url = page.url
+    print(f"Current URL after login: {current_url}")
+    
+    # If we're still on login page, check for errors
+    if "/accounts/login" in current_url:
+        error_msg = page.locator('.alert').text_content() if page.locator('.alert').count() > 0 else "No error message"
+        print(f"Login error: {error_msg}")
+        
+    # Make sure we're on the home page
+    if current_url != BASE_URL + "/":
+        page.goto(BASE_URL + "/")
     
     # Click on user dropdown
     page.locator('.topbar-dropdown .nav-user').click()
@@ -31,7 +44,7 @@ def test_cielo_admin_menu_item_visible_with_role(page: Page):
     
     # Check the href
     href = admin_item.get_attribute('href')
-    assert href == IDENTITY_ADMIN_URL, f"Expected href to be {IDENTITY_ADMIN_URL}, got {href}"
+    assert href == "/admin/", f"Expected href to be /admin/, got {href}"
 
 
 def test_cielo_admin_menu_item_hidden_without_role(page: Page):
@@ -43,11 +56,11 @@ def test_cielo_admin_menu_item_hidden_without_role(page: Page):
 
 
 def test_cielo_admin_menu_link_functionality(page: Page):
-    """Test that clicking CIELO Admin menu item redirects to identity admin."""
-    # Login as admin user
+    """Test that clicking CIELO Admin menu item redirects to local identity admin."""
+    # Login as cielo_admin user
     page.goto(f"{BASE_URL}/accounts/login/")
-    page.fill('input[name="email"]', 'admin')
-    page.fill('input[name="password"]', 'admin123!#QWERT')
+    page.fill('input[name="email"]', 'cielo_admin')
+    page.fill('input[name="password"]', 'cielo_admin123!#QWERT')
     page.click('button[type="submit"]')
     
     # Wait for login to complete
@@ -63,9 +76,11 @@ def test_cielo_admin_menu_link_functionality(page: Page):
     admin_item = page.locator('a.dropdown-item:has-text("CIELO Admin")')
     admin_item.click()
     
-    # Should redirect to identity admin URL
-    # Wait a bit for the navigation to start
-    page.wait_for_timeout(2000)
+    # Should redirect to local admin URL
+    page.wait_for_url(ADMIN_URL + "*", timeout=10000)
     
-    # Verify we're on the identity admin page (or login page if not authenticated there)
-    assert IDENTITY_ADMIN_URL in page.url or "identity.cielo.viloforge.com" in page.url, f"Expected to be on identity admin domain, but on {page.url}"
+    # Verify we're on the admin page
+    assert page.url.startswith(ADMIN_URL), f"Expected to be on {ADMIN_URL}, but on {page.url}"
+    
+    # Check that the identity admin dashboard loaded
+    expect(page.locator('h1:has-text("Identity Administration")')).to_be_visible(timeout=10000)

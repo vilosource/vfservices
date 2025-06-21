@@ -19,7 +19,10 @@ from django.contrib import admin
 from django.urls import path, include 
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    # Replace Django admin with identity_admin
+    path("admin/", include("identity_admin.urls")),
+    # Keep Django admin available at different URL for emergency access
+    path("django-admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("", include("webapp.urls")),
 ]
