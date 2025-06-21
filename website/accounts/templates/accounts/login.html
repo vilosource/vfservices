@@ -64,9 +64,9 @@
                 <form action="{% url 'accounts:login' %}" method="post" id="loginForm">
                     {% csrf_token %}
                     <div class="mb-2">
-                        <label for="username" class="form-label">Username</label>
-                        <input class="form-control" type="text" id="username" name="email" required 
-                               placeholder="Enter your username" value="{{ request.POST.email|default:'' }}">
+                        <label for="username" class="form-label">Username or Email</label>
+                        <input class="form-control" type="text" id="username" name="username" required 
+                               placeholder="Enter your username or email" value="{{ request.POST.username|default:'' }}">
                     </div>
                     <div class="mb-2">
                         <a href="#" class="text-muted float-end"><small>Forgot your password?</small></a>
@@ -130,6 +130,7 @@
 
 <!-- Add JavaScript for better UX -->
 <script>
+// Handle form submission spinner
 document.getElementById('loginForm').addEventListener('submit', function() {
     const button = document.getElementById('loginButton');
     const spinner = button.querySelector('.spinner-border');
@@ -139,4 +140,46 @@ document.getElementById('loginForm').addEventListener('submit', function() {
     button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Logging in...';
 });
 </script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Password visibility toggle (using original material theme implementation)
+$(document).ready(function() {
+    $('[data-password]').on('click', function () {
+        if ($(this).attr('data-password') == "false") {
+            $(this).siblings("input").attr("type", "text");
+            $(this).attr('data-password', 'true');
+            $(this).addClass("show-password");
+        } else {
+            $(this).siblings("input").attr("type", "password");
+            $(this).attr('data-password', 'false');
+            $(this).removeClass("show-password");
+        }
+    });
+});
+</script>
+
+<style>
+/* Password eye icon styles from material theme */
+.password-eye:before {
+  font-family: feather !important;
+  content: "\e86e"; /* fe-eye-off (password hidden) */
+  font-style: normal;
+  font-weight: 400;
+  font-variant: normal;
+  line-height: 1.2;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.show-password .password-eye:before {
+  content: "\e86a"; /* fe-eye (password visible) */
+}
+
+[data-password] {
+  cursor: pointer;
+}
+</style>
 {% endblock %}
