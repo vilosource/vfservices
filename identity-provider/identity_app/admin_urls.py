@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 
 from .admin_views import (
     UserViewSet, ServiceViewSet, RoleViewSet,
-    BulkOperationsView, AuditLogView
+    BulkOperationsView, AuditLogView, ServiceAttributeViewSet
 )
 
 # Create router
@@ -14,6 +14,7 @@ router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='admin-user')
 router.register(r'services', ServiceViewSet, basename='admin-service')
 router.register(r'roles', RoleViewSet, basename='admin-role')
+router.register(r'attributes', ServiceAttributeViewSet, basename='admin-attribute')
 
 # URL patterns
 urlpatterns = [

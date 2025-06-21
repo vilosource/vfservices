@@ -686,6 +686,155 @@ class LoginAPIView(APIView):
             )
 
 
+class LogoutAPIView(APIView):
+    """API endpoint to logout and invalidate JWT token."""
+    
+    authentication_classes = []  # We'll handle JWT manually
+    permission_classes = []
+    
+    @swagger_auto_schema(
+        operation_description="Logout and invalidate JWT token",
+        manual_parameters=[
+            openapi.Parameter(
+                'Authorization',
+                openapi.IN_HEADER,
+                description="Bearer token (optional, will also check cookies)",
+                type=openapi.TYPE_STRING,
+                required=False
+            )
+        ],
+        responses={
+            200: openapi.Response(
+                description='Logout successful',
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'detail': openapi.Schema(type=openapi.TYPE_STRING, description='Success message')
+                    }
+                )
+            ),
+            400: 'Bad Request - No token provided',
+            401: 'Unauthorized - Invalid token',
+            500: 'Internal Server Error'
+        },
+        tags=['Authentication']
+    )
+    def post(self, request):
+        """Handle API logout requests."""
+        logger.debug(
+            "API logout endpoint accessed",
+            extra={
+                'ip': get_client_ip(request),
+                'user_agent': request.META.get('HTTP_USER_AGENT', 'Unknown'),
+                'timestamp': timezone.now().isoformat(),
+            }
+        )
+        
+        try:
+            # Check for JWT token in Authorization header or cookies
+            token = None
+            auth_header = request.META.get('HTTP_AUTHORIZATION')
+            
+            if auth_header and auth_header.startswith('Bearer '):
+                token = auth_header.split(' ', 1)[1]
+                logger.debug("JWT token found in Authorization header")
+            elif 'jwt' in request.COOKIES:
+                token = request.COOKIES.get('jwt')
+                logger.debug("JWT token found in cookies")
+            else:
+                logger.warning(
+                    "API logout attempt without token",
+                    extra={
+                        'ip': get_client_ip(request),
+                    }
+                )
+                return Response(
+                    {"detail": "No authentication token provided"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Decode token to get user info for logging
+            username = None
+            try:
+                payload = utils.decode_jwt(token)
+                username = payload.get('username', 'Unknown')
+                user_id = payload.get('user_id')
+                
+                logger.info(
+                    f"API logout request for user: {username}",
+                    extra={
+                        'username': username,
+                        'user_id': user_id,
+                        'ip': get_client_ip(request),
+                    }
+                )
+                
+            except Exception as e:
+                logger.warning(
+                    f"Invalid token provided for logout: {str(e)}",
+                    extra={
+                        'ip': get_client_ip(request),
+                        'error_type': type(e).__name__,
+                    }
+                )
+                return Response(
+                    {"detail": "Invalid authentication token"}, 
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+            
+            # Clear JWT cookie if it exists
+            response = Response({"detail": "Logged out successfully"})
+            
+            if 'jwt' in request.COOKIES:
+                response.delete_cookie(
+                    'jwt',
+                    domain=settings.SSO_COOKIE_DOMAIN if hasattr(settings, 'SSO_COOKIE_DOMAIN') else None,
+                    path='/'
+                )
+                logger.debug("JWT cookie cleared")
+            
+            # Log the logout event
+            # Try to get the actual User object if possible
+            user_obj = None
+            if user_id:
+                try:
+                    from django.contrib.auth.models import User
+                    user_obj = User.objects.get(id=user_id)
+                except User.DoesNotExist:
+                    pass
+            
+            log_logout_event(request, user_obj)
+            
+            auth_logger.info(
+                "API logout completed successfully",
+                extra={
+                    'username': username,
+                    'client_ip': get_client_ip(request),
+                    'endpoint': 'api'
+                }
+            )
+            
+            # TODO: In the future, add token to blacklist here
+            # BlacklistService.add_token(token, payload.get('exp'))
+            
+            return response
+            
+        except Exception as e:
+            logger.error(
+                f"API logout process failed: {str(e)}",
+                extra={
+                    'error_type': type(e).__name__,
+                    'ip': get_client_ip(request),
+                },
+                exc_info=True
+            )
+            
+            return Response(
+                {"detail": "Internal server error"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
 class APIInfoView(APIView):
     """API endpoint that provides information about available API endpoints."""
     
