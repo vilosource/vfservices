@@ -11,7 +11,7 @@ from .models import Role, UserRole, Service, UserAttribute, ServiceAttribute
 class RoleSerializer(serializers.ModelSerializer):
     service_name = serializers.CharField(source='service.name', read_only=True)
     service_display_name = serializers.CharField(source='service.display_name', read_only=True)
-    user_count = serializers.IntegerField(read_only=True, default=0)
+    user_count = serializers.IntegerField(read_only=True)
     
     class Meta:
         model = Role

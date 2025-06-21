@@ -5,7 +5,7 @@ Provides administrative endpoints for user and role management.
 import logging
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from django.db.models import Q, Prefetch
+from django.db.models import Q, Prefetch, Count
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
@@ -375,7 +375,9 @@ class RoleListView(APIView):
         
         queryset = Role.objects.filter(
             service__is_active=True
-        ).select_related('service').order_by('service__name', 'name')
+        ).select_related('service').annotate(
+            user_count=Count('user_assignments', distinct=True)
+        ).order_by('service__name', 'name')
         
         if service_filter:
             queryset = queryset.filter(service__name=service_filter)
@@ -383,11 +385,31 @@ class RoleListView(APIView):
         if is_global in ['true', 'false']:
             queryset = queryset.filter(is_global=(is_global == 'true'))
         
+        # Add debug logging
+        logger.info(f"RoleListView: Found {queryset.count()} roles")
+        
+        # Check a specific role for debugging
+        identity_admin_role = queryset.filter(name='identity_admin', service__name='identity_provider').first()
+        if identity_admin_role:
+            direct_count = UserRole.objects.filter(role=identity_admin_role).count()
+            logger.info(f"identity_admin role: annotated count={identity_admin_role.user_count}, direct count={direct_count}")
+            
+            # Check if alice has this role
+            alice = User.objects.filter(username='alice').first()
+            if alice:
+                alice_has_role = UserRole.objects.filter(user=alice, role=identity_admin_role).exists()
+                logger.info(f"Alice has identity_admin role: {alice_has_role}")
+        
+        # Force evaluation of the queryset to ensure annotations are available
+        roles = list(queryset)
+        
+        # Serialize the roles
         roles_data = []
-        for role in queryset:
+        for role in roles:
+            # Serialize the role
             role_data = RoleSerializer(role).data
-            role_data['service_name'] = role.service.name
-            role_data['service_display'] = role.service.display_name
+            # Explicitly add user_count (force it)
+            role_data['user_count'] = getattr(role, 'user_count', 0)
             roles_data.append(role_data)
         
         return Response(roles_data)
