@@ -7,7 +7,6 @@ The Identity Provider API is a Django-based authentication service that provides
 ## Base URL
 
 - **Production**: `https://identity.vfservices.viloforge.com`
-- **Development**: `http://localhost:8100`
 
 ## Interactive Documentation
 

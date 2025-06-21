@@ -12,7 +12,7 @@ TEST_PARALLEL ?= 4
 TEST_TIMEOUT ?= 30000
 TEST_WEB_PORT ?= 8080
 
-.PHONY: help up cert https-up http-up docker-up docker-down docker-build docker-logs docker-https certbot-renew db-reset db-shell db-list db-drop-all fresh-start db-fresh db-backup db-logs db-status db-restore restart-identity restart-website restart-billing restart-inventory archive test test-setup test-ui test-headed test-debug test-docker test-ci test-docker-enhanced test-docker-setup test-docker-run test-docker-headed test-docker-debug test-docker-clean test-analyze test-report test-archive test-monitor test-web test-quick test-ci-docker test-status test-list test-help test-cielo test-cielo-smoke test-cielo-integration test-cielo-all test-azure-costs test-billing test-cross-service test-cielo-help test-cielo-setup test-cielo-status _check-services
+.PHONY: help up cert https-up http-up docker-up docker-down docker-build docker-logs docker-https certbot-renew db-reset db-shell db-list db-drop-all fresh-start db-fresh db-backup db-logs db-status db-restore restart-identity restart-website restart-billing restart-inventory archive test test-setup test-ui test-headed test-debug test-docker test-ci test-docker-enhanced test-docker-setup test-docker-run test-docker-headed test-docker-debug test-docker-clean test-analyze test-report test-archive test-monitor test-web test-quick test-ci-docker test-status test-list test-help test-cielo test-cielo-smoke test-cielo-integration test-cielo-all test-azure-costs test-billing test-cross-service test-cielo-help test-cielo-setup test-cielo-status test-identity-admin test-identity-admin-users test-identity-admin-roles test-identity-admin-bulk test-identity-admin-integration _check-services
 
 help:
 	@echo "Available make targets:"
@@ -96,6 +96,13 @@ help:
 	@echo "  test-billing            Test Billing API cross-service auth"
 	@echo "  test-cross-service      Test all cross-service authentication"
 	@echo "  test-cielo-help         Show CIELO testing help"
+	@echo ""
+	@echo "Identity Provider Admin API Testing:"
+	@echo "  test-identity-admin     Run all Identity Provider admin API tests"
+	@echo "  test-identity-admin-users    Test user management APIs"
+	@echo "  test-identity-admin-roles    Test role management APIs"
+	@echo "  test-identity-admin-bulk     Test bulk operations"
+	@echo "  test-identity-admin-integration Test integration scenarios"
 	@echo ""
 	@echo "=== Project Management ==="
 	@echo "  archive             Create a project archive excluding .gitignore files"
@@ -953,6 +960,44 @@ test-cross-service: _check-services
 
 # Run all CIELO tests (alias for test-cielo)
 test-cielo-all: test-cielo
+
+# Run Identity Provider admin API tests
+test-identity-admin: _check-services
+	@echo "Running Identity Provider Admin API tests..."
+	@echo "==============================================="
+	@echo "This includes:"
+	@echo "  - User management API tests"
+	@echo "  - Role management API tests"
+	@echo "  - Bulk operations tests"
+	@echo "  - Integration and cache tests"
+	@echo "==============================================="
+	@echo "Setting up test environment..."
+	@docker compose exec identity-provider python manage.py migrate > /dev/null 2>&1 || true
+	@docker compose exec identity-provider python manage.py setup_admin_test_user > /dev/null 2>&1 || true
+	cd playwright/identity-provider/smoke-tests && python -m pytest -v
+	@echo ""
+	@echo "Identity Provider Admin API tests completed!"
+
+# Run specific Identity Provider admin test suite
+test-identity-admin-users: _check-services
+	@echo "Running Identity Provider Admin API user management tests..."
+	cd playwright/identity-provider/smoke-tests && python -m pytest test_admin_api_users.py -v
+	@echo "User management tests completed!"
+
+test-identity-admin-roles: _check-services
+	@echo "Running Identity Provider Admin API role management tests..."
+	cd playwright/identity-provider/smoke-tests && python -m pytest test_admin_api_roles.py -v
+	@echo "Role management tests completed!"
+
+test-identity-admin-bulk: _check-services
+	@echo "Running Identity Provider Admin API bulk operations tests..."
+	cd playwright/identity-provider/smoke-tests && python -m pytest test_admin_api_bulk.py -v
+	@echo "Bulk operations tests completed!"
+
+test-identity-admin-integration: _check-services
+	@echo "Running Identity Provider Admin API integration tests..."
+	cd playwright/identity-provider/smoke-tests && python -m pytest test_admin_api_integration.py -v
+	@echo "Integration tests completed!"
 
 # Show CIELO testing help
 test-cielo-help:

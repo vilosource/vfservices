@@ -1,97 +1,156 @@
-# Identity Provider Smoke Tests
+# Identity Provider Admin API Playwright Tests
 
-This directory contains Playwright smoke tests for the Identity Provider service at identity.vfservices.viloforge.com.
+This directory contains Playwright tests for the Identity Provider Admin API endpoints.
+
+## Test Status
+
+### ✅ Working Tests
+
+- `test_admin_api_simple.py` - Basic smoke tests using direct HTTP requests
+- `test_debug_auth.py` - Authentication debugging tests
+- `test_setup_verification.py` - Service setup verification
+
+### ⚠️ Tests Requiring Updates
+
+The following tests use browser-based API calls via `page.evaluate()` which are currently failing due to authentication issues:
+
+- `test_admin_api_users.py` - User management API tests
+- `test_admin_api_roles.py` - Role management API tests
+- `test_admin_api_bulk.py` - Bulk operations tests
+- `test_admin_api_integration.py` - Integration tests
+
+## Running Tests
+
+### Individual test files:
+```bash
+cd playwright/identity-provider/smoke-tests
+python test_admin_api_simple.py
+python test_debug_auth.py
+```
+
+### All tests via pytest:
+```bash
+cd playwright/identity-provider/smoke-tests
+python -m pytest -v
+```
+
+### Via Makefile:
+```bash
+make test-identity-admin
+```
+
+## Test Implementation Notes
+
+### Authentication
+The Identity Provider admin API uses JWT authentication. The custom `JWTCookieAuthentication` class was added to bypass CSRF checks for API endpoints while still maintaining JWT authentication.
+
+### Key Changes Made:
+1. Added `JWTCookieAuthentication` class to `identity_app/admin_views.py`
+2. Updated all admin ViewSets to use `authentication_classes = [JWTCookieAuthentication]`
+3. Fixed field name mismatches (`assigned_by` -> `granted_by`, `assigned_at` -> `granted_at`)
+4. Fixed method calls (`delete_user_attributes` -> `invalidate_user_cache`)
+5. Added `get_django_user()` helper to convert JWT user to Django user instance
+6. Fixed `is_active()` method call to property access in serializers
+
+### Test Patterns
+
+#### Direct HTTP Requests (Working)
+```python
+import requests
+
+token = get_admin_token()
+headers = {
+    'Content-Type': 'application/json',
+    'Authorization': f'Bearer {token}'
+}
+
+response = requests.get(
+    f"{BASE_URL}/api/admin/users/",
+    headers=headers,
+    verify=False
+)
+```
+
+#### Browser-based API Calls (Currently Failing)
+```python
+# This pattern is failing due to authentication issues
+response = api_client.get('api/admin/users/')
+```
 
 ## Test Coverage
 
-The test suite (`test_identity_access.py`) includes:
+### User Management Tests (`test_admin_api_users.py`)
+- Authentication and authorization requirements
+- Listing users with pagination
+- Searching and filtering users
+- Creating users with and without initial roles
+- Updating user details
+- Deactivating users (soft delete)
+- Setting user passwords
 
-1. **Basic Connectivity Test** (`test_access_identity_homepage`)
-   - Verifies identity.vfservices.viloforge.com is accessible
-   - Checks for 200 status response
-   - Takes a screenshot for debugging
+### Role Management Tests (`test_admin_api_roles.py`)
+- Listing user roles
+- Assigning roles to users
+- Assigning roles with expiration dates
+- Preventing duplicate role assignments
+- Revoking roles from users
+- Listing all services and roles
+- Filtering roles by service and global status
 
-2. **HTTPS Redirect Test** (`test_check_identity_traefik_redirect`)
-   - Confirms Traefik properly redirects HTTP to HTTPS
-   - Verifies the domain remains correct after redirect
+### Bulk Operations Tests (`test_admin_api_bulk.py`)
+- Bulk role assignments
+- Bulk assignments with expiration dates
+- Handling partial failures in bulk operations
+- Validation error handling
+- Audit log access
 
-3. **Login Page Elements Test** (`test_check_login_page_elements`)
-   - Checks for presence of username field
-   - Checks for presence of password field
-   - Verifies submit button exists
-   - Confirms CSRF token is present (Django security)
-
-4. **API Endpoints Test** (`test_check_api_endpoints`)
-   - Tests health check endpoint accessibility
-   - Verifies auth API endpoints exist
-   - Reports status codes for debugging
-
-5. **Static Assets Test** (`test_check_static_assets_identity`)
-   - Monitors all network requests
-   - Reports failed asset loads
-   - Counts CSS and JavaScript files
-
-6. **CORS Headers Test** (`test_cors_headers`)
-   - Checks for proper CORS configuration
-   - Verifies security headers are present
-
-7. **Login Test** (`test_login_as_alice`)
-   - Tests actual login functionality with user alice/alice123
-   - Verifies successful authentication and redirect
-   - Checks session cookie is properly set
-   - Validates access to protected API endpoints after login
-   - Takes screenshots for debugging (alice_login_before.png, alice_login_after.png)
+### Integration Tests (`test_admin_api_integration.py`)
+- Complete user lifecycle workflows
+- Search and filter combinations
+- Concurrent role operations
+- Cache invalidation verification
+- Error handling and API recovery
 
 ## Prerequisites
 
-1. Install dependencies from the parent directory:
-```bash
-cd ../../  # Go to playwright directory
-pip install -r requirements.txt
-playwright install chromium
-```
+1. All services must be running via Docker Compose
+2. The Identity Provider must be accessible at `https://identity.vfservices.viloforge.com`
+3. An admin user must exist with the `identity_admin` role
+4. The domain `*.viloforge.com` must resolve to localhost (check /etc/hosts)
 
-## Running the Tests
+## Debugging Failed Tests
 
-### Run all identity provider tests:
-```bash
-# From the playwright directory
-pytest identity-provider/smoke-tests/
+If tests fail:
 
-# Or directly
-pytest identity-provider/smoke-tests/test_identity_access.py
-```
+1. Check domain resolution:
+   ```bash
+   # Verify domains resolve to localhost
+   ping -c 1 identity.vfservices.viloforge.com
+   
+   # If not, add to /etc/hosts:
+   # 127.0.0.1 identity.vfservices.viloforge.com
+   ```
 
-### Run with verbose output:
-```bash
-pytest -v identity-provider/smoke-tests/test_identity_access.py
-```
+2. Run setup verification:
+   ```bash
+   cd playwright/identity-provider/smoke-tests
+   python test_setup_verification.py
+   ```
 
-### Run specific test:
-```bash
-pytest identity-provider/smoke-tests/test_identity_access.py::test_check_login_page_elements
-```
+3. Check service logs:
+   ```bash
+   docker compose logs identity-provider
+   ```
 
-### Run as standalone script:
-```bash
-python identity-provider/smoke-tests/test_identity_access.py
-```
+4. Run simple tests:
+   ```bash
+   python test_admin_api_simple.py
+   ```
 
-## Expected Results
+## Future Improvements
 
-- All tests should pass when the identity provider is running correctly
-- Screenshots are saved as `identity_homepage.png` for debugging
-- Failed network requests are reported but may not fail the test
-- API endpoints may return 401 if authentication is required
-
-## Troubleshooting
-
-1. **Certificate Errors**: Tests use `ignore_https_errors=True` to handle self-signed certificates
-2. **Timeouts**: Increase wait times if services are slow to respond
-3. **Login Form**: If login form structure changes, update the selectors in `test_check_login_page_elements`
-
-## Notes
-
-- Tests access the service through Traefik endpoints as specified in CLAUDE.md
-- The identity provider handles authentication for all VF Services
-- CORS headers are important for cross-domain authentication
+1. Update failing tests to use direct HTTP requests instead of browser-based API calls
+2. Add more comprehensive test coverage for edge cases
+3. Implement performance tests for bulk operations
+4. Add tests for Redis cache invalidation
+5. Create tests for audit logging functionality

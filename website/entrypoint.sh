@@ -3,6 +3,10 @@ set -e
 
 echo "Starting website entrypoint..."
 
+# Update PYTHONPATH to include common apps
+export PYTHONPATH="/code:/code/common/apps:$PYTHONPATH"
+echo "PYTHONPATH set to: $PYTHONPATH"
+
 # Wait for PostgreSQL to be ready
 echo "Waiting for PostgreSQL at $POSTGRES_HOST..."
 while ! nc -z "$POSTGRES_HOST" 5432; do
