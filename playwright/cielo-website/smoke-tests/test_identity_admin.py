@@ -37,7 +37,7 @@ def test_identity_admin_real_api(page: Page):
     # Check that we're showing all users
     pagination_info = page.locator("#pagination-info").text_content()
     print(f"Pagination info: {pagination_info}")
-    assert "16 users" in pagination_info, f"Expected to see 16 users, but got: {pagination_info}"
+    assert "18 users" in pagination_info, f"Expected to see 18 users, but got: {pagination_info}"
     
     # Verify some known users are visible
     table = page.locator("#userTable tbody")
@@ -67,7 +67,7 @@ def test_identity_admin_real_api(page: Page):
     # Should show all users again
     pagination_info_after = page.locator("#pagination-info").text_content()
     print(f"Pagination info after clear: {pagination_info_after}")
-    assert "16 users" in pagination_info_after, "Should show all users after clearing filters"
+    assert "18 users" in pagination_info_after, "Should show all users after clearing filters"
     
     print("✅ Identity Admin real API integration test passed!")
 
