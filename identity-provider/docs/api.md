@@ -12,10 +12,29 @@ The Identity Provider service manages authentication, user accounts, roles, and 
 ## Authentication
 
 The Identity Provider uses JWT (JSON Web Tokens) for authentication. Tokens can be passed either:
-1. As cookies (for web applications)
+1. As cookies (for web applications) - Primary method for admin API
 2. As Bearer tokens in the Authorization header (for API clients)
 
-### Login
+The admin API uses a custom `JWTCookieAuthentication` that works with JWT cookies without triggering CSRF checks.
+
+### Web-Based Login/Logout
+
+**Login Page**: `GET /login/`
+- Displays login form
+- Accepts optional `redirect_uri` parameter
+- On successful login, sets httpOnly JWT cookie and redirects
+
+**Login Form Submission**: `POST /login/`
+- Form data: `username`, `password`, `redirect_uri`
+- Sets JWT cookie with domain-wide SSO
+- Redirects to `redirect_uri` or default URL
+
+**Logout**: `GET /logout/`
+- Clears JWT cookie
+- Redirects to `settings.DEFAULT_REDIRECT_URL`
+- No API logout endpoint exists
+
+### API Login
 
 **Endpoint**: `POST /api/login/`
 
@@ -30,14 +49,7 @@ The Identity Provider uses JWT (JSON Web Tokens) for authentication. Tokens can 
 **Response**:
 ```json
 {
-    "token": "jwt_token_string",
-    "user": {
-        "id": 1,
-        "username": "admin",
-        "email": "admin@example.com",
-        "first_name": "Admin",
-        "last_name": "User"
-    }
+    "token": "jwt_token_string"
 }
 ```
 
@@ -48,13 +60,27 @@ curl -X POST https://identity.vfservices.viloforge.com/api/login/ \
   -d '{"username": "admin", "password": "admin123"}'
 ```
 
-### Logout
+## API Information
 
-**Endpoint**: `POST /api/logout/`
+### Get API Info
 
-**Headers**: Requires authentication
+**Endpoint**: `GET /api/`
 
-**Response**: 200 OK with empty body
+**Response**: Returns available endpoints and API information
+
+### Health Check
+
+**Endpoint**: `GET /api/status/`
+
+**Response**:
+```json
+{
+    "status": "healthy",
+    "service": "identity-provider",
+    "version": "1.0.0",
+    "timestamp": "2024-01-20T12:00:00Z"
+}
+```
 
 ## User Profile
 
@@ -62,7 +88,7 @@ curl -X POST https://identity.vfservices.viloforge.com/api/login/ \
 
 **Endpoint**: `GET /api/profile/`
 
-**Headers**: Requires authentication
+**Headers**: Requires authentication (JWT cookie or Bearer token)
 
 **Response**:
 ```json
@@ -78,13 +104,82 @@ curl -X POST https://identity.vfservices.viloforge.com/api/login/ \
             "service_name": "identity_provider",
             "is_active": true
         }
+    ],
+    "timestamp": "2024-01-20T12:00:00Z"
+}
+```
+
+## Service Registration
+
+### Register Service Manifest
+
+**Endpoint**: `POST /api/services/register/`
+
+**Request Body**:
+```json
+{
+    "service": "new_service",
+    "display_name": "New Service",
+    "description": "Description of the service",
+    "manifest_version": "1.0",
+    "roles": [
+        {
+            "name": "service_admin",
+            "display_name": "Service Administrator",
+            "description": "Full admin access to the service",
+            "is_global": true
+        }
+    ],
+    "attributes": [
+        {
+            "name": "department",
+            "display_name": "Department",
+            "description": "User's department",
+            "type": "string",
+            "is_required": false,
+            "default_value": null
+        }
     ]
+}
+```
+
+**Response**: 200 OK
+```json
+{
+    "service": "new_service",
+    "version": 1,
+    "status": "registered",
+    "roles_created": 1,
+    "roles_updated": 0,
+    "attributes_created": 1,
+    "attributes_updated": 0
+}
+```
+
+## Cache Management
+
+### Refresh User Cache
+
+**Endpoint**: `POST /api/refresh-user-cache/`
+
+**Request Body**:
+```json
+{
+    "user_id": 1,
+    "service_name": "billing-api"
+}
+```
+
+**Response**: 200 OK
+```json
+{
+    "detail": "Cache refreshed successfully"
 }
 ```
 
 ## Admin API
 
-All admin endpoints require the `identity_admin` role.
+All admin endpoints require the `identity_admin` role and use JWT cookie authentication.
 
 ### Users
 
@@ -99,13 +194,13 @@ All admin endpoints require the `identity_admin` role.
 - `is_active` - Filter by active status (true/false)
 - `has_role` - Filter by role name
 - `service` - Filter by service name
-- `ordering` - Order by field (username, email, date_joined, last_login)
+- `ordering` - Order by field (username, email, date_joined, last_login, is_active)
 
 **Response**:
 ```json
 {
     "count": 100,
-    "next": "https://identity.vfservices.viloforge.com/api/admin/users/?page=2",
+    "next": "http://example.com/api/admin/users/?page=2",
     "previous": null,
     "results": [
         {
@@ -115,6 +210,8 @@ All admin endpoints require the `identity_admin` role.
             "first_name": "Admin",
             "last_name": "User",
             "is_active": true,
+            "is_staff": false,
+            "is_superuser": false,
             "date_joined": "2024-01-01T00:00:00Z",
             "last_login": "2024-01-20T12:00:00Z",
             "roles_count": 1
@@ -140,15 +237,28 @@ All admin endpoints require the `identity_admin` role.
     "is_superuser": false,
     "date_joined": "2024-01-01T00:00:00Z",
     "last_login": "2024-01-20T12:00:00Z",
+    "groups": [],
+    "user_permissions": [],
     "roles": [
         {
             "id": 1,
-            "role_name": "identity_admin",
-            "role_display_name": "Identity Administrator",
-            "service_name": "identity_provider",
-            "service_display_name": "Identity Provider",
+            "role": {
+                "id": 1,
+                "name": "identity_admin",
+                "display_name": "Identity Administrator",
+                "description": "Full administrative access",
+                "is_global": true
+            },
+            "service": {
+                "id": 1,
+                "name": "identity_provider",
+                "display_name": "Identity Provider"
+            },
             "granted_at": "2024-01-01T00:00:00Z",
-            "granted_by_username": "system",
+            "granted_by": {
+                "id": 1,
+                "username": "system"
+            },
             "expires_at": null,
             "is_active": true
         }
@@ -168,6 +278,7 @@ All admin endpoints require the `identity_admin` role.
     "password": "SecurePass123!",
     "first_name": "New",
     "last_name": "User",
+    "is_active": true,
     "initial_roles": [
         {
             "role_name": "billing_viewer",
@@ -181,15 +292,14 @@ All admin endpoints require the `identity_admin` role.
 
 #### Update User
 
-**Endpoint**: `PUT /api/admin/users/{id}/`
+**Endpoint**: `PATCH /api/admin/users/{id}/`
 
-**Request Body**:
+**Request Body** (partial update):
 ```json
 {
     "email": "updated@example.com",
     "first_name": "Updated",
-    "last_name": "Name",
-    "is_active": true
+    "last_name": "Name"
 }
 ```
 
@@ -199,21 +309,19 @@ All admin endpoints require the `identity_admin` role.
 
 **Endpoint**: `DELETE /api/admin/users/{id}/`
 
-**Response**: 200 OK
-```json
-{
-    "status": "User deactivated successfully"
-}
-```
+**Note**: Performs soft delete (sets is_active=False). Cannot delete superuser accounts.
+
+**Response**: 204 No Content
 
 #### Set User Password
 
-**Endpoint**: `POST /api/admin/users/{id}/set-password/`
+**Endpoint**: `POST /api/admin/users/{id}/set_password/`
 
 **Request Body**:
 ```json
 {
-    "password": "NewSecurePass123!"
+    "password": "NewSecurePass123!",
+    "force_change": false
 }
 ```
 
@@ -235,12 +343,23 @@ All admin endpoints require the `identity_admin` role.
 [
     {
         "id": 1,
-        "role_name": "identity_admin",
-        "role_display_name": "Identity Administrator",
-        "service_name": "identity_provider",
-        "service_display_name": "Identity Provider",
+        "role": {
+            "id": 1,
+            "name": "identity_admin",
+            "display_name": "Identity Administrator",
+            "description": "Full administrative access",
+            "is_global": true
+        },
+        "service": {
+            "id": 1,
+            "name": "identity_provider",
+            "display_name": "Identity Provider"
+        },
         "granted_at": "2024-01-01T00:00:00Z",
-        "granted_by_username": "system",
+        "granted_by": {
+            "id": 1,
+            "username": "admin"
+        },
         "expires_at": null,
         "is_active": true
     }
@@ -256,30 +375,18 @@ All admin endpoints require the `identity_admin` role.
 {
     "role_name": "billing_admin",
     "service_name": "billing_api",
-    "expires_at": "2024-12-31T23:59:59Z",  // Optional
-    "reason": "Temporary access for Q4 audit"  // Optional
+    "expires_at": "2024-12-31T23:59:59Z",
+    "reason": "Temporary access for Q4 audit"
 }
 ```
 
-**Response**: 201 Created with role details
+**Response**: 201 Created with role assignment details
 
 #### Revoke Role from User
 
 **Endpoint**: `DELETE /api/admin/users/{id}/roles/{role_id}/`
 
-**Request Body**:
-```json
-{
-    "reason": "No longer needed"  // Optional
-}
-```
-
-**Response**: 200 OK
-```json
-{
-    "status": "Role revoked successfully"
-}
-```
+**Response**: 204 No Content
 
 ### Services and Roles
 
@@ -296,8 +403,9 @@ All admin endpoints require the `identity_admin` role.
         "display_name": "Identity Provider",
         "description": "Core identity and access management service",
         "is_active": true,
-        "manifest_version": "1.0",
-        "created_at": "2024-01-01T00:00:00Z"
+        "manifest_version": 1,
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z"
     }
 ]
 ```
@@ -318,9 +426,12 @@ All admin endpoints require the `identity_admin` role.
         "name": "identity_admin",
         "display_name": "Identity Administrator",
         "description": "Full administrative access to identity provider",
-        "service_name": "identity_provider",
-        "service_display_name": "Identity Provider",
-        "is_global": true
+        "is_global": true,
+        "service": {
+            "id": 1,
+            "name": "identity_provider",
+            "display_name": "Identity Provider"
+        }
     }
 ]
 ```
@@ -346,8 +457,8 @@ All admin endpoints require the `identity_admin` role.
             "service_name": "azure_costs"
         }
     ],
-    "expires_at": "2024-12-31T23:59:59Z",  // Optional, applies to all
-    "reason": "Bulk assignment for new team"  // Optional
+    "expires_at": "2024-12-31T23:59:59Z",
+    "reason": "Bulk assignment for new team"
 }
 ```
 
@@ -373,96 +484,21 @@ All admin endpoints require the `identity_admin` role.
 }
 ```
 
+**Status Code**: 201 if any assignments succeed, 400 if all fail
+
 ### Audit Log
 
 #### View Audit Log
 
 **Endpoint**: `GET /api/admin/audit-log/`
 
-**Query Parameters**:
-- `user` - Filter by user ID
-- `action` - Filter by action type
-- `start_date` - Filter by date range start
-- `end_date` - Filter by date range end
-- `page` - Page number
-- `page_size` - Results per page
+**Note**: Currently returns empty results (not yet implemented)
 
 **Response**:
 ```json
 {
-    "count": 50,
-    "next": "...",
-    "previous": null,
-    "results": [
-        {
-            "id": 1,
-            "user": "admin",
-            "action": "user_created",
-            "resource_type": "user",
-            "resource_id": "123",
-            "timestamp": "2024-01-20T12:00:00Z",
-            "changes": {
-                "username": "newuser",
-                "email": "newuser@example.com"
-            },
-            "ip_address": "192.168.1.1",
-            "user_agent": "Mozilla/5.0..."
-        }
-    ]
-}
-```
-
-## Service Registration
-
-Services can register their RBAC manifests with the Identity Provider.
-
-### Register Service Manifest
-
-**Endpoint**: `POST /api/register-manifest/`
-
-**Request Body**:
-```json
-{
-    "service": {
-        "name": "new_service",
-        "display_name": "New Service",
-        "description": "Description of the service"
-    },
-    "version": "1.0",
-    "roles": [
-        {
-            "name": "service_admin",
-            "display_name": "Service Administrator",
-            "description": "Full admin access to the service",
-            "is_global": true
-        },
-        {
-            "name": "service_viewer",
-            "display_name": "Service Viewer",
-            "description": "Read-only access to the service",
-            "is_global": false
-        }
-    ],
-    "attributes": [
-        {
-            "name": "department",
-            "display_name": "Department",
-            "description": "User's department",
-            "type": "string",
-            "required": false,
-            "default": null
-        }
-    ]
-}
-```
-
-**Response**: 201 Created
-```json
-{
-    "service": "new_service",
-    "version": 1,
-    "registered_at": "2024-01-20T12:00:00Z",
-    "is_active": true
+    "results": [],
+    "count": 0
 }
 ```
 
@@ -506,6 +542,14 @@ All endpoints return standard HTTP status codes and error messages:
 }
 ```
 
+## Pagination
+
+Admin API list endpoints use standard pagination:
+- Default page size: 50
+- Maximum page size: 100
+- Query parameter: `page_size`
+- Response includes `count`, `next`, and `previous` fields
+
 ## Rate Limiting
 
 API endpoints are not currently rate-limited but this may be added in the future. Plan for reasonable request rates.
@@ -516,4 +560,11 @@ The API is currently at version 1. Future versions will be indicated in the URL 
 
 ## CORS
 
-Cross-Origin Resource Sharing (CORS) is configured to allow requests from authorized domains. Ensure your application domain is whitelisted in production.
+Cross-Origin Resource Sharing (CORS) is configured to allow requests from authorized domains. The identity provider includes a CORS discovery system that automatically detects and validates allowed origins.
+
+## Interactive API Documentation
+
+- **Swagger UI**: Available at `/api/docs/`
+- **ReDoc**: Available at `/api/redoc/`
+
+These provide interactive API exploration and testing capabilities.
