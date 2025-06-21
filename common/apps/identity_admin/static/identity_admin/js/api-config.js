@@ -78,7 +78,20 @@ class IdentityProviderAPI {
         const queryString = new URLSearchParams(params).toString();
         const url = `/api/admin/roles/${queryString ? '?' + queryString : ''}`;
         const response = await this.client.request('GET', url);
+        
+        // Debug logging
+        console.log('Raw roles API response:', response);
+        console.log('Response type:', typeof response);
+        console.log('Is array:', Array.isArray(response));
+        console.log('Has results property:', response.hasOwnProperty('results'));
+        
         const roles = response.results || response;
+        
+        // Log first role to check structure
+        if (roles.length > 0) {
+            console.log('First role from API:', roles[0]);
+            console.log('First role has user_count:', roles[0].hasOwnProperty('user_count'));
+        }
         
         // Ensure roles have the expected structure
         return roles.map(role => ({

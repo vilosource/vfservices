@@ -1,0 +1,477 @@
+{% extends "identity_admin/base.html" %}
+{% load static %}
+
+{% block title %}Role Browser{% endblock %}
+
+{% block extra_css %}
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}"/>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'identity_admin:role_assign' %}" class="btn btn-primary">
+    <i class="mdi mdi-shield-plus me-1"></i> Assign Roles
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">Role Browser</h4>
+                
+                {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                        <i class="mdi mdi-alert-circle me-2"></i>
+                        {{ error }}
+                    </div>
+                {% endif %}
+                
+                <!-- Filters -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Filter by Service</label>
+                            <select class="form-select" id="serviceFilter">
+                                <option value="">All Services</option>
+                                <!-- Services will be loaded via JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Search Roles</label>
+                            <input type="text" class="form-control" id="roleSearch" placeholder="Search by role name or description...">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button type="button" class="btn btn-outline-primary" id="applyFilters">
+                                    <i class="mdi mdi-filter"></i> Apply Filters
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" id="clearFilters">
+                                    <i class="mdi mdi-filter-off"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading Spinner -->
+                <div id="loading-spinner" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading roles...</p>
+                </div>
+                
+                <!-- Error Message -->
+                <div id="error-message" class="alert alert-danger d-none" role="alert">
+                    <i class="mdi mdi-alert-circle me-2"></i>
+                    <span id="error-text"></span>
+                </div>
+                
+                <!-- Roles Table -->
+                <div class="table-responsive d-none" id="roles-table-container">
+                    <table class="table table-striped table-hover" id="rolesTable">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Role Name</th>
+                                <th>Display Name</th>
+                                <th>Description</th>
+                                <th>Users</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Empty State -->
+                <div id="empty-state" class="text-center py-5 d-none">
+                    <i class="mdi mdi-shield-off text-muted" style="font-size: 3rem;"></i>
+                    <h5 class="text-muted mt-3">No Roles Found</h5>
+                    <p class="text-muted">No roles match your current filters. Try adjusting your search criteria.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Role Details Modal -->
+<div class="modal fade" id="roleDetailsModal" tabindex="-1" aria-labelledby="roleDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleDetailsModalLabel">Role Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="roleDetailsContent">
+                    <!-- Role details will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="assignRoleBtn">
+                    <i class="mdi mdi-shield-plus me-1"></i> Assign to Users
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- DataTables JS -->
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+
+<!-- Load API -->
+<script src="{% static 'identity_admin/js/mock-api.js' %}"></script>
+<script src="{% static 'identity_admin/js/api-config.js' %}"></script>
+
+<script>
+// Use the configured API
+const api = window.getIdentityAPI();
+let dataTable = null;
+let allRoles = [];
+let allServices = [];
+let filteredRoles = [];
+
+// Initialize on document ready
+$(document).ready(function() {
+    loadData();
+    
+    // Event handlers
+    document.getElementById('applyFilters').addEventListener('click', applyFilters);
+    document.getElementById('clearFilters').addEventListener('click', clearFilters);
+    document.getElementById('roleSearch').addEventListener('keypress', (e) => {
+        if (e.which === 13) {
+            applyFilters();
+        }
+    });
+    
+    // Modal handlers
+    document.getElementById('assignRoleBtn').addEventListener('click', handleAssignRole);
+});
+
+async function loadData() {
+    const spinner = document.getElementById('loading-spinner');
+    const errorDiv = document.getElementById('error-message');
+    const tableContainer = document.getElementById('roles-table-container');
+    const emptyState = document.getElementById('empty-state');
+    
+    try {
+        spinner.style.display = 'block';
+        errorDiv.classList.add('d-none');
+        tableContainer.classList.add('d-none');
+        emptyState.classList.add('d-none');
+        
+        // Load services and roles
+        const [services, roles] = await Promise.all([
+            api.listServices(),
+            api.listRoles()
+        ]);
+        
+        // Log the raw API response to debug user_count
+        console.log('=== Roles API Response ===');
+        console.log('Total roles:', roles.length);
+        console.log('First 3 roles:', roles.slice(0, 3));
+        
+        // Check if any role has user_count
+        const rolesWithUserCount = roles.filter(r => r.hasOwnProperty('user_count'));
+        console.log('Roles with user_count field:', rolesWithUserCount.length);
+        
+        if (roles.length > 0) {
+            console.log('Sample role structure:', Object.keys(roles[0]));
+            console.log('First role full data:', roles[0]);
+        }
+        
+        allServices = services;
+        allRoles = roles;
+        filteredRoles = [...roles];
+        
+        // Populate service filter
+        populateServiceFilter();
+        
+        // Build table
+        buildRolesTable();
+        
+        spinner.style.display = 'none';
+        
+        if (filteredRoles.length > 0) {
+            tableContainer.classList.remove('d-none');
+        } else {
+            emptyState.classList.remove('d-none');
+        }
+        
+    } catch (error) {
+        console.error('Error loading data:', error);
+        spinner.style.display = 'none';
+        document.getElementById('error-text').textContent = error.message || 'Failed to load roles';
+        errorDiv.classList.remove('d-none');
+    }
+}
+
+function populateServiceFilter() {
+    const serviceFilter = document.getElementById('serviceFilter');
+    serviceFilter.innerHTML = '<option value="">All Services</option>';
+    
+    allServices.forEach(service => {
+        const option = document.createElement('option');
+        option.value = service.name;
+        option.textContent = service.display_name || service.name;
+        serviceFilter.appendChild(option);
+    });
+}
+
+function buildRolesTable() {
+    const tbody = document.querySelector('#rolesTable tbody');
+    tbody.innerHTML = '';
+    
+    console.log('Building table with', filteredRoles.length, 'roles');
+    
+    filteredRoles.forEach((role, index) => {
+        const row = buildRoleRow(role, index);
+        tbody.insertAdjacentHTML('beforeend', row);
+    });
+    
+    // Initialize or refresh DataTable
+    if (dataTable) {
+        dataTable.destroy();
+    }
+    
+    dataTable = $('#rolesTable').DataTable({
+        responsive: true,
+        paging: true,
+        searching: false, // Using custom search
+        info: true,
+        order: [[0, 'asc'], [1, 'asc']],
+        pageLength: 25,
+        columnDefs: [
+            { targets: -1, orderable: false } // Actions column
+        ]
+    });
+}
+
+function buildRoleRow(role, index) {
+    const serviceName = role.service_name || (role.service ? role.service.name : 'Unknown');
+    const serviceDisplay = getServiceDisplayName(serviceName);
+    const userCount = role.user_count || 0;
+    
+    // Log first few roles to debug user_count
+    if (index < 3) {
+        console.log(`Building row for role ${index + 1}:`, {
+            name: role.name,
+            service: serviceName,
+            user_count: role.user_count,
+            hasUserCountProperty: role.hasOwnProperty('user_count'),
+            userCountValue: userCount
+        });
+    }
+    
+    return `
+        <tr>
+            <td>
+                <span class="badge bg-info">${serviceDisplay}</span>
+            </td>
+            <td>
+                <strong>${role.name}</strong>
+            </td>
+            <td>${role.display_name || role.name}</td>
+            <td>
+                <span class="text-muted">${role.description || 'No description'}</span>
+            </td>
+            <td>
+                <span class="badge bg-secondary">${userCount} user${userCount !== 1 ? 's' : ''}</span>
+            </td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-info" 
+                            onclick="viewRoleDetails('${serviceName}', '${role.name}')" 
+                            title="View Details">
+                        <i class="mdi mdi-eye"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" 
+                            onclick="assignRole('${serviceName}', '${role.name}')" 
+                            title="Assign to Users">
+                        <i class="mdi mdi-shield-plus"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `;
+}
+
+function getServiceDisplayName(serviceName) {
+    const service = allServices.find(s => s.name === serviceName);
+    return service ? (service.display_name || service.name) : serviceName;
+}
+
+function applyFilters() {
+    const serviceFilter = document.getElementById('serviceFilter').value;
+    const roleSearch = document.getElementById('roleSearch').value.toLowerCase();
+    
+    filteredRoles = allRoles.filter(role => {
+        const serviceName = role.service_name || (role.service ? role.service.name : '');
+        const matchesService = !serviceFilter || serviceName === serviceFilter;
+        const matchesSearch = !roleSearch || 
+            role.name.toLowerCase().includes(roleSearch) ||
+            (role.display_name && role.display_name.toLowerCase().includes(roleSearch)) ||
+            (role.description && role.description.toLowerCase().includes(roleSearch));
+        
+        return matchesService && matchesSearch;
+    });
+    
+    buildRolesTable();
+    
+    const tableContainer = document.getElementById('roles-table-container');
+    const emptyState = document.getElementById('empty-state');
+    
+    if (filteredRoles.length > 0) {
+        tableContainer.classList.remove('d-none');
+        emptyState.classList.add('d-none');
+    } else {
+        tableContainer.classList.add('d-none');
+        emptyState.classList.remove('d-none');
+    }
+}
+
+function clearFilters() {
+    document.getElementById('serviceFilter').value = '';
+    document.getElementById('roleSearch').value = '';
+    filteredRoles = [...allRoles];
+    buildRolesTable();
+    
+    const tableContainer = document.getElementById('roles-table-container');
+    const emptyState = document.getElementById('empty-state');
+    
+    if (filteredRoles.length > 0) {
+        tableContainer.classList.remove('d-none');
+        emptyState.classList.add('d-none');
+    } else {
+        tableContainer.classList.add('d-none');
+        emptyState.classList.remove('d-none');
+    }
+}
+
+function viewRoleDetails(serviceName, roleName) {
+    const role = allRoles.find(r => 
+        (r.service_name === serviceName || (r.service && r.service.name === serviceName)) && 
+        r.name === roleName
+    );
+    
+    if (!role) {
+        showAlert('Role not found', 'error');
+        return;
+    }
+    
+    const serviceDisplay = getServiceDisplayName(serviceName);
+    const userCount = role.user_count || 0;
+    
+    const content = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Service</h6>
+                <p><span class="badge bg-info">${serviceDisplay}</span></p>
+            </div>
+            <div class="col-md-6">
+                <h6>Role Name</h6>
+                <p><strong>${role.name}</strong></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Display Name</h6>
+                <p>${role.display_name || role.name}</p>
+            </div>
+            <div class="col-md-6">
+                <h6>Users with this Role</h6>
+                <p><span class="badge bg-secondary">${userCount} user${userCount !== 1 ? 's' : ''}</span></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h6>Description</h6>
+                <p class="text-muted">${role.description || 'No description available'}</p>
+            </div>
+        </div>
+        ${role.permissions ? `
+        <div class="row">
+            <div class="col-12">
+                <h6>Permissions</h6>
+                <ul class="list-unstyled">
+                    ${role.permissions.map(perm => `<li><i class="mdi mdi-check text-success me-2"></i>${perm}</li>`).join('')}
+                </ul>
+            </div>
+        </div>
+        ` : ''}
+    `;
+    
+    document.getElementById('roleDetailsContent').innerHTML = content;
+    document.getElementById('roleDetailsModalLabel').textContent = `${serviceDisplay}: ${role.display_name || role.name}`;
+    
+    // Set up assign button
+    const assignBtn = document.getElementById('assignRoleBtn');
+    assignBtn.onclick = () => assignRole(serviceName, roleName);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('roleDetailsModal'));
+    modal.show();
+}
+
+function assignRole(serviceName, roleName) {
+    // Redirect to role assignment page with pre-selected role
+    const url = new URL("{% url 'identity_admin:role_assign' %}", window.location.origin);
+    url.searchParams.set('service', serviceName);
+    url.searchParams.set('role', roleName);
+    window.location.href = url.toString();
+}
+
+function handleAssignRole() {
+    // This will be handled by the assignRole function set in viewRoleDetails
+}
+
+function showAlert(message, type = 'info') {
+    const alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    
+    // Find or create alert container
+    let alertContainer = document.getElementById('alert-container');
+    if (!alertContainer) {
+        const pageTitle = document.querySelector('.page-title-box');
+        if (pageTitle) {
+            alertContainer = document.createElement('div');
+            alertContainer.id = 'alert-container';
+            pageTitle.parentNode.insertBefore(alertContainer, pageTitle.nextSibling);
+        }
+    }
+    
+    if (alertContainer) {
+        alertContainer.insertAdjacentHTML('beforeend', alertHtml);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            const alert = alertContainer.lastElementChild;
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+    }
+}
+</script>
+{% endblock %}
