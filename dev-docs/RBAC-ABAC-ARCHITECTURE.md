@@ -22,38 +22,35 @@ All policies fail closed (deny by default), missing attributes result in access 
 
 ### High-Level Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Client Applications                      │
-└─────────────────────────────────────────────────────────────────┘
-                                    │
-                                    │ HTTPS + JWT Cookie
-                                    ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                          Load Balancer                           │
-│                          (Traefik)                               │
-└─────────────────────────────────────────────────────────────────┘
-                                    │
-        ┌───────────────────────────┼───────────────────────────┐
-        │                           │                           │
-        ▼                           ▼                           ▼
-┌───────────────┐         ┌───────────────┐         ┌───────────────┐
-│  CIELO Web    │         │ Azure Costs   │         │  Billing API  │
-│   (Django)    │         │    (DRF)      │         │    (DRF)      │
-└───────────────┘         └───────────────┘         └───────────────┘
-        │                           │                           │
-        │                           ▼                           │
-        │                 ┌───────────────┐                    │
-        └────────────────▶│   Identity    │◀───────────────────┘
-                         │   Provider    │
-                         └───────────────┘
-                                    │
-                         ┌──────────┴──────────┐
-                         ▼                     ▼
-                 ┌───────────────┐     ┌───────────────┐
-                 │  PostgreSQL   │     │     Redis     │
-                 │   Database    │     │     Cache     │
-                 └───────────────┘     └───────────────┘
+```mermaid
+graph TD
+    CA[Client Applications]
+    LB[Load Balancer<br/>Traefik]
+    CW[CIELO Web<br/>Django]
+    AC[Azure Costs<br/>DRF]
+    BA[Billing API<br/>DRF]
+    IP[Identity Provider]
+    PG[PostgreSQL<br/>Database]
+    RD[Redis<br/>Cache]
+    
+    CA -->|HTTPS + JWT Cookie| LB
+    LB --> CW
+    LB --> AC
+    LB --> BA
+    CW --> IP
+    AC --> IP
+    BA --> IP
+    IP --> PG
+    IP --> RD
+    
+    style CA fill:#f9f,stroke:#333,stroke-width:2px
+    style LB fill:#bbf,stroke:#333,stroke-width:2px
+    style CW fill:#bfb,stroke:#333,stroke-width:2px
+    style AC fill:#bfb,stroke:#333,stroke-width:2px
+    style BA fill:#bfb,stroke:#333,stroke-width:2px
+    style IP fill:#fbf,stroke:#333,stroke-width:2px
+    style PG fill:#fbb,stroke:#333,stroke-width:2px
+    style RD fill:#fbb,stroke:#333,stroke-width:2px
 ```
 
 ### Component Details
@@ -133,30 +130,73 @@ All policies fail closed (deny by default), missing attributes result in access 
 ## Data Flow
 
 ### Authentication Flow
-```
-1. User → CIELO Website → Login Form
-2. CIELO → Identity Provider → Validate Credentials
-3. Identity Provider → Generate JWT → Set Cookie
-4. Identity Provider → Redis → Cache User Attributes
-5. Redis → Pub/Sub → Notify Services
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant CW as CIELO Website
+    participant IP as Identity Provider
+    participant DB as Database
+    participant R as Redis
+    participant S as Services
+    
+    U->>CW: Access Login Form
+    CW->>IP: Submit Credentials
+    IP->>DB: Validate Credentials
+    DB-->>IP: User Valid
+    IP->>IP: Generate JWT
+    IP->>U: Set JWT Cookie
+    IP->>R: Cache User Attributes
+    R->>S: Pub/Sub Notification
+    IP-->>CW: Login Success
+    CW-->>U: Redirect to Dashboard
 ```
 
 ### Authorization Flow
-```
-1. User → Service API → Request with JWT Cookie
-2. JWT Middleware → Extract user_id from JWT
-3. Service → Redis → Get User Attributes (cache hit)
-4. Service → Policy Engine → Evaluate ABAC Policy
-5. Policy Engine → Return Decision → Allow/Deny
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant SA as Service API
+    participant JM as JWT Middleware
+    participant R as Redis
+    participant PE as Policy Engine
+    
+    U->>SA: API Request with JWT Cookie
+    SA->>JM: Process Request
+    JM->>JM: Extract user_id from JWT
+    JM->>R: Get User Attributes
+    R-->>JM: Return Cached Attributes
+    JM->>PE: Evaluate ABAC Policy
+    PE->>PE: Check Rules & Attributes
+    PE-->>JM: Decision (Allow/Deny)
+    alt Access Allowed
+        JM->>SA: Continue Request
+        SA-->>U: API Response
+    else Access Denied
+        JM-->>U: 403 Forbidden
+    end
 ```
 
 ### Service Registration Flow
-```
-1. Service Startup → Read Manifest
-2. Service → Identity Provider → POST /api/services/register/
-3. Identity Provider → Validate Manifest
-4. Identity Provider → Store in Database
-5. Identity Provider → Return Confirmation
+```mermaid
+sequenceDiagram
+    participant S as Service
+    participant M as Manifest File
+    participant IP as Identity Provider
+    participant DB as Database
+    
+    S->>M: Read Service Manifest
+    M-->>S: Return Manifest Data
+    S->>IP: POST /api/services/register/
+    Note over S,IP: Send manifest JSON
+    IP->>IP: Validate Manifest
+    alt Manifest Valid
+        IP->>DB: Store Service Definition
+        IP->>DB: Store Roles & Attributes
+        DB-->>IP: Confirmation
+        IP-->>S: Registration Success
+    else Manifest Invalid
+        IP-->>S: Validation Error
+    end
 ```
 
 ## Design Patterns
