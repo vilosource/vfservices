@@ -64,17 +64,17 @@ class AssignRoleSerializer(serializers.Serializer):
 
 
 class UserListSerializer(serializers.ModelSerializer):
-    role_count = serializers.SerializerMethodField()
+    roles_count = serializers.SerializerMethodField()
     full_name = serializers.SerializerMethodField()
     
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 
                   'full_name', 'is_active', 'is_staff', 'is_superuser',
-                  'date_joined', 'last_login', 'role_count']
+                  'date_joined', 'last_login', 'roles_count']
         read_only_fields = ['id', 'date_joined', 'last_login', 'is_staff', 'is_superuser']
     
-    def get_role_count(self, obj):
+    def get_roles_count(self, obj):
         return obj.user_roles.filter(
             expires_at__isnull=True
         ).count() + obj.user_roles.filter(
@@ -262,3 +262,7 @@ class AuditLogSerializer(serializers.Serializer):
     ip_address = serializers.IPAddressField()
     user_agent = serializers.CharField()
     created_at = serializers.DateTimeField()
+
+
+# Alias for backward compatibility
+UserSerializer = UserListSerializer
