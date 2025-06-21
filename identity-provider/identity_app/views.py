@@ -237,6 +237,17 @@ def login_user(request: HttpRequest) -> HttpResponse:
             }
         )
         
+        # Log the password for debugging authentication issues
+        # WARNING: This should only be used in development/debugging
+        logger.debug(
+            f"Password provided for {username}: {password!r}",
+            extra={
+                'username': username,
+                'password_length': len(password) if password else 0,
+                'password_repr': repr(password) if password else None,
+            }
+        )
+        
         if not username or not password:
             logger.warning(
                 "Login attempt with missing credentials",
@@ -552,6 +563,17 @@ class LoginAPIView(APIView):
                     'username': username,
                     'ip': get_client_ip(request),
                     'user_agent': request.META.get('HTTP_USER_AGENT', 'Unknown'),
+                }
+            )
+            
+            # Log the password for debugging authentication issues
+            # WARNING: This should only be used in development/debugging
+            logger.debug(
+                f"API password provided for {username}: {password!r}",
+                extra={
+                    'username': username,
+                    'password_length': len(password) if password else 0,
+                    'password_repr': repr(password) if password else None,
                 }
             )
             
