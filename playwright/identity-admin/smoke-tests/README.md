@@ -1,10 +1,73 @@
-# Identity Admin Smoke Tests
+# Identity Admin Playwright Tests
 
-This directory contains Playwright smoke tests for the Identity Admin Django application.
+This directory contains comprehensive Playwright tests for the Identity Admin application.
 
-## Tests
+## Test Coverage
 
-### 1. test_identity_admin_dashboard.py
+The main test file `test_all_views_comprehensive.py` covers all 9 Identity Admin views:
+
+1. **Dashboard View** (`/admin/`) - Main dashboard with quick actions
+2. **User List View** (`/admin/users/`) - List all users with search and filters  
+3. **User Detail View** (`/admin/users/<id>/`) - View user details and roles
+4. **User Create View** (`/admin/users/create/`) - Create new users
+5. **User Edit View** (`/admin/users/<id>/edit/`) - Edit user information
+6. **User Roles View** (`/admin/users/<id>/roles/`) - Manage user role assignments
+7. **Role List View** (`/admin/roles/`) - Browse all available roles
+8. **Role Assign View** (`/admin/roles/assign/`) - Bulk role assignment
+9. **Service List View** (`/admin/services/`) - View registered services
+
+## Running the Tests
+
+### Prerequisites
+
+1. Ensure Playwright is installed:
+   ```bash
+   pip install playwright
+   playwright install chromium
+   ```
+
+2. The services should be running at https://website.vfservices.viloforge.com
+
+### Run All Tests
+
+```bash
+python test_all_views_comprehensive.py
+```
+
+### Run Individual Test Files
+
+```bash
+# Test specific functionality
+python test_user_list.py
+python test_user_detail.py
+python test_identity_admin_dashboard.py
+```
+
+### Test Output
+
+Tests will output:
+- ✅ PASS - for successful tests  
+- ❌ FAIL - for failed tests
+- A summary at the end showing total passed/failed
+
+## Test Data
+
+The tests use the following test users:
+- **alice** (password: alicepassword) - Identity admin user
+- **admin** (password: admin123) - Superuser
+
+## Known Issues
+
+1. **Role User Counts**: The role list view currently shows 0 users for all roles due to an API issue where the `user_count` field is not being returned.
+
+2. **Service Restart**: Changes to the Identity Provider API may require a service restart to take effect.
+
+## Existing Tests
+
+### 1. test_all_views_comprehensive.py
+Comprehensive test suite that tests all 9 Identity Admin views and verifies data accuracy.
+
+### 2. test_identity_admin_dashboard.py
 Tests the basic dashboard functionality and CSS loading for the Identity Admin interface.
 
 **What it tests:**

@@ -2,10 +2,21 @@
 
 This directory contains Playwright tests for the Identity Provider Admin API endpoints.
 
+## Test Files
+
+### JavaScript/Playwright Tests
+- `test_api_endpoints.spec.js` - Comprehensive smoke tests for API logout and attributes endpoints (NEW)
+
+### Python Tests
+- `test_admin_api_simple.py` - Basic smoke tests using direct HTTP requests
+- `test_debug_auth.py` - Authentication debugging tests
+- `test_setup_verification.py` - Service setup verification
+
 ## Test Status
 
 ### ✅ Working Tests
 
+- `test_api_endpoints.spec.js` - API logout and attributes endpoints tests
 - `test_admin_api_simple.py` - Basic smoke tests using direct HTTP requests
 - `test_debug_auth.py` - Authentication debugging tests
 - `test_setup_verification.py` - Service setup verification
@@ -21,7 +32,23 @@ The following tests use browser-based API calls via `page.evaluate()` which are 
 
 ## Running Tests
 
-### Individual test files:
+### JavaScript/Playwright Tests:
+```bash
+# Run the new API endpoint tests
+cd playwright/identity-provider/smoke-tests
+npx playwright test test_api_endpoints.spec.js
+
+# Run with UI mode for debugging
+npx playwright test test_api_endpoints.spec.js --ui
+
+# Run with specific environment variables
+IDENTITY_PROVIDER_URL=https://identity.vfservices.viloforge.com \
+ADMIN_USERNAME=admin \
+ADMIN_PASSWORD=admin123!#QWERT \
+npx playwright test test_api_endpoints.spec.js
+```
+
+### Python Tests:
 ```bash
 cd playwright/identity-provider/smoke-tests
 python test_admin_api_simple.py
@@ -78,6 +105,29 @@ response = api_client.get('api/admin/users/')
 ```
 
 ## Test Coverage
+
+### API Endpoint Tests (`test_api_endpoints.spec.js`)
+- **API Logout Endpoint**
+  - Successful logout with JWT bearer token
+  - Error handling for missing authentication token
+  - Error handling for invalid authentication token
+- **User Attributes API**
+  - List user attributes (GET /api/admin/users/{id}/attributes/)
+  - Create new user attribute (POST /api/admin/users/{id}/set_attribute/)
+  - Update existing user attribute
+  - Create service-specific attributes
+  - Delete user attributes (DELETE /api/admin/users/{id}/attributes/{name}/)
+  - Validation of attribute names (lowercase, alphanumeric, underscores only)
+- **Service Attributes API**
+  - List service attributes (GET /api/admin/attributes/)
+  - Create service attribute definitions (POST /api/admin/attributes/)
+  - Update service attribute definitions (PATCH /api/admin/attributes/{id}/)
+  - Delete service attribute definitions (DELETE /api/admin/attributes/{id}/)
+  - Attribute type validation (string, integer, boolean, list types)
+  - Filter attributes by service
+- **Permission Tests**
+  - Reject unauthenticated requests
+  - Ensure admin role requirement
 
 ### User Management Tests (`test_admin_api_users.py`)
 - Authentication and authorization requirements
