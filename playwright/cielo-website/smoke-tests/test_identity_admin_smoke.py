@@ -118,6 +118,7 @@ def test_identity_admin_users_smoke(page: Page):
     row_count = rows.count()
     
     assert row_count > 0, "Table should have at least one row"
+    assert row_count >= 10, f"Table should have at least 10 users, but found {row_count}"
     print(f"✅ Table has {row_count} rows")
     
     # Verify each row has the expected number of cells
@@ -140,12 +141,51 @@ def test_identity_admin_users_smoke(page: Page):
     pagination_text = pagination_info.text_content()
     assert "Showing" in pagination_text and "users" in pagination_text, f"Pagination should show user count, got: {pagination_text}"
     
-    # Step 11: Test table responsiveness
+    # Step 11: Test critical navigation functionality
+    print("🧪 Testing critical navigation...")
+    
+    # Test View button
+    view_button = first_row_actions.locator("a[title='View']")
+    view_href = view_button.get_attribute("href")
+    assert view_href and "/users/0/" not in view_href, f"View button should have valid user ID, got: {view_href}"
+    
+    view_button.click()
+    page.wait_for_url("**/users/*/", timeout=10000)
+    page.wait_for_selector("#user-details", state="visible", timeout=10000)
+    print("✅ View button works - user detail page loads")
+    
+    # Go back to user list
+    page.go_back()
+    page.wait_for_selector("#userTable", state="visible", timeout=10000)
+    
+    # Test Edit button
+    edit_button = first_row_actions.locator("a[title='Edit']")
+    edit_button.click()
+    page.wait_for_url("**/users/*/edit/", timeout=10000)
+    page.wait_for_selector("#edit-form", state="visible", timeout=10000)
+    print("✅ Edit button works - user edit page loads")
+    
+    # Go back to user list
+    page.go_back()
+    page.wait_for_selector("#userTable", state="visible", timeout=10000)
+    
+    # Test Manage Roles button
+    roles_button = first_row_actions.locator("a[title='Manage Roles']")
+    roles_button.click()
+    page.wait_for_url("**/users/*/roles/", timeout=10000)
+    # Don't wait for content as there might be API errors
+    print("✅ Manage Roles button navigates to roles page")
+    
+    # Go back to user list
+    page.go_back()
+    page.wait_for_selector("#userTable", state="visible", timeout=10000)
+    
+    # Step 12: Test table responsiveness
     print("📱 Testing table responsiveness...")
     # The table should have DataTables initialized
     assert page.locator(".dataTables_wrapper").is_visible(), "DataTables wrapper should be present"
     
-    # Step 12: Final JavaScript error check
+    # Step 13: Final JavaScript error check
     assert len(js_errors) == 0, f"JavaScript errors detected during test: {js_errors}"
     
     # Step 13: Take a screenshot for visual verification (optional)
@@ -159,6 +199,7 @@ def test_identity_admin_users_smoke(page: Page):
     print(f"   - Table structure correct")
     print(f"   - {row_count} users displayed")
     print(f"   - All controls functional")
+    print(f"   - View/Edit/Manage Roles navigation working")
 
 
 if __name__ == "__main__":
