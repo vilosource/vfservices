@@ -5,11 +5,17 @@ This test verifies that the ABAC policies are correctly enforced for different
 user roles and attributes when accessing the Azure Costs service.
 """
 
+import os
+import sys
 import pytest
 from playwright.sync_api import Page, expect
 import jwt
 import time
 import requests
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+from playwright.common.auth import authenticated_page, AuthenticationError
 
 
 # Test data - Different user personas with various roles and attributes
@@ -63,29 +69,24 @@ class TestAzureCostsPolicies:
     
     def login_user(self, username: str, password: str) -> dict:
         """Login a user and return their JWT token data."""
-        # Navigate to login page
-        self.page.goto(f"{self.identity_url}/login/")
-        
-        # Fill login form
-        self.page.fill('input[name="username"]', username)
-        self.page.fill('input[name="password"]', password)
-        self.page.click('button[type="submit"]')
-        
-        # Wait for redirect to profile page
-        self.page.wait_for_url(f"{self.identity_url}/profile/")
-        
-        # Get JWT token from localStorage
-        jwt_token = self.page.evaluate("localStorage.getItem('jwt_token')")
-        assert jwt_token, "JWT token not found in localStorage"
-        
-        # Decode token to verify contents
-        decoded = jwt.decode(jwt_token, options={"verify_signature": False})
-        
-        return {
-            "token": jwt_token,
-            "decoded": decoded,
-            "username": username
-        }
+        # Use the authentication utility
+        with authenticated_page(self.page, username, password, 
+                              base_url=self.identity_url) as auth_page:
+            # Navigate to profile page to ensure login completed
+            auth_page.goto(f"{self.identity_url}/profile/", wait_until="networkidle")
+            
+            # Get JWT token
+            jwt_token = auth_page.get_jwt_token()
+            assert jwt_token, "JWT token not found after login"
+            
+            # Decode token to verify contents
+            decoded = jwt.decode(jwt_token, options={"verify_signature": False})
+            
+            return {
+                "token": jwt_token,
+                "decoded": decoded,
+                "username": username
+            }
     
     def make_api_request(self, endpoint: str, token: str) -> tuple:
         """Make an authenticated API request and return status code and response."""

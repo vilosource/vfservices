@@ -3,11 +3,15 @@ Browser-based smoke tests for Azure Costs API using Playwright.
 These tests simulate browser interactions with the API endpoints.
 """
 import os
+import sys
 import json
 import pytest
 from playwright.sync_api import Page, expect, BrowserContext
 from urllib.parse import urljoin
 
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+from playwright.common.auth import authenticated_page, AuthenticationError
 
 # Base URLs
 BASE_URL = os.environ.get("AZURE_COSTS_BASE_URL", "https://azure-costs.cielo.viloforge.com")
@@ -21,35 +25,6 @@ TEST_PASSWORD = os.environ.get("TEST_PASSWORD", "testpass123")
 
 class TestAzureCostsBrowser:
     """Browser-based test suite for Azure Costs API."""
-    
-    def login_and_get_token(self, page: Page, context: BrowserContext) -> str:
-        """Login through the identity provider and get JWT token."""
-        # Navigate to login page
-        page.goto(f"{IDENTITY_PROVIDER_URL}/login/", wait_until="networkidle")
-        
-        # Fill login form
-        page.fill('input[name="username"]', TEST_USERNAME)
-        page.fill('input[name="password"]', TEST_PASSWORD)
-        
-        # Submit form
-        page.click('button[type="submit"]')
-        
-        # Wait for redirect or login success
-        page.wait_for_load_state("networkidle")
-        
-        # Get JWT token from cookies or local storage
-        cookies = context.cookies()
-        for cookie in cookies:
-            if cookie["name"] == "jwt_token":
-                return cookie["value"]
-        
-        # Check local storage
-        token = page.evaluate("() => localStorage.getItem('jwt_token')")
-        if token:
-            return token
-            
-        # If no token found, skip test
-        pytest.skip("Could not obtain JWT token after login")
     
     def test_api_health_in_browser(self, page: Page):
         """Test accessing the health endpoint directly in browser."""
@@ -73,33 +48,33 @@ class TestAzureCostsBrowser:
     
     def test_api_integration_with_cielo_website(self, page: Page, context: BrowserContext):
         """Test Azure Costs API integration with CIELO website."""
-        # First, login to get authentication
-        token = self.login_and_get_token(page, context)
-        
-        # Navigate to CIELO website
-        page.goto(CIELO_WEBSITE_URL, wait_until="networkidle")
-        
-        # Check if there's any Azure Costs integration on the dashboard
-        # This assumes the CIELO website might have links or calls to Azure Costs API
-        
-        # Set authorization header for API calls
-        page.set_extra_http_headers({"Authorization": f"Bearer {token}"})
-        
-        # Listen for API calls to Azure Costs
-        api_calls = []
-        
-        def handle_request(request):
-            if BASE_URL in request.url:
-                api_calls.append(request.url)
-        
-        page.on("request", handle_request)
-        
-        # Navigate to a page that might use Azure Costs API
-        # For now, we'll just verify the API is accessible
-        response = page.request.get(f"{BASE_URL}/api/private")
-        assert response.status == 200
-        
-        print("✓ API integration test passed")
+        # Use the authentication utility
+        with authenticated_page(page, TEST_USERNAME, TEST_PASSWORD, 
+                              base_url=IDENTITY_PROVIDER_URL,
+                              service_url=CIELO_WEBSITE_URL) as auth_page:
+            
+            # Get JWT token
+            token = auth_page.get_jwt_token()
+            assert token is not None, "JWT token should be present after login"
+            
+            # Set authorization header for API calls
+            auth_page.set_extra_http_headers({"Authorization": f"Bearer {token}"})
+            
+            # Listen for API calls to Azure Costs
+            api_calls = []
+            
+            def handle_request(request):
+                if BASE_URL in request.url:
+                    api_calls.append(request.url)
+            
+            auth_page.on("request", handle_request)
+            
+            # Navigate to a page that might use Azure Costs API
+            # For now, we'll just verify the API is accessible
+            response = auth_page.request.get(f"{BASE_URL}/api/private")
+            assert response.status == 200
+            
+            print("✓ API integration test passed")
     
     def test_api_error_handling(self, page: Page):
         """Test API error handling and responses."""

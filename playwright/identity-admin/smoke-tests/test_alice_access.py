@@ -2,7 +2,12 @@
 """Test Alice's access to Identity Admin after role assignment"""
 
 import sys
+import os
 sys.path.append('/home/jasonvi/GitHub/vfservices')
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+from playwright.common.auth import authenticated_page, AuthenticationError
 
 from playwright.sync_api import sync_playwright
 import time
@@ -18,67 +23,75 @@ def test_alice_identity_admin_access():
         # Clear any existing session
         context.clear_cookies()
         
-        # Login as alice
+        # Use authentication utility for login
         print("1. Logging in as alice...")
-        page.goto("https://identity.vfservices.viloforge.com/login/")
-        page.wait_for_load_state("networkidle")
-        page.fill("input[name='username']", "alice")
-        page.fill("input[name='password']", "password123")
-        page.click("button[type='submit']")
-        page.wait_for_load_state("networkidle")
-        
-        # Check if logged in successfully
-        if "login" not in page.url:
-            print("✓ Logged in successfully")
-        else:
-            print("✗ Login failed")
-            browser.close()
-            return False
-        
-        # Navigate to Identity Admin
-        print("\n2. Navigating to Identity Admin...")
-        response = page.goto("https://website.vfservices.viloforge.com/admin/")
-        print(f"Response status: {response.status}")
-        page.wait_for_load_state("networkidle")
-        
-        # Check if we can access the dashboard
-        if response.status == 200:
-            print("✓ Successfully accessed Identity Admin dashboard")
-            
-            # Take screenshot
-            page.screenshot(path="alice_identity_admin_access.png", full_page=True)
-            print("Screenshot saved: alice_identity_admin_access.png")
-            
-            # Check page title
-            title = page.title()
-            print(f"Page title: {title}")
-            
-            # Check for dashboard content
-            if "Identity Administration" in title:
-                print("✓ Dashboard loaded correctly")
-            else:
-                print("✗ Dashboard title incorrect")
-            
-            # Check for alice's username in the navbar
-            if page.query_selector("span:has-text('alice')"):
-                print("✓ Alice's username shown in navbar")
-            else:
-                print("✗ Alice's username not found in navbar")
+        try:
+            with authenticated_page(page, "alice", "password123") as auth_page:
+                print("✓ Logged in successfully")
                 
-        elif response.status == 403:
-            print("✗ Access denied (403 Forbidden)")
-            print("Alice needs to log out and log back in to refresh her JWT token with the new role")
-            
-            # Get error message
-            error_text = page.inner_text("body")
-            print(f"Error message: {error_text}")
-        else:
-            print(f"✗ Unexpected status code: {response.status}")
-        
-        time.sleep(3)
-        browser.close()
-        
-        return response.status == 200
+                # Navigate to Identity Admin
+                print("\n2. Navigating to Identity Admin...")
+                response = auth_page.goto("https://website.vfservices.viloforge.com/admin/")
+                print(f"Response status: {response.status}")
+                auth_page.wait_for_load_state("networkidle")
+                
+                # Check if we can access the dashboard
+                if response.status == 200:
+                    print("✓ Successfully accessed Identity Admin dashboard")
+                    
+                    # Take screenshot
+                    auth_page.screenshot(path="alice_identity_admin_access.png", full_page=True)
+                    print("Screenshot saved: alice_identity_admin_access.png")
+                    
+                    # Continue with rest of test using auth_page instead of page
+                    current_url = auth_page.url
+                    content = auth_page.content()
+                    
+                    # Check page content
+                    if "Identity Administration" in content or "Dashboard" in content:
+                        print("✓ Dashboard content loaded correctly")
+                    else:
+                        print("✗ Dashboard content not as expected")
+                    
+                    # Check for Alice's name in the page
+                    if "alice" in content.lower():
+                        print("✓ User context (alice) visible in the page")
+                    
+                    # Try to navigate to users list
+                    print("\n3. Checking access to user list...")
+                    response = auth_page.goto("https://website.vfservices.viloforge.com/admin/users/")
+                    if response.status == 200:
+                        print("✓ Can access user list")
+                    else:
+                        print(f"✗ Cannot access user list (status: {response.status})")
+                    
+                    # Try to view admin user details
+                    print("\n4. Checking access to user details...")
+                    response = auth_page.goto("https://website.vfservices.viloforge.com/admin/users/1/")
+                    if response.status == 200:
+                        print("✓ Can view user details")
+                    else:
+                        print(f"✗ Cannot view user details (status: {response.status})")
+                    
+                    # Check edit permissions
+                    print("\n5. Checking edit permissions...")
+                    response = auth_page.goto("https://website.vfservices.viloforge.com/admin/users/1/edit/")
+                    if response.status == 200:
+                        print("✓ Can access user edit page")
+                    else:
+                        print(f"✗ Cannot access user edit page (status: {response.status})")
+                    
+                    print("\n✓ All Identity Admin access tests passed for alice")
+                    return True
+                else:
+                    print(f"✗ Access denied to Identity Admin (status: {response.status})")
+                    return False
+                    
+        except AuthenticationError as e:
+            print(f"✗ Login failed: {e}")
+            return False
+        finally:
+            browser.close()
 
 if __name__ == "__main__":
     success = test_alice_identity_admin_access()

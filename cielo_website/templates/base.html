@@ -1,5 +1,6 @@
 {% extends "page.html" %}
 {% load static %}
+{% load rbac_tags %}
 
 {% block base_css %}
 {{ block.super }}
@@ -134,6 +135,14 @@
                             <i class="ri-settings-3-line"></i>
                             <span>Settings</span>
                         </a>
+                        {% user_has_role 'identity_admin' as has_admin_role %}
+                        {% if has_admin_role %}
+                        <div class="dropdown-divider"></div>
+                        <a href="/admin/" class="dropdown-item notify-item">
+                            <i class="ri-admin-line"></i>
+                            <span>Identity Admin</span>
+                        </a>
+                        {% endif %}
                         <div class="dropdown-divider"></div>
                         <a href="/accounts/logout/" class="dropdown-item notify-item">
                             <i class="ri-logout-box-line"></i>

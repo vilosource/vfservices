@@ -2,11 +2,17 @@
 Playwright smoke test for Cielo website index page
 Tests basic functionality and page loading for cielo.viloforge.com
 """
+import sys
+import os
 import pytest
 import ssl
 import socket
 from urllib.parse import urlparse
 from playwright.sync_api import sync_playwright, expect
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+from playwright.common.auth import authenticated_page, AuthenticationError
 
 
 def test_access_cielo_homepage():
@@ -457,180 +463,98 @@ def test_cielo_full_login_logout_flow():
             assert "CIELO" in page_title, f"Login page should show CIELO branding, but title is: {page_title}"
             print(f"✓ CIELO branding confirmed in title: {page_title}")
             
-            # Step 2: Fill in login credentials
-            print("\nStep 2: Logging in as alice...")
-            # Wait for form to be ready
-            page.wait_for_selector('form', state="visible")
+            # Step 2: Use authentication utility for login and logout
+            print("\nStep 2: Testing login/logout with alice...")
             
-            # Cielo website uses 'email' as the field name but accepts username
-            page.fill('input[name="email"]', 'alice')
-            page.fill('input[name="password"]', 'password123')
-            
-            # Take screenshot before login
-            page.screenshot(path="cielo_alice_login_form.png")
-            
-            # Submit the login form
-            page.click('button[type="submit"]')
-            
-            # Wait for navigation after login
-            page.wait_for_load_state("networkidle")
-            page.wait_for_timeout(2000)  # Give it time to fully load
-            
-            # Step 3: Verify successful login
-            print("\nStep 3: Verifying successful login...")
-            current_url = page.url
-            
-            # Check if we're no longer on the login page
-            assert "/accounts/login/" not in current_url and "/login" not in current_url, "Login failed - still on login page"
-            print(f"✓ Successfully logged in, redirected to: {current_url}")
-            
-            # Check if we were redirected to a different domain
-            if "cielo.viloforge.com" not in current_url:
-                print(f"⚠ Redirected to different domain: {current_url}")
-                print("This indicates user 'alice' does not have CIELO roles")
-                print("The CieloAccessMiddleware now checks for RBAC roles instead of Django permissions")
+            # Use the authentication utility which handles the complete flow
+            with authenticated_page(page, 'alice', 'password123', 
+                                  service_url="https://cielo.viloforge.com") as auth_page:
                 
-                # Try navigating back to CIELO to confirm the redirect
-                print("\nConfirming role check by navigating back to CIELO...")
-                page.goto("https://cielo.viloforge.com/", wait_until="networkidle")
-                final_url = page.url
+                # Step 3: Verify successful login
+                print("\nStep 3: Verifying successful login...")
+                current_url = auth_page.url
+            
+                # Check if we're no longer on the login page
+                assert "/accounts/login/" not in current_url and "/login" not in current_url, "Login failed - still on login page"
+                print(f"✓ Successfully logged in, redirected to: {current_url}")
                 
-                if "cielo.viloforge.com" not in final_url:
-                    print(f"✓ Confirmed: User is redirected away from CIELO (to {final_url})")
-                    print("\nTo fix this, ensure:")
-                    print("1. CIELO service is registered with identity provider")
-                    print("2. User 'alice' has been assigned a CIELO role (e.g., cielo_admin, cielo_user)")
-                    print("3. Redis cache has been populated with user's CIELO roles")
-                    print("\nSteps to fix:")
-                    print("1. Register CIELO: docker exec cielo_website python manage.py register_service")
-                    print("2. Update users: docker exec identity-provider python manage.py setup_demo_users --skip-missing-services")
+                # Check if we were redirected to a different domain
+                if "cielo.viloforge.com" not in current_url:
+                    print(f"⚠ Redirected to different domain: {current_url}")
+                    print("This indicates user 'alice' does not have CIELO roles")
+                    print("The CieloAccessMiddleware now checks for RBAC roles instead of Django permissions")
                     
-                    # This is expected if CIELO service isn't registered yet
-                    pytest.skip("User 'alice' lacks CIELO roles - CIELO service may not be registered")
+                    # Try navigating back to CIELO to confirm the redirect
+                    print("\nConfirming role check by navigating back to CIELO...")
+                    auth_page.goto("https://cielo.viloforge.com/", wait_until="networkidle")
+                    final_url = auth_page.url
+                    
+                    if "cielo.viloforge.com" not in final_url:
+                        print(f"✓ Confirmed: User is redirected away from CIELO (to {final_url})")
+                        print("\nTo fix this, ensure:")
+                        print("1. CIELO service is registered with identity provider")
+                        print("2. User 'alice' has been assigned a CIELO role (e.g., cielo_admin, cielo_user)")
+                        print("3. Redis cache has been populated with user's CIELO roles")
+                        print("\nSteps to fix:")
+                        print("1. Register CIELO: docker exec cielo_website python manage.py register_service")
+                        print("2. Update users: docker exec identity-provider python manage.py setup_demo_users --skip-missing-services")
+                        
+                        # This is expected if CIELO service isn't registered yet
+                        pytest.skip("User 'alice' lacks CIELO roles - CIELO service may not be registered")
+                    else:
+                        print(f"⚠ Unexpected: User can now access CIELO at {final_url}")
+                
+                # If we reach here, user has access to CIELO
+                page_title = auth_page.title()
+                print(f"✓ User has access to CIELO domain")
+                print(f"✓ Page title: {page_title}")
+                
+                # Look for CIELO-specific content
+                page_content = auth_page.content()
+                cielo_indicators = [
+                    "CIELO" in page_content,
+                    "Azure Resources" in page_content or "Cloud" in page_content,
+                    "Dashboard" in page_content
+                ]
+                assert any(cielo_indicators), "Should see CIELO dashboard content after login"
+                print("✓ CIELO dashboard content verified")
+                
+                # Take screenshot of logged-in state
+                auth_page.screenshot(path="cielo_alice_logged_in.png")
+                
+                # Check for user-specific elements (e.g., username in navbar, logout link)
+                logout_link = None
+                logout_selectors = [
+                    'a[href*="logout"]',
+                    'a:has-text("Logout")',
+                    'a:has-text("Sign Out")',
+                    '.navbar a[href*="logout"]',
+                    '#navbarCollapse a[href*="logout"]',
+                    '.dropdown-menu a[href*="logout"]'  # In case it's in a dropdown
+                ]
+                
+                for selector in logout_selectors:
+                    try:
+                        elements = auth_page.locator(selector).all()
+                        if elements:
+                            logout_link = auth_page.locator(selector).first
+                            print(f"✓ Found logout link with selector: {selector}")
+                            break
+                    except:
+                        continue
+                
+                # JWT token check
+                token = auth_page.get_jwt_token()
+                if token:
+                    print(f"✓ JWT token present: {token[:30]}...")
                 else:
-                    print(f"⚠ Unexpected: User can now access CIELO at {final_url}")
+                    print("⚠ JWT token not found")
             
-            # If we reach here, user has access to CIELO
-            page_title = page.title()
-            print(f"✓ User has access to CIELO domain")
-            print(f"✓ Page title: {page_title}")
+            # The context manager automatically handles logout
+            print("\nStep 4: Automatic logout handled by authentication utility")
+            print("✓ User automatically logged out")
             
-            # Look for CIELO-specific content
-            page_content = page.content()
-            cielo_indicators = [
-                "CIELO" in page_content,
-                "Azure Resources" in page_content or "Cloud" in page_content,
-                "Dashboard" in page_content
-            ]
-            assert any(cielo_indicators), "Should see CIELO dashboard content after login"
-            print("✓ CIELO dashboard content verified")
-            
-            # Take screenshot of logged-in state
-            page.screenshot(path="cielo_alice_logged_in.png")
-            
-            # Check for user-specific elements (e.g., username in navbar, logout link)
-            logout_link = None
-            logout_selectors = [
-                'a[href*="logout"]',
-                'a:has-text("Logout")',
-                'a:has-text("Sign Out")',
-                '.navbar a[href*="logout"]',
-                '#navbarCollapse a[href*="logout"]',
-                '.dropdown-menu a[href*="logout"]'  # In case it's in a dropdown
-            ]
-            
-            for selector in logout_selectors:
-                try:
-                    elements = page.locator(selector).all()
-                    if elements:
-                        logout_link = page.locator(selector).first
-                        print(f"✓ Found logout link with selector: {selector}")
-                        break
-                except:
-                    continue
-            
-            # If no logout link found, navigate directly to logout URL
-            if logout_link is None or not logout_link.is_visible():
-                print("⚠ Logout link not visible in UI, navigating directly to logout URL")
-                logout_url = "https://cielo.viloforge.com/accounts/logout/"
-            else:
-                print("✓ Logout link is visible")
-            
-            # Step 4: Navigate to logout
-            print("\nStep 4: Initiating logout...")
-            if logout_link and logout_link.is_visible():
-                logout_link.click()
-            else:
-                page.goto(logout_url, wait_until="networkidle")
-            
-            page.wait_for_load_state("networkidle")
-            
-            # Should be on logout confirmation page
-            assert "/accounts/logout/" in page.url, f"Expected logout page, but at: {page.url}"
-            print(f"✓ On logout confirmation page: {page.url}")
-            
-            # Verify CIELO branding on logout page
-            page_title = page.title()
-            assert "CIELO" in page_title, f"Logout page should show CIELO branding, but title is: {page_title}"
-            print(f"✓ CIELO branding on logout page: {page_title}")
-            
-            # Take screenshot of logout confirmation page
-            page.screenshot(path="cielo_alice_logout_confirm.png")
-            
-            # Step 5: Confirm logout
-            print("\nStep 5: Confirming logout...")
-            
-            # Look for logout confirmation button
-            logout_button = None
-            button_selectors = [
-                'button:has-text("Yes, Logout")',
-                'button:has-text("Logout")',
-                'input[type="submit"][value*="Logout"]',
-                'button[type="submit"]:has-text("Logout")',
-                'form[action*="logout"] button[type="submit"]',
-                '.btn:has-text("Yes, Logout")',
-                '.btn-danger:has-text("Logout")'
-            ]
-            
-            for selector in button_selectors:
-                try:
-                    element = page.locator(selector).first
-                    if element.is_visible():
-                        logout_button = element
-                        print(f"✓ Found logout button with selector: {selector}")
-                        break
-                except:
-                    continue
-            
-            assert logout_button is not None, "Could not find logout confirmation button"
-            
-            # Click the logout button
-            logout_button.click()
-            page.wait_for_load_state("networkidle")
-            
-            # Step 6: Verify logout completed
-            print("\nStep 6: Verifying logout completed...")
-            final_url = page.url
-            
-            # Should be redirected back to login or home page
-            print(f"✓ After logout, redirected to: {final_url}")
-            
-            # Take final screenshot
-            page.screenshot(path="cielo_alice_after_logout.png")
-            
-            # Verify we're logged out by checking cookies
-            cookies_after_logout = context.cookies()
-            print(f"\nCookies after logout: {len(cookies_after_logout)} total")
-            jwt_cookie_found = False
-            for cookie in cookies_after_logout:
-                if cookie['name'] == 'jwt':
-                    jwt_cookie_found = True
-                    print(f"  - JWT cookie: value={'[SET]' if cookie['value'] else '[EMPTY]'}, expires={cookie.get('expires', 'N/A')}")
-            
-            # Wait a bit for logout to fully process
-            page.wait_for_timeout(1000)
-            
-            # Try to access the main page again
+            # Try to access the main page again to verify logout
             page.goto("https://cielo.viloforge.com/", wait_until="networkidle")
             final_check_url = page.url
             

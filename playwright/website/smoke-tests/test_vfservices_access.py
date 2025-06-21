@@ -2,10 +2,16 @@
 Playwright smoke test for accessing vfservices.viloforge.com
 Tests basic connectivity and page loading through Traefik
 """
+import sys
+import os
 import pytest
 import ssl
 import socket
 from playwright.sync_api import sync_playwright, expect
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from common.auth import authenticated_page, AuthenticationError
 
 
 def test_access_vfservices_homepage():
@@ -155,7 +161,7 @@ def test_full_login_logout_flow():
             print("\nStep 2: Logging in as alice...")
             # Website uses 'email' as the field name but accepts username
             page.fill('input[name="email"]', 'alice')
-            page.fill('input[name="password"]', 'alice123')
+            page.fill('input[name="password"]', 'alice123!#QWERT')
             
             # Take screenshot before login
             page.screenshot(path="website_alice_login_form.png")
@@ -165,14 +171,31 @@ def test_full_login_logout_flow():
             
             # Wait for navigation after login
             page.wait_for_load_state("networkidle")
-            page.wait_for_timeout(2000)  # Give it time to fully load
+            
+            # Wait for either successful redirect or error message
+            try:
+                # Wait for navigation away from login page (max 5 seconds)
+                page.wait_for_url(lambda url: "/accounts/login/" not in url, timeout=5000)
+            except:
+                # If timeout, check for error messages
+                error_found = False
+                for selector in ['.alert-danger', '.error', '.errorlist']:
+                    if page.locator(selector).count() > 0:
+                        error_msg = page.locator(selector).first.inner_text()
+                        print(f"Login error: {error_msg}")
+                        error_found = True
+                        break
+                if not error_found:
+                    print("Login seems stuck, checking current state...")
+            
+            page.wait_for_timeout(1000)  # Additional wait for any redirects
             
             # Step 3: Verify successful login
             print("\nStep 3: Verifying successful login...")
             current_url = page.url
             
             # Check if we're no longer on the login page
-            assert "/accounts/login/" not in current_url, "Login failed - still on login page"
+            assert "/accounts/login/" not in current_url, f"Login failed - still on login page: {current_url}"
             print(f"✓ Successfully logged in, redirected to: {current_url}")
             
             # Take screenshot of logged-in state
