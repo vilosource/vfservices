@@ -70,7 +70,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
             raise
         
     elif request.method == "POST":
-        username = request.POST.get("email")  # Form uses email field
+        username = request.POST.get("username")  # Form now uses username field
         password = request.POST.get("password")
         remember_me = request.POST.get("remember")
         
@@ -92,7 +92,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
                     'ip': get_client_ip(request),
                 }
             )
-            messages.error(request, "Email and password are required")
+            messages.error(request, "Username and password are required")
             return render(request, 'accounts/login.html')
         
         # Authenticate via identity provider
