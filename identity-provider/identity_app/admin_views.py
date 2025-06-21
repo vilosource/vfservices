@@ -14,12 +14,13 @@ from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.authentication import BaseAuthentication
 
-from .models import Role, UserRole, Service, ServiceManifest
+from .models import Role, UserRole, Service, ServiceManifest, ServiceAttribute
 from .serializers import (
     UserListSerializer, UserDetailSerializer, UserCreateSerializer,
     UserUpdateSerializer, UserRoleSerializer, AssignRoleSerializer,
     SetPasswordSerializer, ServiceSerializer, RoleSerializer,
-    BulkAssignRoleSerializer, AuditLogSerializer
+    BulkAssignRoleSerializer, AuditLogSerializer,
+    ServiceAttributeSerializer, ServiceAttributeCreateUpdateSerializer
 )
 from .permissions import IsIdentityAdmin
 from .services import RBACService, RedisService
@@ -327,6 +328,137 @@ class UserViewSet(ModelViewSet):
             RedisService.invalidate_user_cache(user.id)
         
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=True, methods=['get'])
+    def attributes(self, request, pk=None):
+        """List user's attributes"""
+        user = self.get_object()
+        
+        # Get all attributes for this user
+        from .models import UserAttribute
+        attributes = UserAttribute.objects.filter(
+            user=user
+        ).select_related('service', 'updated_by').order_by('service__name', 'name')
+        
+        from .serializers import UserAttributeSerializer
+        serializer = UserAttributeSerializer(attributes, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def set_attribute(self, request, pk=None):
+        """Create or update a user attribute"""
+        user = self.get_object()
+        
+        from .serializers import UserAttributeCreateUpdateSerializer
+        serializer = UserAttributeCreateUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        name = serializer.validated_data['name']
+        value = serializer.validated_data['value']
+        service_id = serializer.validated_data.get('service_id')
+        
+        # Get service if specified
+        service = None
+        if service_id:
+            from .models import Service
+            service = Service.objects.get(id=service_id)
+        
+        with transaction.atomic():
+            django_user = get_django_user(request)
+            if not django_user:
+                return Response(
+                    {"error": "Unable to identify current user"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Create or update the attribute
+            from .models import UserAttribute
+            attribute, created = UserAttribute.objects.update_or_create(
+                user=user,
+                name=name,
+                service=service,
+                defaults={
+                    'value': value,
+                    'updated_by': django_user
+                }
+            )
+            
+            audit_log(
+                user=request.user,
+                action='user_attribute_set',
+                resource_type='user_attribute',
+                resource_id=attribute.id,
+                changes={
+                    'user': user.username,
+                    'attribute': name,
+                    'service': service.name if service else 'global',
+                    'created': created,
+                    'value': value
+                },
+                request=request
+            )
+            
+            # Clear cache
+            RedisService.invalidate_user_cache(user.id)
+        
+        from .serializers import UserAttributeSerializer
+        return Response(
+            UserAttributeSerializer(attribute).data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        )
+    
+    @action(detail=True, methods=['delete'], url_path='attributes/(?P<attribute_name>[^/.]+)')
+    def delete_attribute(self, request, pk=None, attribute_name=None):
+        """Delete a user attribute"""
+        user = self.get_object()
+        
+        # Parse service from query params
+        service_id = request.query_params.get('service_id')
+        service = None
+        if service_id:
+            try:
+                from .models import Service
+                service = Service.objects.get(id=service_id)
+            except Service.DoesNotExist:
+                return Response(
+                    {"error": "Service not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        
+        try:
+            from .models import UserAttribute
+            attribute = UserAttribute.objects.get(
+                user=user,
+                name=attribute_name,
+                service=service
+            )
+        except UserAttribute.DoesNotExist:
+            return Response(
+                {"error": "Attribute not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        with transaction.atomic():
+            audit_log(
+                user=request.user,
+                action='user_attribute_deleted',
+                resource_type='user_attribute',
+                resource_id=attribute.id,
+                changes={
+                    'user': user.username,
+                    'attribute': attribute_name,
+                    'service': service.name if service else 'global',
+                    'value': attribute.value
+                },
+                request=request
+            )
+            
+            attribute.delete()
+            
+            # Clear cache
+            RedisService.invalidate_user_cache(user.id)
+        
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ServiceViewSet(ReadOnlyModelViewSet):
@@ -350,7 +482,11 @@ class RoleViewSet(ReadOnlyModelViewSet):
     pagination_class = None  # No pagination for roles
     
     def get_queryset(self):
-        queryset = Role.objects.select_related('service').order_by('service__name', 'name')
+        from django.db.models import Count
+        
+        queryset = Role.objects.select_related('service').annotate(
+            user_count=Count('user_assignments', distinct=True)
+        ).order_by('service__name', 'name')
         
         # Filter by service
         service = self.request.query_params.get('service')
@@ -469,3 +605,151 @@ class AuditLogView(APIView):
             'results': [],
             'count': 0
         })
+
+
+class ServiceAttributeViewSet(ModelViewSet):
+    """
+    API for managing service attribute definitions
+    """
+    authentication_classes = [JWTCookieAuthentication]
+    permission_classes = [IsIdentityAdmin]
+    serializer_class = ServiceAttributeSerializer
+    pagination_class = None  # No pagination for attributes
+    
+    def get_queryset(self):
+        queryset = ServiceAttribute.objects.select_related('service').order_by('service__name', 'name')
+        
+        # Filter by service
+        service = self.request.query_params.get('service')
+        if service:
+            queryset = queryset.filter(service__name=service)
+        
+        # Filter by required status
+        is_required = self.request.query_params.get('is_required')
+        if is_required is not None:
+            queryset = queryset.filter(is_required=is_required.lower() == 'true')
+        
+        return queryset
+    
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return ServiceAttributeCreateUpdateSerializer
+        return ServiceAttributeSerializer
+    
+    def create(self, request, *args, **kwargs):
+        # Get service from URL or request data
+        service_id = request.data.get('service_id') or request.data.get('service')
+        if not service_id:
+            return Response(
+                {"error": "service_id is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            service = Service.objects.get(id=service_id)
+        except Service.DoesNotExist:
+            return Response(
+                {"error": "Service not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Check if attribute already exists for this service
+        if ServiceAttribute.objects.filter(
+            service=service,
+            name=serializer.validated_data['name']
+        ).exists():
+            return Response(
+                {"error": f"Attribute '{serializer.validated_data['name']}' already exists for service '{service.name}'"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        with transaction.atomic():
+            attribute = serializer.save(service=service)
+            
+            audit_log(
+                user=request.user,
+                action='service_attribute_created',
+                resource_type='service_attribute',
+                resource_id=attribute.id,
+                changes={
+                    'service': service.name,
+                    'attribute': attribute.name,
+                    'type': attribute.attribute_type,
+                    'required': attribute.is_required
+                },
+                request=request
+            )
+        
+        return Response(
+            ServiceAttributeSerializer(attribute).data,
+            status=status.HTTP_201_CREATED
+        )
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        
+        # Track changes
+        changes = {}
+        for field, value in serializer.validated_data.items():
+            old_value = getattr(instance, field)
+            if old_value != value:
+                changes[field] = {'old': old_value, 'new': value}
+        
+        with transaction.atomic():
+            self.perform_update(serializer)
+            
+            if changes:
+                audit_log(
+                    user=request.user,
+                    action='service_attribute_updated',
+                    resource_type='service_attribute',
+                    resource_id=instance.id,
+                    changes={
+                        'service': instance.service.name,
+                        'attribute': instance.name,
+                        'updates': changes
+                    },
+                    request=request
+                )
+        
+        return Response(ServiceAttributeSerializer(instance).data)
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Check if any users have this attribute
+        from .models import UserAttribute
+        user_count = UserAttribute.objects.filter(
+            service=instance.service,
+            name=instance.name
+        ).count()
+        
+        if user_count > 0:
+            return Response(
+                {"error": f"Cannot delete attribute '{instance.name}' - {user_count} users have this attribute"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        with transaction.atomic():
+            audit_log(
+                user=request.user,
+                action='service_attribute_deleted',
+                resource_type='service_attribute',
+                resource_id=instance.id,
+                changes={
+                    'service': instance.service.name,
+                    'attribute': instance.name,
+                    'type': instance.attribute_type
+                },
+                request=request
+            )
+            
+            instance.delete()
+        
+        return Response(status=status.HTTP_204_NO_CONTENT)
