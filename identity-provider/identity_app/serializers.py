@@ -1,21 +1,23 @@
 """
 Serializers for Identity Provider Admin API
 """
+import json
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.utils import timezone
-from .models import Role, UserRole, Service
+from .models import Role, UserRole, Service, UserAttribute, ServiceAttribute
 
 
 class RoleSerializer(serializers.ModelSerializer):
     service_name = serializers.CharField(source='service.name', read_only=True)
     service_display_name = serializers.CharField(source='service.display_name', read_only=True)
+    user_count = serializers.IntegerField(read_only=True, default=0)
     
     class Meta:
         model = Role
         fields = ['id', 'name', 'display_name', 'description', 'is_global', 
-                  'service_name', 'service_display_name', 'created_at']
-        read_only_fields = ['id', 'created_at']
+                  'service_name', 'service_display_name', 'created_at', 'user_count']
+        read_only_fields = ['id', 'created_at', 'user_count']
 
 
 class UserRoleSerializer(serializers.ModelSerializer):
@@ -262,6 +264,121 @@ class AuditLogSerializer(serializers.Serializer):
     ip_address = serializers.IPAddressField()
     user_agent = serializers.CharField()
     created_at = serializers.DateTimeField()
+
+
+class UserAttributeSerializer(serializers.ModelSerializer):
+    """Serializer for user attributes."""
+    service_name = serializers.CharField(source='service.name', read_only=True, allow_null=True)
+    updated_by_username = serializers.CharField(source='updated_by.username', read_only=True)
+    
+    class Meta:
+        model = UserAttribute
+        fields = ['id', 'name', 'value', 'service', 'service_name', 
+                  'updated_at', 'updated_by_username']
+        read_only_fields = ['id', 'updated_at', 'updated_by_username']
+    
+    def validate_value(self, value):
+        """Validate that value can be JSON serialized."""
+        try:
+            # Try to parse if it's a JSON string
+            if isinstance(value, str) and value.startswith(('{', '[')):
+                json.loads(value)
+        except json.JSONDecodeError:
+            # If it's not valid JSON, we'll store it as a plain string
+            pass
+        return value
+
+
+class UserAttributeCreateUpdateSerializer(serializers.Serializer):
+    """Serializer for creating/updating user attributes."""
+    name = serializers.CharField(max_length=50)
+    value = serializers.CharField()
+    service_id = serializers.IntegerField(required=False, allow_null=True)
+    
+    def validate_name(self, value):
+        """Validate attribute name format."""
+        import re
+        if not re.match(r'^[a-z][a-z0-9_]*$', value):
+            raise serializers.ValidationError(
+                "Attribute name must start with lowercase letter and contain only "
+                "lowercase letters, numbers, and underscores"
+            )
+        return value
+    
+    def validate_service_id(self, value):
+        """Validate service exists."""
+        if value is not None:
+            try:
+                Service.objects.get(id=value)
+            except Service.DoesNotExist:
+                raise serializers.ValidationError("Service not found")
+        return value
+
+
+class ServiceAttributeSerializer(serializers.ModelSerializer):
+    """Serializer for service attribute definitions."""
+    service_name = serializers.CharField(source='service.name', read_only=True)
+    
+    class Meta:
+        model = ServiceAttribute
+        fields = ['id', 'service', 'service_name', 'name', 'display_name', 
+                  'description', 'attribute_type', 'is_required', 'default_value']
+        read_only_fields = ['id']
+    
+    def validate_default_value(self, value):
+        """Validate default value matches the attribute type."""
+        if value:
+            attribute_type = self.initial_data.get('attribute_type', 'string')
+            try:
+                # Validate JSON for complex types
+                if attribute_type in ['json', 'list_string', 'list_integer']:
+                    parsed = json.loads(value)
+                    if attribute_type == 'list_string' and not isinstance(parsed, list):
+                        raise serializers.ValidationError("Default value must be a list for list_string type")
+                    if attribute_type == 'list_integer':
+                        if not isinstance(parsed, list):
+                            raise serializers.ValidationError("Default value must be a list for list_integer type")
+                        # Check all items are integers
+                        for item in parsed:
+                            if not isinstance(item, int):
+                                raise serializers.ValidationError("All items must be integers for list_integer type")
+                elif attribute_type == 'integer':
+                    int(value)
+                elif attribute_type == 'boolean':
+                    if value.lower() not in ['true', 'false', '1', '0']:
+                        raise serializers.ValidationError("Default value must be true/false for boolean type")
+            except (json.JSONDecodeError, ValueError) as e:
+                raise serializers.ValidationError(f"Invalid default value for {attribute_type} type: {str(e)}")
+        return value
+
+
+class ServiceAttributeCreateUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for creating/updating service attribute definitions."""
+    
+    class Meta:
+        model = ServiceAttribute
+        fields = ['name', 'display_name', 'description', 'attribute_type', 
+                  'is_required', 'default_value']
+    
+    def validate_name(self, value):
+        """Validate attribute name format."""
+        import re
+        if not re.match(r'^[a-z][a-z0-9_]*$', value):
+            raise serializers.ValidationError(
+                "Attribute name must start with lowercase letter and contain only "
+                "lowercase letters, numbers, and underscores"
+            )
+        return value
+    
+    def validate(self, attrs):
+        """Cross-field validation."""
+        # Validate default value if provided
+        default_value = attrs.get('default_value')
+        if default_value:
+            serializer = ServiceAttributeSerializer()
+            serializer.initial_data = attrs
+            attrs['default_value'] = serializer.validate_default_value(default_value)
+        return attrs
 
 
 # Alias for backward compatibility
