@@ -1,0 +1,418 @@
+{% extends "identity_admin/base.html" %}
+{% load static %}
+
+{% block title %}Create User{% endblock %}
+
+{% block extra_css %}
+<!-- Form validation CSS -->
+<link href="{% static 'assets/libs/parsleyjs/parsley.css' %}" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'identity_admin:user_list' %}" class="btn btn-secondary">
+    <i class="mdi mdi-arrow-left me-1"></i> Back to Users
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">Create New User</h4>
+                
+                <form id="createUserForm" method="post" data-parsley-validate novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       required data-parsley-minlength="3" data-parsley-maxlength="150"
+                                       placeholder="Enter username">
+                                <div class="form-text">Must be unique and contain only letters, numbers, and @/./+/-/_ characters.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       required data-parsley-type="email"
+                                       placeholder="Enter email address">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       data-parsley-maxlength="30"
+                                       placeholder="Enter first name">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       data-parsley-maxlength="150"
+                                       placeholder="Enter last name">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="password" name="password" 
+                                       required data-parsley-minlength="8"
+                                       placeholder="Enter password">
+                                <div class="form-text">Minimum 8 characters with at least one letter and one number.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="password_confirm" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="password_confirm" name="password_confirm" 
+                                       required data-parsley-equalto="#password"
+                                       placeholder="Confirm password">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
+                                    <label class="form-check-label" for="is_active">
+                                        Active User
+                                    </label>
+                                    <div class="form-text">Inactive users cannot log in.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="is_staff" name="is_staff">
+                                    <label class="form-check-label" for="is_staff">
+                                        Staff Status
+                                    </label>
+                                    <div class="form-text">Designates whether the user can log into admin sites.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Role Assignment Section -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="mt-4 mb-3">Initial Role Assignment</h5>
+                            <div class="alert alert-info">
+                                <i class="mdi mdi-information me-2"></i>
+                                You can assign initial roles to the user. Additional roles can be managed after creation.
+                            </div>
+                            
+                            <div id="role-assignment-section">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="service" class="form-label">Service</label>
+                                            <select class="form-select" id="service" name="service">
+                                                <option value="">Select a service...</option>
+                                                <!-- Services will be loaded via JavaScript -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="role" class="form-label">Role</label>
+                                            <select class="form-select" id="role" name="role" disabled>
+                                                <option value="">Select a service first...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">&nbsp;</label>
+                                            <div>
+                                                <button type="button" class="btn btn-success" id="addRole" disabled>
+                                                    <i class="mdi mdi-plus"></i> Add Role
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="selectedRoles" class="mb-3">
+                                    <!-- Selected roles will appear here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Buttons -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="text-end">
+                                <a href="{% url 'identity_admin:user_list' %}" class="btn btn-secondary me-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="mdi mdi-account-plus me-1"></i> Create User
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Spinner -->
+<div id="loading-spinner" class="d-none text-center">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Creating user...</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Form validation -->
+<script src="{% static 'assets/libs/parsleyjs/parsley.min.js' %}"></script>
+
+<!-- User creation JavaScript -->
+<script>
+// Use the configured API (mock or real based on configuration)
+const api = window.getIdentityAPI();
+let availableServices = [];
+let availableRoles = [];
+let selectedRoles = [];
+
+// Load services and roles on page load
+$(document).ready(function() {
+    loadServices();
+    
+    // Form submission
+    $('#createUserForm').on('submit', handleFormSubmit);
+    
+    // Service selection change
+    $('#service').on('change', handleServiceChange);
+    
+    // Add role button
+    $('#addRole').on('click', addRole);
+});
+
+async function loadServices() {
+    try {
+        const services = await api.listServices();
+        availableServices = services;
+        
+        const serviceSelect = document.getElementById('service');
+        serviceSelect.innerHTML = '<option value="">Select a service...</option>';
+        
+        services.forEach(service => {
+            const option = document.createElement('option');
+            option.value = service.name;
+            option.textContent = service.display_name || service.name;
+            serviceSelect.appendChild(option);
+        });
+        
+        // Load all roles
+        const roles = await api.listRoles();
+        availableRoles = roles;
+        
+    } catch (error) {
+        console.error('Error loading services/roles:', error);
+        showAlert('Error loading services and roles. Some features may not work.', 'warning');
+    }
+}
+
+function handleServiceChange() {
+    const serviceSelect = document.getElementById('service');
+    const roleSelect = document.getElementById('role');
+    const addButton = document.getElementById('addRole');
+    
+    const selectedService = serviceSelect.value;
+    
+    if (selectedService) {
+        // Filter roles for selected service
+        const serviceRoles = availableRoles.filter(role => 
+            role.service_name === selectedService || 
+            (role.service && role.service.name === selectedService)
+        );
+        
+        roleSelect.innerHTML = '<option value="">Select a role...</option>';
+        serviceRoles.forEach(role => {
+            const option = document.createElement('option');
+            option.value = role.name;
+            option.textContent = role.display_name || role.name;
+            option.dataset.description = role.description || '';
+            roleSelect.appendChild(option);
+        });
+        
+        roleSelect.disabled = false;
+        
+        // Enable add button when both service and role are selected
+        roleSelect.addEventListener('change', function() {
+            addButton.disabled = !roleSelect.value;
+        });
+    } else {
+        roleSelect.innerHTML = '<option value="">Select a service first...</option>';
+        roleSelect.disabled = true;
+        addButton.disabled = true;
+    }
+}
+
+function addRole() {
+    const serviceSelect = document.getElementById('service');
+    const roleSelect = document.getElementById('role');
+    
+    const serviceName = serviceSelect.value;
+    const roleName = roleSelect.value;
+    
+    if (!serviceName || !roleName) return;
+    
+    // Check if role is already selected
+    const existing = selectedRoles.find(r => r.service === serviceName && r.role === roleName);
+    if (existing) {
+        showAlert('This role is already selected.', 'warning');
+        return;
+    }
+    
+    // Add to selected roles
+    const serviceDisplay = serviceSelect.options[serviceSelect.selectedIndex].text;
+    const roleDisplay = roleSelect.options[roleSelect.selectedIndex].text;
+    
+    selectedRoles.push({
+        service: serviceName,
+        role: roleName,
+        serviceDisplay: serviceDisplay,
+        roleDisplay: roleDisplay
+    });
+    
+    updateSelectedRolesDisplay();
+    
+    // Reset selectors
+    serviceSelect.value = '';
+    roleSelect.innerHTML = '<option value="">Select a service first...</option>';
+    roleSelect.disabled = true;
+    document.getElementById('addRole').disabled = true;
+}
+
+function updateSelectedRolesDisplay() {
+    const container = document.getElementById('selectedRoles');
+    
+    if (selectedRoles.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    let html = '<h6>Selected Roles:</h6>';
+    selectedRoles.forEach((role, index) => {
+        html += `
+            <div class="badge bg-primary me-2 mb-2">
+                ${role.serviceDisplay}: ${role.roleDisplay}
+                <button type="button" class="btn-close btn-close-white ms-2" 
+                        onclick="removeRole(${index})" aria-label="Remove"></button>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function removeRole(index) {
+    selectedRoles.splice(index, 1);
+    updateSelectedRolesDisplay();
+}
+
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    if (!$(form).parsley().isValid()) {
+        return false;
+    }
+    
+    const formData = new FormData(form);
+    const userData = {
+        username: formData.get('username'),
+        email: formData.get('email'),
+        first_name: formData.get('first_name') || '',
+        last_name: formData.get('last_name') || '',
+        password: formData.get('password'),
+        is_active: formData.has('is_active'),
+        is_staff: formData.has('is_staff'),
+        roles: selectedRoles
+    };
+    
+    // Show loading
+    document.getElementById('loading-spinner').classList.remove('d-none');
+    form.style.display = 'none';
+    
+    try {
+        // Create user (placeholder - would need real API implementation)
+        console.log('Creating user:', userData);
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        showAlert('User created successfully!', 'success');
+        
+        // Redirect to user list after short delay
+        setTimeout(() => {
+            window.location.href = "{% url 'identity_admin:user_list' %}";
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Error creating user:', error);
+        showAlert('Error creating user: ' + error.message, 'danger');
+        
+        // Hide loading and show form again
+        document.getElementById('loading-spinner').classList.add('d-none');
+        form.style.display = 'block';
+    }
+}
+
+function showAlert(message, type = 'info') {
+    const alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    
+    // Find or create alert container
+    let alertContainer = document.getElementById('alert-container');
+    if (!alertContainer) {
+        const pageTitle = document.querySelector('.page-title-box');
+        if (pageTitle) {
+            alertContainer = document.createElement('div');
+            alertContainer.id = 'alert-container';
+            pageTitle.parentNode.insertBefore(alertContainer, pageTitle.nextSibling);
+        }
+    }
+    
+    if (alertContainer) {
+        alertContainer.insertAdjacentHTML('beforeend', alertHtml);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            const alert = alertContainer.lastElementChild;
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+    }
+}
+</script>
+{% endblock %}
