@@ -64,9 +64,9 @@
                 <form action="{% url 'accounts:login' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}" method="post" id="loginForm">
                     {% csrf_token %}
                     <div class="mb-2">
-                        <label for="username" class="form-label">Username or Email</label>
-                        <input class="form-control" type="text" id="username" name="username" required 
-                               placeholder="Enter your username or email" value="{{ request.POST.username|default:'' }}">
+                        <label for="email" class="form-label">Username or Email</label>
+                        <input class="form-control" type="text" id="email" name="email" required 
+                               placeholder="Enter your username or email" value="{{ request.POST.email|default:'' }}">
                     </div>
                     <div class="mb-2">
                         <a href="#" class="text-muted float-end"><small>Forgot your password?</small></a>

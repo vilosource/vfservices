@@ -1,10 +1,14 @@
 # Project Guidelines
 
+## Critical Bug Fixes
+- **Login Form Field Name**: The login form MUST use `name="email"` not `name="username"`. The Django view expects `request.POST.get("email")`. This affects all website-based projects.
+
 ## identity-provider
 - The identity provider URL is https://identity.vfservices.viloforge.com (NOT identity-provider)
 - When integrating with the identity-provider always get the api schema /api/schema from the traefik endpoint of the identity-provider
 
 ## Changelog
+- 2025-01-22T11:45:00Z: Added critical login form field name fix documentation
 - 2025-01-21T15:45:00Z: Added correct identity provider URL (identity.vfservices.viloforge.com)
 - 2025-01-21T10:30:00Z: Reorganized and made more concise while preserving all context
 
