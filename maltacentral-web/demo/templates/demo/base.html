@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+{% load static %}
+{% load demo_filters %}
+
+{% block extra_css %}
+<style>
+    .demo-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .user-switcher {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 1000;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 15px;
+        min-width: 250px;
+    }
+    
+    .current-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #6200ea;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    
+    .demo-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .api-endpoint {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .api-endpoint:hover {
+        background: #f5f5f5;
+        border-color: #6200ea;
+    }
+    
+    .method-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-right: 10px;
+        min-width: 50px;
+        text-align: center;
+    }
+    
+    .method-get { background: #4caf50; color: white; }
+    .method-post { background: #2196f3; color: white; }
+    .method-put { background: #ff9800; color: white; }
+    .method-delete { background: #f44336; color: white; }
+    
+    .permission-granted {
+        color: #4caf50;
+        font-weight: bold;
+    }
+    
+    .permission-denied {
+        color: #f44336;
+        font-weight: bold;
+    }
+    
+    .response-viewer {
+        background: #f5f5f5;
+        border-radius: 4px;
+        padding: 15px;
+        font-family: monospace;
+        font-size: 14px;
+        white-space: pre-wrap;
+        word-break: break-all;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    
+    .status-success { background: #c8e6c9; color: #2e7d32; }
+    .status-error { background: #ffcdd2; color: #c62828; }
+    
+    .demo-nav {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 10px;
+    }
+    
+    .demo-nav a {
+        text-decoration: none;
+        color: #666;
+        padding: 10px 20px;
+        border-radius: 4px 4px 0 0;
+        transition: all 0.2s;
+    }
+    
+    .demo-nav a:hover {
+        background: #f5f5f5;
+        color: #6200ea;
+    }
+    
+    .demo-nav a.active {
+        background: #6200ea;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="demo-container">
+    <!-- User Switcher Widget -->
+    <div class="user-switcher">
+        <div class="current-user">
+            <div class="user-avatar">
+                {% if current_user %}
+                    {{ current_user|first|upper }}
+                {% else %}
+                    ?
+                {% endif %}
+            </div>
+            <div>
+                {% if current_user %}
+                    <strong>{{ demo_users|get_item:current_user|get_item:'name' }}</strong>
+                    <div style="font-size: 12px; color: #666;">{{ demo_users|get_item:current_user|get_item:'display_role' }}</div>
+                {% else %}
+                    <strong>No User Selected</strong>
+                    <div style="font-size: 12px; color: #666;">Select a demo user</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <select id="userSelector" class="form-control" onchange="switchUser(this.value)">
+            <option value="">Select a user...</option>
+            {% for username, user in demo_users.items %}
+                <option value="{{ username }}" {% if username == current_user %}selected{% endif %}>
+                    {{ user.name }} ({{ user.display_role }})
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <!-- Demo Navigation -->
+    <div class="demo-nav">
+        <a href="{% url 'demo:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active"{% endif %}>
+            Overview
+        </a>
+        <a href="{% url 'demo:rbac_dashboard' %}" {% if request.resolver_match.url_name == 'rbac_dashboard' %}class="active"{% endif %}>
+            RBAC Dashboard
+        </a>
+        <a href="{% url 'demo:api_explorer' %}" {% if request.resolver_match.url_name == 'api_explorer' %}class="active"{% endif %}>
+            API Explorer
+        </a>
+        <a href="{% url 'demo:permission_matrix' %}" {% if request.resolver_match.url_name == 'permission_matrix' %}class="active"{% endif %}>
+            Permission Matrix
+        </a>
+        <a href="{% url 'demo:playground' %}" {% if request.resolver_match.url_name == 'playground' %}class="active"{% endif %}>
+            Playground
+        </a>
+    </div>
+    
+    {% block demo_content %}{% endblock %}
+</div>
+
+<script>
+    function switchUser(username) {
+        if (!username) return;
+        
+        fetch('{% url "demo:switch_demo_user" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username: username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to switch user: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            alert('Error switching user: ' + error);
+        });
+    }
+</script>
+{% endblock %}
+
+{% block sidebar_menu %}
+<div id="sidebar-menu">
+    <ul id="side-menu">
+        <li class="menu-title">Navigation</li>
+
+        <li>
+            <a href="/" class="waves-effect">
+                <i class="mdi mdi-home"></i>
+                <span> Home </span>
+            </a>
+        </li>
+
+        <li class="menu-title">API Demo</li>
+
+        <li>
+            <a href="{% url 'demo:dashboard' %}" class="waves-effect">
+                <i class="mdi mdi-view-dashboard"></i>
+                <span> Demo Overview </span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'demo:rbac_dashboard' %}" class="waves-effect">
+                <i class="mdi mdi-shield-account"></i>
+                <span> RBAC Dashboard </span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'demo:api_explorer' %}" class="waves-effect">
+                <i class="mdi mdi-api"></i>
+                <span> API Explorer </span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'demo:permission_matrix' %}" class="waves-effect">
+                <i class="mdi mdi-grid"></i>
+                <span> Permission Matrix </span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'demo:playground' %}" class="waves-effect">
+                <i class="mdi mdi-play-circle"></i>
+                <span> Playground </span>
+            </a>
+        </li>
+    </ul>
+</div>
+{% endblock %}

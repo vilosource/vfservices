@@ -1,0 +1,159 @@
+{% extends "demo/base.html" %}
+{% load demo_filters %}
+
+{% block demo_content %}
+<h1>API Explorer</h1>
+
+{% if not current_user %}
+<div class="alert alert-warning">
+    Please select a demo user from the dropdown to test API endpoints.
+</div>
+{% else %}
+<div class="demo-card">
+    <h5>Current User's Roles</h5>
+    {% if current_user_roles %}
+        {% for service, roles in current_user_roles.items %}
+            <p><strong>{{ service|title }}:</strong> 
+            {% for role in roles %}
+                <span class="badge badge-primary">{{ role }}</span>
+            {% endfor %}
+            </p>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">No roles assigned yet. Run setup_demo_users to assign roles.</p>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-4">
+        <!-- Service List -->
+        {% for service_name, service_data in api_endpoints.items %}
+        <div class="demo-card">
+            <h4>{{ service_name|title }} Service</h4>
+            <p class="text-muted">{{ service_data.base_url }}</p>
+            
+            {% for endpoint in service_data.endpoints %}
+            <div class="api-endpoint" onclick="testEndpoint('{{ service_name }}', '{{ endpoint.path }}', '{{ endpoint.method }}')">
+                <span class="method-badge method-{{ endpoint.method|lower }}">{{ endpoint.method }}</span>
+                <div style="flex: 1;">
+                    <strong>{{ endpoint.name }}</strong>
+                    <div style="font-size: 12px; color: #666;">
+                        {{ endpoint.path }}
+                        {% if endpoint.required_role %}
+                            <span class="badge badge-info">{{ endpoint.required_role }}</span>
+                            {% if endpoint.required_role in current_user_roles|get_item:service_name|default_if_none:"" %}
+                                <span class="text-success">✓</span>
+                            {% else %}
+                                <span class="text-danger">✗</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% if endpoint.requires_auth %}
+                    <span style="color: #ff9800;">🔒</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="col-md-8">
+        <!-- Response Viewer -->
+        <div class="demo-card">
+            <h4>Response</h4>
+            <div id="responseContainer">
+                <p class="text-muted">Select an endpoint to test...</p>
+            </div>
+        </div>
+        
+        <!-- Request Details -->
+        <div class="demo-card">
+            <h4>Request Details</h4>
+            <div id="requestDetails">
+                <p class="text-muted">No request sent yet...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function testEndpoint(service, endpoint, method) {
+        // Show loading state
+        document.getElementById('responseContainer').innerHTML = '<div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>';
+        document.getElementById('requestDetails').innerHTML = '<p>Sending request...</p>';
+        
+        // Update request details
+        const requestHtml = `
+            <div>
+                <strong>Service:</strong> ${service}<br>
+                <strong>Endpoint:</strong> ${endpoint}<br>
+                <strong>Method:</strong> <span class="method-badge method-${method.toLowerCase()}">${method}</span><br>
+                <strong>User:</strong> ${getCurrentUser() || 'None'}<br>
+                <strong>Token:</strong> ${hasToken() ? '✅ Present' : '❌ Missing'}
+            </div>
+        `;
+        document.getElementById('requestDetails').innerHTML = requestHtml;
+        
+        // Make the API call
+        fetch('{% url "demo:test_api_endpoint" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                service: service,
+                endpoint: endpoint,
+                method: method
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            displayResponse(data);
+        })
+        .catch(error => {
+            document.getElementById('responseContainer').innerHTML = `
+                <div class="alert alert-danger">
+                    <strong>Error:</strong> ${error}
+                </div>
+            `;
+        });
+    }
+    
+    function displayResponse(data) {
+        const statusClass = data.success ? 'status-success' : 'status-error';
+        const statusText = data.success ? 'Success' : 'Error';
+        
+        let html = `
+            <div class="mb-3">
+                <span class="status-badge ${statusClass}">
+                    ${data.status_code} ${statusText}
+                </span>
+            </div>
+            
+            <h5>Response Body:</h5>
+            <div class="response-viewer">
+                ${JSON.stringify(data.body, null, 2)}
+            </div>
+            
+            <details class="mt-3">
+                <summary>Response Headers</summary>
+                <div class="response-viewer">
+                    ${JSON.stringify(data.headers, null, 2)}
+                </div>
+            </details>
+        `;
+        
+        document.getElementById('responseContainer').innerHTML = html;
+    }
+    
+    function getCurrentUser() {
+        return '{{ current_user }}';
+    }
+    
+    function hasToken() {
+        return {{ access_token|yesno:"true,false" }};
+    }
+</script>
+{% endblock %}

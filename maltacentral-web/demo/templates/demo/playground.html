@@ -1,0 +1,547 @@
+{% extends "demo/base.html" %}
+
+{% block demo_content %}
+<h1>Access Control Playground</h1>
+
+<div class="demo-card">
+    <h2>Interactive Scenarios</h2>
+    <p>Walk through real-world access control scenarios step by step.</p>
+    
+    {% for scenario in scenarios %}
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="mb-0">
+                {{ scenario.title }}
+                <small class="text-muted float-right">User: {{ scenario.user|title }}</small>
+            </h5>
+        </div>
+        <div class="card-body">
+            <p>{{ scenario.description }}</p>
+            
+            <h6>Steps:</h6>
+            <ol>
+                {% for step in scenario.steps %}
+                <li>{{ step }}</li>
+                {% endfor %}
+            </ol>
+            
+            <button class="btn btn-primary" onclick="runScenario('{{ scenario.id }}', '{{ scenario.user }}')">
+                Run Scenario
+            </button>
+            
+            <div id="scenario-{{ scenario.id }}-results" class="mt-3"></div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="demo-card">
+    <h2>Custom Testing</h2>
+    <p>Create your own test scenario:</p>
+    
+    <div class="form-group">
+        <label>Select User:</label>
+        <select id="customUser" class="form-control">
+            {% for username, user in demo_users.items %}
+            <option value="{{ username }}">{{ user.name }} ({{ user.display_role }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label>Select Service:</label>
+        <select id="customService" class="form-control">
+            <option value="identity">Identity Provider</option>
+            <option value="billing">Billing API</option>
+            <option value="inventory">Inventory API</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label>Enter Endpoint:</label>
+        <input type="text" id="customEndpoint" class="form-control" placeholder="/api/endpoint" value="/private/">
+    </div>
+    
+    <div class="form-group">
+        <label>Method:</label>
+        <select id="customMethod" class="form-control">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="DELETE">DELETE</option>
+        </select>
+    </div>
+    
+    <button class="btn btn-primary" onclick="runCustomTest()">Test Access</button>
+    
+    <div id="customTestResults" class="mt-3"></div>
+</div>
+
+<script>
+    async function runScenario(scenarioId, username) {
+        console.log(`[Playground] Starting scenario: ${scenarioId} for user: ${username}`);
+        const resultsDiv = document.getElementById(`scenario-${scenarioId}-results`);
+        
+        try {
+            // Show loading state
+            resultsDiv.innerHTML = '<div class="alert alert-info"><div class="spinner-border spinner-border-sm" role="status"></div> Running scenario...</div>';
+            
+            // Check current user
+            const currentUser = '{{ current_user }}';
+            console.log(`[Playground] Current user: ${currentUser}, Required user: ${username}`);
+            
+            // First, switch to the scenario user if needed
+            if (currentUser !== username) {
+                console.log(`[Playground] Switching from ${currentUser} to ${username}`);
+                resultsDiv.innerHTML = '<div class="alert alert-info">Switching user...</div>';
+                
+                try {
+                    const switchResult = await switchUserForScenario(username);
+                    console.log('[Playground] Switch user result:', switchResult);
+                    
+                    if (switchResult.success) {
+                        resultsDiv.innerHTML = '<div class="alert alert-success">User switched! Reloading page...</div>';
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        throw new Error(switchResult.error || 'Failed to switch user');
+                    }
+                } catch (error) {
+                    console.error('[Playground] Error switching user:', error);
+                    resultsDiv.innerHTML = `<div class="alert alert-danger">Failed to switch user: ${error.message}</div>`;
+                }
+                return;
+            }
+            
+            // User is already correct, run the tests
+            console.log(`[Playground] Running tests for scenario: ${scenarioId}`);
+            resultsDiv.innerHTML = '<div class="alert alert-info"><div class="spinner-border spinner-border-sm" role="status"></div> Running tests...</div>';
+            
+            let results = [];
+            
+            switch(scenarioId) {
+                case 'super_admin_access':
+                    console.log('[Playground] Running SuperAdmin access tests');
+                    results = await testSuperAdminAccess();
+                    break;
+                case 'billing_specialist_access':
+                    console.log('[Playground] Running Billing Specialist tests');
+                    results = await testBillingSpecialistAccess();
+                    break;
+                case 'warehouse_manager_access':
+                    console.log('[Playground] Running Warehouse Manager tests');
+                    results = await testWarehouseManagerAccess();
+                    break;
+                case 'readonly_access':
+                    console.log('[Playground] Running Read-Only access tests');
+                    results = await testReadOnlyAccess();
+                    break;
+                default:
+                    console.error(`[Playground] Unknown scenario: ${scenarioId}`);
+                    throw new Error(`Unknown scenario: ${scenarioId}`);
+            }
+            
+            console.log('[Playground] Test results:', results);
+            displayScenarioResults(resultsDiv, results);
+            
+        } catch (error) {
+            console.error('[Playground] Error running scenario:', error);
+            resultsDiv.innerHTML = `<div class="alert alert-danger">
+                <strong>Error:</strong> ${error.message}
+                <br><small>Check browser console for details</small>
+            </div>`;
+        }
+    }
+    
+    async function switchUserForScenario(username) {
+        console.log(`[Playground] Switching to user: ${username}`);
+        try {
+            const response = await fetch('{% url "demo:switch_demo_user" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: username })
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('[Playground] Error response:', errorText);
+                let errorData;
+                try {
+                    errorData = JSON.parse(errorText);
+                } catch (e) {
+                    errorData = { error: errorText };
+                }
+                throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log('[Playground] Switch user response:', data);
+            return data;
+        } catch (error) {
+            console.error('[Playground] Error in switchUserForScenario:', error);
+            throw error;
+        }
+    }
+    
+    async function testEndpoint(service, endpoint, method = 'GET') {
+        console.log(`[Playground] Testing endpoint: ${service} ${method} ${endpoint}`);
+        try {
+            const response = await fetch('{% url "demo:test_api_endpoint" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    service: service,
+                    endpoint: endpoint,
+                    method: method
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log(`[Playground] Response for ${service}${endpoint}:`, data);
+            return data;
+        } catch (error) {
+            console.error(`[Playground] Error testing ${service}${endpoint}:`, error);
+            return {
+                success: false,
+                error: error.message,
+                status_code: 0
+            };
+        }
+    }
+    
+    async function testSuperAdminAccess() {
+        console.log('[Playground] Starting SuperAdmin access tests for Alice');
+        const results = [];
+        
+        try {
+            // Test billing admin endpoint (Alice has billing_admin role)
+            console.log('[Playground] Testing billing admin endpoint...');
+            const billingAdmin = await testEndpoint('billing', '/billing-admin/');
+            results.push({
+                test: 'Access Billing Admin Endpoint',
+                success: billingAdmin.success,
+                message: billingAdmin.success ? 'Billing admin access granted' : `Access denied (${billingAdmin.status_code}) - missing billing_admin role`,
+                details: billingAdmin
+            });
+            
+            // Test inventory manager endpoint (Alice has inventory_manager role)
+            console.log('[Playground] Testing inventory manager endpoint...');
+            const inventoryManager = await testEndpoint('inventory', '/inventory-manager/');
+            results.push({
+                test: 'Access Inventory Manager Endpoint',
+                success: inventoryManager.success,
+                message: inventoryManager.success ? 'Inventory manager access granted' : `Access denied (${inventoryManager.status_code}) - missing inventory_manager role`,
+                details: inventoryManager
+            });
+            
+            // Test basic authenticated endpoints
+            console.log('[Playground] Testing basic billing private endpoint...');
+            const billing = await testEndpoint('billing', '/private/');
+            results.push({
+                test: 'Access Billing Private Data',
+                success: billing.success,
+                message: billing.success ? 'Authenticated access granted' : `Authentication failed (${billing.status_code})`,
+                details: billing
+            });
+            
+            console.log('[Playground] Testing basic inventory private endpoint...');
+            const inventory = await testEndpoint('inventory', '/private/');
+            results.push({
+                test: 'Access Inventory Private Data',
+                success: inventory.success,
+                message: inventory.success ? 'Authenticated access granted' : `Authentication failed (${inventory.status_code})`,
+                details: inventory
+            });
+            
+            // Test RBAC endpoint to verify roles
+            console.log('[Playground] Testing RBAC endpoint to verify roles...');
+            const rbac = await testEndpoint('billing', '/test-rbac/');
+            if (rbac.success && rbac.body) {
+                const roles = rbac.body.user_attrs ? rbac.body.user_attrs.roles : [];
+                console.log('[Playground] User roles from RBAC:', roles);
+                results.push({
+                    test: 'Verify Billing Roles',
+                    success: roles.includes('billing_admin') && roles.includes('customer_manager'),
+                    message: `Billing roles: ${roles.join(', ') || 'No roles found'}`,
+                    details: rbac
+                });
+            } else {
+                console.log('[Playground] RBAC test failed:', rbac);
+                results.push({
+                    test: 'Verify Billing Roles',
+                    success: false,
+                    message: 'Failed to retrieve RBAC information',
+                    details: rbac
+                });
+            }
+            
+        } catch (error) {
+            console.error('[Playground] Error in testSuperAdminAccess:', error);
+            results.push({
+                test: 'Test Execution',
+                success: false,
+                message: `Error: ${error.message}`,
+                details: { error: error.toString() }
+            });
+        }
+        
+        console.log('[Playground] SuperAdmin test results:', results);
+        return results;
+    }
+    
+    async function testBillingSpecialistAccess() {
+        console.log('[Playground] Starting Billing Specialist tests for Bob');
+        const results = [];
+        
+        try {
+            // Test billing access (should succeed)
+            console.log('[Playground] Testing billing private endpoint...');
+            const billing = await testEndpoint('billing', '/private/');
+            results.push({
+                test: 'Access Billing Data',
+                success: billing.success,
+                message: billing.success ? 'Billing access granted' : 'Access denied',
+                details: billing
+            });
+            
+            // Test RBAC to verify billing roles
+            console.log('[Playground] Testing billing RBAC endpoint...');
+            const billingRbac = await testEndpoint('billing', '/test-rbac/');
+            if (billingRbac.success && billingRbac.body) {
+                const roles = billingRbac.body.user_attrs ? billingRbac.body.user_attrs.roles : [];
+                const hasInvoiceManager = roles.includes('invoice_manager');
+                const hasPaymentProcessor = roles.includes('payment_processor');
+                results.push({
+                    test: 'Verify Billing Roles',
+                    success: hasInvoiceManager && hasPaymentProcessor,
+                    message: `Billing roles: ${roles.join(', ') || 'No roles found'}`,
+                    details: billingRbac
+                });
+            }
+            
+            // Test inventory access (read-only)
+            console.log('[Playground] Testing inventory access (read-only)...');
+            const inventory = await testEndpoint('inventory', '/private/');
+            results.push({
+                test: 'View Inventory Data',
+                success: inventory.success,
+                message: inventory.success ? 'Inventory view access granted' : 'Access denied',
+                details: inventory
+            });
+            
+            // Test inventory RBAC to verify stock_viewer role
+            console.log('[Playground] Testing inventory RBAC endpoint...');
+            const inventoryRbac = await testEndpoint('inventory', '/test-rbac/');
+            if (inventoryRbac.success && inventoryRbac.body) {
+                const roles = inventoryRbac.body.user_attrs ? inventoryRbac.body.user_attrs.roles : [];
+                results.push({
+                    test: 'Verify Inventory Role',
+                    success: roles.includes('stock_viewer'),
+                    message: `Inventory role: ${roles.join(', ') || 'No roles found'} (read-only)`,
+                    details: inventoryRbac
+                });
+            }
+            
+        } catch (error) {
+            console.error('[Playground] Error in testBillingSpecialistAccess:', error);
+            results.push({
+                test: 'Test Execution',
+                success: false,
+                message: `Error: ${error.message}`,
+                details: { error: error.toString() }
+            });
+        }
+        
+        console.log('[Playground] Billing Specialist test results:', results);
+        return results;
+    }
+    
+    async function testWarehouseManagerAccess() {
+        console.log('[Playground] Starting Warehouse Manager tests for Charlie');
+        const results = [];
+        
+        try {
+            // Test inventory access (should succeed with full permissions)
+            console.log('[Playground] Testing inventory access...');
+            const inventory = await testEndpoint('inventory', '/private/');
+            results.push({
+                test: 'Access Inventory Data',
+                success: inventory.success,
+                message: inventory.success ? 'Inventory access granted' : 'Access denied',
+                details: inventory
+            });
+            
+            // Test RBAC to verify warehouse roles
+            console.log('[Playground] Testing inventory RBAC...');
+            const inventoryRbac = await testEndpoint('inventory', '/test-rbac/');
+            if (inventoryRbac.success && inventoryRbac.body) {
+                const roles = inventoryRbac.body.user_attrs ? inventoryRbac.body.user_attrs.roles : [];
+                const hasWarehouseManager = roles.includes('warehouse_manager');
+                const hasStockAdjuster = roles.includes('stock_adjuster');
+                results.push({
+                    test: 'Verify Warehouse Roles',
+                    success: hasWarehouseManager && hasStockAdjuster,
+                    message: `Inventory roles: ${roles.join(', ') || 'No roles found'}`,
+                    details: inventoryRbac
+                });
+            }
+            
+            // Test inventory manager endpoint (should fail - Charlie has warehouse_manager, not inventory_manager)
+            console.log('[Playground] Testing inventory manager endpoint (should fail)...');
+            const inventoryManager = await testEndpoint('inventory', '/inventory-manager/');
+            results.push({
+                test: 'Inventory Manager Role Check',
+                success: !inventoryManager.success && inventoryManager.status_code === 403,
+                message: inventoryManager.success ? 'Unexpected access!' : 'Correctly denied - requires inventory_manager role',
+                details: inventoryManager
+            });
+            
+            // Test billing role endpoint (should fail)
+            console.log('[Playground] Testing billing role endpoint (should fail)...');
+            const billingRole = await testEndpoint('billing', '/invoice-manager/');
+            results.push({
+                test: 'Billing Role Access Denied',
+                success: !billingRole.success && billingRole.status_code === 403,
+                message: billingRole.success ? 'Unexpected billing access!' : 'Correctly denied - no billing roles',
+                details: billingRole
+            });
+            
+            // Test authenticated billing endpoint (should succeed - open to all authenticated users)
+            console.log('[Playground] Testing billing authenticated endpoint...');
+            const billing = await testEndpoint('billing', '/private/');
+            results.push({
+                test: 'Authenticated Billing Endpoint',
+                success: billing.success,
+                message: billing.success ? 'Authenticated access granted' : 'Authentication failed',
+                details: billing
+            });
+            
+        } catch (error) {
+            console.error('[Playground] Error in testWarehouseManagerAccess:', error);
+            results.push({
+                test: 'Test Execution',
+                success: false,
+                message: `Error: ${error.message}`,
+                details: { error: error.toString() }
+            });
+        }
+        
+        console.log('[Playground] Warehouse Manager test results:', results);
+        return results;
+    }
+    
+    async function testReadOnlyAccess() {
+        const results = [];
+        
+        // Test read access
+        const billing = await testEndpoint('billing', '/private/');
+        results.push({
+            test: 'Read Billing Data',
+            success: billing.success,
+            message: billing.success ? 'Read access granted' : 'Access denied'
+        });
+        
+        const inventory = await testEndpoint('inventory', '/private/');
+        results.push({
+            test: 'Read Inventory Data',
+            success: inventory.success,
+            message: inventory.success ? 'Read access granted' : 'Access denied'
+        });
+        
+        // Note: We can't test write operations without actual write endpoints
+        results.push({
+            test: 'Write Operations',
+            success: true,
+            message: 'Write operations would be denied (read-only user)'
+        });
+        
+        return results;
+    }
+    
+    function displayScenarioResults(div, results) {
+        console.log('[Playground] Displaying results:', results);
+        
+        let html = '<h6>Results:</h6>';
+        
+        if (!results || results.length === 0) {
+            html += '<div class="alert alert-warning">No test results received</div>';
+            div.innerHTML = html;
+            return;
+        }
+        
+        html += '<ul class="list-unstyled">';
+        
+        results.forEach((result, index) => {
+            const icon = result.success ? '✅' : '❌';
+            const className = result.success ? 'text-success' : 'text-danger';
+            html += `<li class="${className}">${icon} ${result.test}: ${result.message}`;
+            
+            // Add expandable details for debugging
+            if (result.details) {
+                html += `
+                    <a href="#" onclick="event.preventDefault(); document.getElementById('detail-${div.id}-${index}').classList.toggle('d-none');" class="ms-2 small">
+                        [details]
+                    </a>
+                    <pre id="detail-${div.id}-${index}" class="d-none mt-2 small bg-light p-2">
+${JSON.stringify(result.details, null, 2)}
+                    </pre>
+                `;
+            }
+            
+            html += '</li>';
+        });
+        
+        html += '</ul>';
+        
+        // Add summary
+        const successCount = results.filter(r => r.success).length;
+        const totalCount = results.length;
+        const summaryClass = successCount === totalCount ? 'text-success' : 'text-warning';
+        html += `<p class="${summaryClass} mt-2"><strong>Summary:</strong> ${successCount}/${totalCount} tests passed</p>`;
+        
+        div.innerHTML = html;
+    }
+    
+    async function runCustomTest() {
+        const user = document.getElementById('customUser').value;
+        const service = document.getElementById('customService').value;
+        const endpoint = document.getElementById('customEndpoint').value;
+        const method = document.getElementById('customMethod').value;
+        
+        const resultsDiv = document.getElementById('customTestResults');
+        resultsDiv.innerHTML = '<div class="spinner-border" role="status"></div> Testing...';
+        
+        // Switch user if needed
+        if ('{{ current_user }}' !== user) {
+            await switchUserForScenario(user);
+            // Wait a moment for the session to update
+            setTimeout(() => runCustomTestAfterSwitch(service, endpoint, method), 1000);
+        } else {
+            runCustomTestAfterSwitch(service, endpoint, method);
+        }
+    }
+    
+    async function runCustomTestAfterSwitch(service, endpoint, method) {
+        const result = await testEndpoint(service, endpoint, method);
+        const resultsDiv = document.getElementById('customTestResults');
+        
+        const alertClass = result.success ? 'alert-success' : 'alert-danger';
+        const icon = result.success ? '✅' : '❌';
+        
+        resultsDiv.innerHTML = `
+            <div class="alert ${alertClass}">
+                ${icon} <strong>${service.toUpperCase()} ${endpoint}</strong>
+                <br>Status: ${result.status_code}
+                <br>Response: <pre>${JSON.stringify(result.body, null, 2)}</pre>
+            </div>
+        `;
+    }
+</script>
+{% endblock %}

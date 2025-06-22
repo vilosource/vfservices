@@ -1,0 +1,74 @@
+{% load menu_tags %}
+<li>
+    {% if item.children %}
+        <a href="#{{ item.id|default:'menu-item' }}" 
+           data-bs-toggle="collapse" 
+           aria-expanded="false" 
+           aria-controls="{{ item.id|default:'menu-item' }}"
+           class="waves-effect">
+            {% if item.icon %}
+                <i class="mdi mdi-{{ item.icon }}"></i>
+            {% endif %}
+            <span>{{ item.label }}</span>
+            <span class="menu-arrow"></span>
+        </a>
+        <div class="collapse" id="{{ item.id|default:'menu-item' }}">
+            <ul class="nav-second-level">
+                {% for child in item.children %}
+                    {% if child.children %}
+                        <li>
+                            <a href="#{{ child.id|default:'submenu-item' }}" 
+                               data-bs-toggle="collapse" 
+                               aria-expanded="false"
+                               aria-controls="{{ child.id|default:'submenu-item' }}">
+                                {{ child.label }}
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="{{ child.id|default:'submenu-item' }}">
+                                <ul class="nav-third-level">
+                                    {% for subchild in child.children %}
+                                        {% if subchild.children %}
+                                            <li>
+                                                <a href="#{{ subchild.id|default:'subsubmenu-item' }}" 
+                                                   data-bs-toggle="collapse" 
+                                                   aria-expanded="false"
+                                                   aria-controls="{{ subchild.id|default:'subsubmenu-item' }}">
+                                                    {{ subchild.label }}
+                                                    <span class="menu-arrow"></span>
+                                                </a>
+                                                <div class="collapse" id="{{ subchild.id|default:'subsubmenu-item' }}">
+                                                    <ul class="nav-fourth-level">
+                                                        {% for lastchild in subchild.children %}
+                                                            <li>
+                                                                <a href="{{ lastchild.url }}">{{ lastchild.label }}</a>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                        {% else %}
+                                            <li>
+                                                <a href="{{ subchild.url }}">{{ subchild.label }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="{{ child.url }}">{{ child.label }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <a href="{{ item.url }}" class="waves-effect">
+            {% if item.icon %}
+                <i class="mdi mdi-{{ item.icon }}"></i>
+            {% endif %}
+            <span>{{ item.label }}</span>
+        </a>
+    {% endif %}
+</li>

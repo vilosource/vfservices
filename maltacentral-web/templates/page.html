@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-topbar-color="brand">
+    <head>
+        <meta charset="utf-8" />
+        <title>{% block title %}VF Services{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="{% block meta_description %}A fully featured admin theme which can be used to build CRM, CMS, etc.{% endblock %}" name="description" />
+        <meta content="{% block meta_author %}Coderthemes{% endblock %}" name="author" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}">
+
+        {% block base_css %}
+        <!-- App css -->
+        <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'assets/css/app.min.css' %}" rel="stylesheet" type="text/css" id="app-stylesheet" />
+        <!-- icons -->
+        <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+        <!-- Theme Config Js -->
+        <script src="{% static 'assets/js/config.js' %}"></script>
+        {% endblock %}
+
+        {% block extra_css %}{% endblock %}
+    </head>
+
+    <body{% block body_class %}{% endblock %}>
+        {% block body_content %}
+        {% endblock %}
+
+        {% block base_js %}
+        <!-- Vendor js -->
+        <script src="{% static 'assets/js/vendor.min.js' %}"></script>
+        <!-- App js -->
+        <script src="{% static 'assets/js/app.min.js' %}"></script>
+        {% endblock %}
+        
+        {% block extra_js %}{% endblock %}
+    </body>
+</html>

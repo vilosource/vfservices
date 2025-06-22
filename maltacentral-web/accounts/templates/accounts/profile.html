@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User Profile - VF Services{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-card {
+        margin-bottom: 24px;
+    }
+    .profile-info-item {
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    .profile-info-item:last-child {
+        border-bottom: none;
+    }
+    .profile-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 4px;
+    }
+    .profile-value {
+        color: #6c757d;
+        font-size: 14px;
+    }
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .error-message {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 16px;
+    }
+    .profile-actions {
+        margin-top: 16px;
+        text-align: right;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'accounts:profile' %}">Account</a></li>
+                        <li class="breadcrumb-item active">Profile</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">User Profile</h4>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <div class="row">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card profile-card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">Profile Information</h4>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="refresh-profile-btn">
+                            <i class="mdi mdi-refresh"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Loading State -->
+                    <div id="profile-loading" style="display: none;">
+                        <div class="text-center py-4">
+                            <div class="loading-spinner"></div>
+                            <p class="mt-2 text-muted">Loading profile information...</p>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="profile-error" style="display: none;">
+                        <div class="error-message">
+                            <h6><i class="mdi mdi-alert-circle"></i> Error Loading Profile</h6>
+                            <p id="profile-error-message" class="mb-2">Failed to load profile information.</p>
+                            <button type="button" class="btn btn-sm btn-danger" id="retry-profile-btn">
+                                <i class="mdi mdi-refresh"></i> Retry
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Profile Content -->
+                    <div id="profile-content" style="display: none;">
+                        <div class="profile-info-item">
+                            <div class="profile-label">Username</div>
+                            <div class="profile-value" id="profile-username">Loading...</div>
+                        </div>
+
+                        <div class="profile-info-item">
+                            <div class="profile-label">Email Address</div>
+                            <div class="profile-value" id="profile-email">Loading...</div>
+                        </div>
+
+                        <div class="profile-info-item">
+                            <div class="profile-label">Profile Last Retrieved</div>
+                            <div class="profile-value" id="profile-timestamp">Loading...</div>
+                        </div>
+
+                        <div class="profile-info-item">
+                            <div class="profile-label">Last Updated</div>
+                            <div class="profile-value" id="profile-last-updated">Just now</div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <small class="text-muted">
+                                <i class="mdi mdi-information"></i>
+                                Profile information is retrieved from the Identity Provider service using JWT authentication.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-xl-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Account Actions</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'accounts:logout' %}" class="btn btn-outline-danger">
+                            <i class="mdi mdi-logout"></i> Logout
+                        </a>
+                        <button type="button" class="btn btn-outline-info" onclick="window.location.reload()">
+                            <i class="mdi mdi-refresh"></i> Refresh Page
+                        </button>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <h6 class="mb-2">Authentication Status</h6>
+                    <div class="alert alert-success">
+                        <i class="mdi mdi-check-circle"></i> 
+                        You are currently logged in with a valid JWT token.
+                    </div>
+
+                    <h6 class="mb-2">Service Information</h6>
+                    <small class="text-muted">
+                        <strong>Identity Service:</strong><br>
+                        <code id="identity-service-url">{{ identity_service_url }}</code>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Pass configuration to JavaScript
+    window.IDENTITY_SERVICE_URL = "{{ identity_service_url }}";
+</script>
+<script src="{% static 'assets/js/identity-api-client.js' %}"></script>
+{% endblock %}
