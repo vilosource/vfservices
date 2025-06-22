@@ -4,12 +4,21 @@ Complete technical documentation for the VF Services platform, covering authenti
 
 ## 📚 Documentation Index
 
+### Getting Started & Setup
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| **[New Website Setup Guide](./NEW-WEBSITE-SETUP-GUIDE.md)** | Complete guide for setting up new websites | New developers |
+| **[New Website Quick Checklist](./NEW-WEBSITE-QUICK-CHECKLIST.md)** | Printable setup checklist | All developers |
+| **[Malta Central Setup Steps](./MALTACENTRAL-WEB-SETUP-STEPS.md)** | Real-world setup example with troubleshooting | Reference |
+| **[Frontend Developer Guide](./FRONTEND-DEVELOPER-GUIDE.md)** | Frontend development and API integration | Frontend devs |
+
 ### JWT Authentication
 | Document | Purpose | Audience |
 |----------|---------|----------|
 | **[JWT Authentication Guide](./JWT-AUTHENTICATION-GUIDE.md)** | Complete JWT implementation guide | New service developers |
 | **[JWT Quick Reference](./JWT-AUTH-QUICK-REFERENCE.md)** | Copy-paste patterns and examples | Experienced developers |
 | **[JWT Troubleshooting](./JWT-AUTH-TROUBLESHOOTING.md)** | Common issues and solutions | All developers |
+| **[CIELO Authentication Guide](./CIELO-AUTHENTICATION-GUIDE.md)** | CIELO-specific auth and access control | CIELO developers |
 
 ### RBAC-ABAC Authorization
 | Document | Purpose | Audience |
@@ -20,7 +29,12 @@ Complete technical documentation for the VF Services platform, covering authenti
 
 ## 🚀 Quick Start Paths
 
-### Building a New Service?
+### Setting Up a New Website?
+1. **[New Website Quick Checklist](./NEW-WEBSITE-QUICK-CHECKLIST.md)** - Step-by-step checklist (30 min)
+2. **[New Website Setup Guide](./NEW-WEBSITE-SETUP-GUIDE.md)** - Detailed instructions
+3. **[Malta Central Setup Steps](./MALTACENTRAL-WEB-SETUP-STEPS.md)** - Real example with fixes
+
+### Building a New API Service?
 1. **[JWT Authentication Guide](./JWT-AUTHENTICATION-GUIDE.md#quick-start)** - Set up authentication (10 min)
 2. **[RBAC-ABAC Quick Reference](./RBAC-ABAC-QUICK-REFERENCE.md#-5-minute-setup)** - Add authorization (5 min)
 3. **[JWT Quick Reference](./JWT-AUTH-QUICK-REFERENCE.md#testing)** - Write tests (15 min)
