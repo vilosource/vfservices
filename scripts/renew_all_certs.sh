@@ -23,13 +23,15 @@ echo "Certificate Renewal for VF Services"
 echo "========================================"
 echo "Primary domain: ${DOMAIN}"
 echo "Email: ${EMAIL}"
-echo "Additional domains: cielo.viloforge.com"
+echo "Additional domains: cielo.viloforge.com, maltacentral.com"
 echo ""
 echo "This will obtain/renew certificates for:"
 echo "  - ${DOMAIN}"
 echo "  - *.${DOMAIN}"
 echo "  - cielo.viloforge.com"
 echo "  - *.cielo.viloforge.com"
+echo "  - maltacentral.com"
+echo "  - www.maltacentral.com"
 echo "========================================"
 
 # Create necessary directories
@@ -57,6 +59,8 @@ docker run --rm \
   -d "*.${DOMAIN}" \
   -d "cielo.viloforge.com" \
   -d "*.cielo.viloforge.com" \
+  -d "maltacentral.com" \
+  -d "www.maltacentral.com" \
   --cert-name "${DOMAIN}"
 
 # Remove the temporary file
@@ -69,6 +73,8 @@ echo ""
 echo "The certificate now covers:"
 echo "  - ${DOMAIN} and all subdomains"
 echo "  - cielo.viloforge.com and all subdomains"
+echo "  - maltacentral.com"
+echo "  - www.maltacentral.com"
 echo ""
 echo "You can verify the certificate domains with:"
 echo "openssl x509 -in ./certs/live/${DOMAIN}/cert.pem -text -noout | grep -A2 'Subject Alternative Name'"
