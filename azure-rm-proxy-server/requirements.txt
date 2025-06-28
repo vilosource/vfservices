@@ -30,3 +30,8 @@ networkx>=3.2.1
 
 # MCP support
 mcp[cli]>=1.7.1
+
+# Authentication dependencies
+python-jose[cryptography]>=3.3.0
+python-multipart>=0.0.5
+PyJWT>=2.8.0

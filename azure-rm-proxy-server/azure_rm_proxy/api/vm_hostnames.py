@@ -1,8 +1,11 @@
 from fastapi import Depends, APIRouter, Query, HTTPException
+from typing import Dict
 from ..app.dependencies import get_azure_service
 from ..core.models import VirtualMachineHostname
 from ..core.azure_service import AzureResourceService
 from azure.core.exceptions import ResourceNotFoundError, ClientAuthenticationError
+from ..auth import get_current_user_with_roles
+from ..rbac import check_read_permission, check_write_permission, check_admin_permission
 
 router = APIRouter(tags=["VM Hostnames"], prefix="/api/subscriptions/hostnames")
 
@@ -12,6 +15,7 @@ async def list_vm_hostnames(
     subscription_id: str = Query(None, alias="subscription-id"),
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ):
     """
     Get a list of VM names and their hostnames from tags.

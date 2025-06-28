@@ -3,7 +3,9 @@ import uvicorn
 import os
 import time
 import importlib
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 # First, check if the modules exist and import them (prevents errors if modules are missing)
@@ -32,6 +34,8 @@ from ..api import (
     root,  # Import the root router
 )
 from .config import settings
+from ..auth import get_current_user, auth_middleware
+from ..rate_limiting import rate_limiter, rate_limit_middleware
 
 # Configure main logging
 logging.basicConfig(level=getattr(logging, settings.log_level))
@@ -91,10 +95,45 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         return response
 
 
-app = FastAPI(title="Azure RM Proxy Server", version="0.1.0")
+# Security headers middleware
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["X-Request-ID"] = str(id(request))
+    return response
 
-# Add request logging middleware
+
+app = FastAPI(
+    title="Azure RM Proxy Server",
+    version="0.1.0",
+    description="REST API proxy for Azure Resource Manager with caching and authentication"
+)
+
+# Configure CORS
+allowed_origins = os.getenv('ALLOWED_ORIGINS', 'https://arm-proxy.maltacentral.com').split(',')
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Configure trusted hosts
+allowed_hosts = os.getenv('ALLOWED_HOSTS', 'arm-proxy.maltacentral.com,*.maltacentral.com').split(',')
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=allowed_hosts
+)
+
+# Add middleware in order (bottom runs first)
 app.add_middleware(RequestLoggingMiddleware)
+app.middleware("http")(add_security_headers)
+app.middleware("http")(auth_middleware)
+app.middleware("http")(rate_limit_middleware)
 
 # Include routers
 app.include_router(subscriptions.router)
@@ -126,7 +165,21 @@ async def ping():
 async def startup_event():
     """Initialize resources on startup."""
     logger.info("Azure RM Proxy Server starting up")
-    # You could pre-warm caches or initialize resources here if needed
+    logger.info(f"Authentication required: {os.getenv('REQUIRE_AUTH', 'true')}")
+    logger.info(f"Allowed origins: {allowed_origins}")
+    logger.info(f"Allowed hosts: {allowed_hosts}")
+    
+    # Start rate limiter cleanup task
+    await rate_limiter.start()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup resources on shutdown."""
+    logger.info("Azure RM Proxy Server shutting down")
+    
+    # Stop rate limiter cleanup task
+    await rate_limiter.stop()
 
 
 def run_server():

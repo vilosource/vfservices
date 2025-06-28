@@ -290,6 +290,19 @@ services:
       - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
       # Optional mock mode for testing
       - USE_MOCK=${USE_MOCK:-false}
+      # JWT Authentication
+      - VF_JWT_SECRET=${VF_JWT_SECRET:-change-me}
+      - IDENTITY_PROVIDER_URL=http://identity-provider:8000
+      - REQUIRE_AUTH=${REQUIRE_AUTH:-true}  # Authentication is now required
+      # CORS and Security
+      - ALLOWED_ORIGINS=https://arm-proxy.maltacentral.com,https://maltacentral.com,https://www.maltacentral.com
+      - ALLOWED_HOSTS=arm-proxy.maltacentral.com,*.maltacentral.com,localhost
+      - SSO_COOKIE_DOMAIN=.maltacentral.com
+      # Rate Limiting
+      - RATE_LIMIT_ANONYMOUS=${RATE_LIMIT_ANONYMOUS:-60}
+      - RATE_LIMIT_AUTHENTICATED=${RATE_LIMIT_AUTHENTICATED:-120}
+      # Service API Keys (optional)
+      - SERVICE_API_KEYS=${SERVICE_API_KEYS:-}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7890/api/ping"]
       interval: 30s

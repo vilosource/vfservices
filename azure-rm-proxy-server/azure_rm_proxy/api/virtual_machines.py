@@ -1,8 +1,11 @@
 from fastapi import Depends, APIRouter, Query, HTTPException
+from typing import Dict
 from ..app.dependencies import get_azure_service
 from ..core.models import VirtualMachineModel, VirtualMachineDetail
 from ..core.azure_service import AzureResourceService
 from azure.core.exceptions import ResourceNotFoundError, ClientAuthenticationError
+from ..auth import get_current_user_with_roles
+from ..rbac import check_read_permission, check_write_permission, check_admin_permission
 
 router = APIRouter(
     tags=["Virtual Machines"],
@@ -16,6 +19,7 @@ async def list_virtual_machines(
     resource_group_name: str,
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ):
     return await azure_service.get_virtual_machines(
         subscription_id, resource_group_name, refresh_cache=refresh_cache
@@ -29,6 +33,7 @@ async def get_virtual_machine_details(
     vm_name: str,
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ):
     try:
         return await azure_service.get_vm_details(
