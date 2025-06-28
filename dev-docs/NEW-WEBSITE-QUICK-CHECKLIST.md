@@ -18,6 +18,7 @@ Use this checklist when setting up a new website on VF Services platform. Check 
 - [ ] Set `SSO_COOKIE_DOMAIN=.yourdomain.com`
 - [ ] Set `APPLICATION_SET_DOMAIN=yourdomain.com`
 - [ ] Set unique database name `POSTGRES_DB=vfdb_yourwebsite`
+- [ ] Set `IDENTITY_EXTERNAL_URL=https://identity.vfservices.viloforge.com`
 - [ ] Configure Traefik labels with your domain
 
 ### 3. Identity Provider

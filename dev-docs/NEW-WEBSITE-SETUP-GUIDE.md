@@ -45,6 +45,7 @@ Add your new service to `docker-compose.yml`. Here's the template:
       - REDIS_PORT=6379
       - RBAC_ABAC_CACHE_TTL=${RBAC_ABAC_CACHE_TTL:-86400}
       - IDENTITY_PROVIDER_URL=http://identity-provider:8000
+      - IDENTITY_EXTERNAL_URL=https://identity.vfservices.viloforge.com  # Important: Shared identity provider
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.yourwebsite.rule=Host(`www.yourdomain.com`) || Host(`yourdomain.com`)"
@@ -199,6 +200,11 @@ docker compose logs identity-provider | grep -E "(API authentication successful)
 1. Service is running: `docker compose ps`
 2. SSL certificate includes your domain
 3. Traefik labels are correct in docker-compose.yml
+
+### Issue 5: Profile Page API Errors
+**Symptom**: JavaScript error "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+**Cause**: Profile page trying to access identity.yourdomain.com instead of shared identity provider
+**Solution**: Add `IDENTITY_EXTERNAL_URL=https://identity.vfservices.viloforge.com` to environment variables
 
 ## Important Configuration Notes
 

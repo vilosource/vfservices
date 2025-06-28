@@ -267,7 +267,21 @@ docker compose up -d postgres redis identity-provider maltacentral-web
 3. **Form Field Mismatch**: Critical bug fixed - changed field name from "username" to "email"
 4. **Login Success**: Admin can now successfully login to maltacentral-web
 
+### Issue 5: Profile Page API Error (2025-01-22T12:00:00Z)
+**Problem**: Profile page JavaScript trying to access non-existent `identity.maltacentral.com`
+
+**Error**: `Failed to load resource: net::ERR_NAME_NOT_RESOLVED` for `identity.maltacentral.com/api/profile/`
+
+**Root Cause**: The default EXTERNAL_SERVICE_URLS configuration assumes each domain has its own identity provider subdomain, but all sites share the same identity provider at `identity.vfservices.viloforge.com`
+
+**Fix Applied**:
+- Added `IDENTITY_EXTERNAL_URL=https://identity.vfservices.viloforge.com` to maltacentral-web environment in docker-compose.yml
+- This overrides the default `identity.{APPLICATION_SET_DOMAIN}` pattern
+
+**Impact**: Profile page and all JavaScript API calls to identity provider now work correctly
+
 ## Changelog
+- 2025-01-22T12:00:00Z: Fixed profile page API endpoint configuration
 - 2025-01-22T11:30:00Z: Confirmed successful admin login after bug fix
 - 2025-01-22T11:20:00Z: Fixed critical form field name mismatch bug
 - 2025-01-22T11:10:00Z: Added investigation details for admin login issue

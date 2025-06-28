@@ -495,6 +495,66 @@ def my_view(request):
     # User is guaranteed to be authenticated here
 ```
 
+## Accessing User Profile Data
+
+### Loading User Profile (Including Avatar)
+
+Once authenticated, applications can fetch additional user profile data from the Identity Provider:
+
+```javascript
+// Fetch user profile including avatar
+async function loadUserProfile() {
+    try {
+        const response = await fetch('https://identity.vfservices.viloforge.com/api/profile/', {
+            credentials: 'include',  // Include JWT cookie
+            headers: {
+                'Accept': 'application/json',
+            }
+        });
+        
+        if (response.ok) {
+            const userData = await response.json();
+            // userData includes: id, username, email, first_name, last_name, avatar_url, roles
+            
+            // Handle avatar display
+            if (userData.avatar_url) {
+                document.querySelector('.user-avatar').src = userData.avatar_url;
+            } else {
+                // Use default avatar based on user ID
+                const avatarNum = (userData.id % 10) + 1;
+                document.querySelector('.user-avatar').src = 
+                    `/static/assets/images/users/avatar-${avatarNum}.jpg`;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load profile:', error);
+    }
+}
+```
+
+### Avatar Management
+
+For applications that need avatar functionality:
+
+1. **Include avatar-management.js** from the common library
+2. **Initialize on page load** for authenticated users
+3. **Avatars are stored centrally** in the Identity Provider
+
+Example integration:
+```html
+<script src="{% static 'js/avatar-management.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        AvatarManager.config.identityProviderUrl = 'https://identity.vfservices.viloforge.com';
+        {% if user.is_authenticated %}
+        AvatarManager.init('.user-avatar');
+        {% endif %}
+    });
+</script>
+```
+
+**⚠️ Important**: If your template extends `base.html` and overrides the `{% block extra_js %}` block, you MUST include `{{ block.super }}` to preserve avatar functionality. See [Django Template Best Practices](./DJANGO-TEMPLATE-BEST-PRACTICES.md#critical-preserving-parent-block-content).
+
 ## Security Considerations
 
 1. **JWT Secret** - Use strong, unique secrets in production
@@ -502,6 +562,7 @@ def my_view(request):
 3. **Cookie Security** - Configure secure, httpOnly cookies
 4. **Role Validation** - Always validate user roles for sensitive operations
 5. **Logging** - Log authentication attempts and role checks
+6. **Profile Data Caching** - Cache user profile data appropriately (sessionStorage recommended)
 
 ## Deployment Checklist
 
@@ -520,3 +581,6 @@ def my_view(request):
 - [Working Example: azure-costs](../azure-costs/)
 - [RBAC-ABAC Documentation](../docs/RBAC-ABAC-IMPLEMENTATION.md)
 - [Cross-Service Auth Analysis](../docs/CROSS-SERVICE-AUTH-ANALYSIS.md)
+
+---
+*Last Updated: 2025-06-22T09:00:00Z - Added user profile data access and avatar management documentation*
