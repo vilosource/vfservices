@@ -259,6 +259,7 @@ services:
       - REDIS_PORT=6379
       - RBAC_ABAC_CACHE_TTL=${RBAC_ABAC_CACHE_TTL:-86400}
       - IDENTITY_PROVIDER_URL=http://identity-provider:8000
+      - IDENTITY_EXTERNAL_URL=https://identity.vfservices.viloforge.com
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.maltacentral.rule=Host(`www.maltacentral.com`) || Host(`maltacentral.com`)"
@@ -266,6 +267,41 @@ services:
       - "traefik.http.routers.maltacentral.tls=true"
       - "traefik.http.services.maltacentral.loadbalancer.server.port=8000"
       - "traefik.http.services.maltacentral.loadbalancer.passHostHeader=true"
+
+  azure-rm-proxy:
+    build:
+      context: .
+      dockerfile: azure-rm-proxy-server/Dockerfile
+    working_dir: /code/azure-rm-proxy-server
+    volumes:
+      - ./azure-rm-proxy-server:/code/azure-rm-proxy-server
+      - ./azure-rm-proxy-server/logs:/app/logs
+      - ./azure-rm-proxy-server/infra-data:/app/infra-data
+    environment:
+      - PYTHONPATH=/code
+      - PORT=7890
+      - CACHE_TYPE=redis
+      - REDIS_URL=redis://redis:6379/2
+      - LOG_LEVEL=INFO
+      - MAX_CONCURRENCY=10
+      # Azure Authentication
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      # Optional mock mode for testing
+      - USE_MOCK=${USE_MOCK:-false}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7890/api/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.arm-proxy.rule=Host(`arm-proxy.maltacentral.com`)"
+      - "traefik.http.routers.arm-proxy.entrypoints=websecure"
+      - "traefik.http.routers.arm-proxy.tls=true"
+      - "traefik.http.services.arm-proxy.loadbalancer.server.port=7890"
+      - "traefik.http.services.arm-proxy.loadbalancer.passHostHeader=true"
 
 networks:
   default:

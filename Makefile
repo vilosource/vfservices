@@ -186,7 +186,7 @@ docker-https: cert
 certbot-renew:
 	@echo "Renewing Let's Encrypt certificates..."
 	@echo "This will force renewal even if the certificate is not due for renewal"
-	@echo "Domains: ${BASE_DOMAIN}, *.${BASE_DOMAIN}, cielo.viloforge.com, *.cielo.viloforge.com, maltacentral.com, www.maltacentral.com"
+	@echo "Domains: ${BASE_DOMAIN}, *.${BASE_DOMAIN}, cielo.viloforge.com, *.cielo.viloforge.com, maltacentral.com, www.maltacentral.com, arm-proxy.maltacentral.com"
 	@echo "dns_cloudflare_api_token=${CLOUDFLARE_API_TOKEN}" > /tmp/cloudflare.ini
 	@chmod 600 /tmp/cloudflare.ini
 	docker run --rm \
@@ -207,6 +207,7 @@ certbot-renew:
 	  -d "*.cielo.viloforge.com" \
 	  -d "maltacentral.com" \
 	  -d "www.maltacentral.com" \
+	  -d "arm-proxy.maltacentral.com" \
 	  --cert-name "${BASE_DOMAIN}"
 	@rm -f /tmp/cloudflare.ini
 

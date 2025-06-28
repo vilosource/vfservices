@@ -32,6 +32,7 @@ echo "  - cielo.viloforge.com"
 echo "  - *.cielo.viloforge.com"
 echo "  - maltacentral.com"
 echo "  - www.maltacentral.com"
+echo "  - arm-proxy.maltacentral.com"
 echo "========================================"
 
 # Create necessary directories
@@ -61,6 +62,7 @@ docker run --rm \
   -d "*.cielo.viloforge.com" \
   -d "maltacentral.com" \
   -d "www.maltacentral.com" \
+  -d "arm-proxy.maltacentral.com" \
   --cert-name "${DOMAIN}"
 
 # Remove the temporary file
@@ -75,6 +77,7 @@ echo "  - ${DOMAIN} and all subdomains"
 echo "  - cielo.viloforge.com and all subdomains"
 echo "  - maltacentral.com"
 echo "  - www.maltacentral.com"
+echo "  - arm-proxy.maltacentral.com"
 echo ""
 echo "You can verify the certificate domains with:"
 echo "openssl x509 -in ./certs/live/${DOMAIN}/cert.pem -text -noout | grep -A2 'Subject Alternative Name'"
