@@ -11,6 +11,7 @@ urlpatterns = [
     path('api/logout/', views.LogoutAPIView.as_view(), name='api_logout'),
     path('api/status/', views.api_status, name='api_status'),
     path('api/profile/', views.api_profile, name='api_profile'),
+    path('api/profile/avatar/', views.api_profile_avatar, name='api_profile_avatar'),
     path('api/services/register/', views.ServiceRegisterView.as_view(), name='service_register'),
     path('api/refresh-user-cache/', views.RefreshUserCacheView.as_view(), name='refresh_user_cache'),
     

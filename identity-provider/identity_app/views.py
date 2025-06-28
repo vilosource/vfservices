@@ -1020,6 +1020,7 @@ def api_status(request):
                 properties={
                     'username': openapi.Schema(type=openapi.TYPE_STRING, description='Username'),
                     'email': openapi.Schema(type=openapi.TYPE_STRING, description='Email address'),
+                    'avatar_url': openapi.Schema(type=openapi.TYPE_STRING, description='Avatar URL (optional)', nullable=True),
                     'timestamp': openapi.Schema(type=openapi.TYPE_STRING, description='Response timestamp')
                 }
             )
@@ -1071,12 +1072,27 @@ def api_profile(request):
                     "is_active": True
                 })
         
+        # Get user's avatar URL from UserAttribute
+        avatar_url = None
+        try:
+            from .models import UserAttribute
+            avatar_attr = UserAttribute.objects.filter(
+                user=user,
+                name='avatar_url',
+                service__isnull=True  # Global attribute
+            ).first()
+            if avatar_attr:
+                avatar_url = avatar_attr.get_value()
+        except Exception as e:
+            logger.warning(f"Failed to get avatar_url for user {user.id}: {str(e)}")
+        
         user_profile = {
             "id": user.id,
             "username": user.username,
             "email": user.email,
             "first_name": user.first_name,
             "last_name": user.last_name,
+            "avatar_url": avatar_url,
             "roles": roles_data,
             "timestamp": timezone.now().isoformat()
         }
@@ -1476,3 +1492,169 @@ class RefreshUserCacheView(APIView):
                 {"detail": "Failed to refresh cache"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@swagger_auto_schema(
+    operation_description="Upload user avatar image",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=['avatar'],
+        properties={
+            'avatar': openapi.Schema(
+                type=openapi.TYPE_STRING, 
+                format=openapi.FORMAT_BINARY,
+                description='Avatar image file (JPEG, PNG, GIF, or WebP)'
+            ),
+        }
+    ),
+    responses={
+        200: openapi.Response(
+            description='Avatar uploaded successfully',
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'avatar_url': openapi.Schema(type=openapi.TYPE_STRING, description='URL of the uploaded avatar'),
+                }
+            )
+        ),
+        400: 'Bad Request - Invalid file or file too large',
+        401: 'Unauthorized - Valid JWT token required',
+        500: 'Internal Server Error'
+    },
+    tags=['User Profile']
+)
+def api_profile_avatar(request):
+    """Upload user avatar image."""
+    import os
+    import uuid
+    from PIL import Image
+    from io import BytesIO
+    
+    logger.debug(
+        "Avatar upload endpoint accessed",
+        extra={
+            'user': str(request.user),
+            'ip': get_client_ip(request),
+        }
+    )
+    
+    try:
+        # Check if file was uploaded
+        if 'avatar' not in request.FILES:
+            return Response(
+                {"detail": "No avatar file provided"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        avatar_file = request.FILES['avatar']
+        
+        # Validate file size (max 5MB)
+        max_size = 5 * 1024 * 1024  # 5MB
+        if avatar_file.size > max_size:
+            return Response(
+                {"detail": f"File too large. Maximum size is 5MB"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate file type
+        allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+        if avatar_file.content_type not in allowed_types:
+            return Response(
+                {"detail": f"Invalid file type. Allowed types: JPEG, PNG, GIF, WebP"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate image can be opened
+        try:
+            image = Image.open(BytesIO(avatar_file.read()))
+            avatar_file.seek(0)  # Reset file pointer
+            
+            # Optional: Resize image if too large
+            max_dimension = 800
+            if image.width > max_dimension or image.height > max_dimension:
+                image.thumbnail((max_dimension, max_dimension), Image.Resampling.LANCZOS)
+                
+                # Save resized image to buffer
+                buffer = BytesIO()
+                image_format = image.format if image.format else 'JPEG'
+                image.save(buffer, format=image_format)
+                buffer.seek(0)
+                avatar_file = buffer
+        except Exception as e:
+            logger.warning(f"Invalid image file: {str(e)}")
+            return Response(
+                {"detail": "Invalid image file"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Generate unique filename
+        file_extension = os.path.splitext(avatar_file.name)[1].lower()
+        if not file_extension:
+            file_extension = '.jpg'
+        unique_filename = f"{request.user.id}_{uuid.uuid4()}{file_extension}"
+        
+        # Create upload directory if it doesn't exist
+        upload_dir = os.path.join(settings.MEDIA_ROOT, 'avatars')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Save file
+        file_path = os.path.join(upload_dir, unique_filename)
+        with open(file_path, 'wb+') as destination:
+            if hasattr(avatar_file, 'chunks'):
+                for chunk in avatar_file.chunks():
+                    destination.write(chunk)
+            else:
+                destination.write(avatar_file.read())
+        
+        # Construct URL - adjust based on your media serving setup
+        # This assumes media files are served at /media/ path
+        avatar_url = f"{request.build_absolute_uri('/media/avatars/')}{unique_filename}"
+        
+        # Save avatar URL to UserAttribute
+        from .models import UserAttribute
+        from django.contrib.auth.models import User
+        
+        user = User.objects.get(id=request.user.id)
+        
+        # Update or create avatar_url attribute
+        user_attr, created = UserAttribute.objects.update_or_create(
+            user=user,
+            name='avatar_url',
+            service=None,  # Global attribute
+            defaults={
+                'value': avatar_url,
+                'updated_by': user
+            }
+        )
+        
+        logger.info(
+            f"Avatar uploaded successfully for user: {user.username}",
+            extra={
+                'username': user.username,
+                'user_id': user.id,
+                'filename': unique_filename,
+                'ip': get_client_ip(request),
+            }
+        )
+        
+        return Response({
+            "avatar_url": avatar_url
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        logger.error(
+            f"Failed to upload avatar for user {request.user.username}: {str(e)}",
+            extra={
+                'username': request.user.username,
+                'error_type': type(e).__name__,
+                'ip': get_client_ip(request),
+            },
+            exc_info=True
+        )
+        
+        return Response(
+            {"detail": "Failed to upload avatar"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

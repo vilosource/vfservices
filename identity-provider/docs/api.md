@@ -98,6 +98,7 @@ curl -X POST https://identity.vfservices.viloforge.com/api/login/ \
     "email": "admin@example.com",
     "first_name": "Admin",
     "last_name": "User",
+    "avatar_url": "https://identity.vfservices.viloforge.com/media/avatars/1_uuid.jpg",
     "roles": [
         {
             "role_name": "identity_admin",
@@ -108,6 +109,33 @@ curl -X POST https://identity.vfservices.viloforge.com/api/login/ \
     "timestamp": "2024-01-20T12:00:00Z"
 }
 ```
+
+**Note**: The `avatar_url` field will be `null` if no custom avatar has been uploaded. Django applications should fall back to default avatars based on user ID.
+
+### Upload User Avatar
+
+**Endpoint**: `POST /api/profile/avatar/`
+
+**Headers**: 
+- Requires authentication (JWT cookie or Bearer token)
+- Content-Type: multipart/form-data
+
+**Request Body**:
+- `avatar`: Image file (JPEG, PNG, GIF, or WebP)
+- Maximum file size: 5MB
+- Images larger than 800x800 pixels will be automatically resized
+
+**Response**:
+```json
+{
+    "avatar_url": "https://identity.vfservices.viloforge.com/media/avatars/1_uuid.jpg"
+}
+```
+
+**Error Responses**:
+- 400 Bad Request: Invalid file type, file too large, or corrupted image
+- 401 Unauthorized: Missing or invalid authentication
+- 500 Internal Server Error: Server-side storage failure
 
 ## Service Registration
 
