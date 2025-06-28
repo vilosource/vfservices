@@ -1,8 +1,11 @@
 from fastapi import Depends, APIRouter, Query, HTTPException
+from typing import Dict
 from ..app.dependencies import get_azure_service
 from ..core.models import VirtualMachineWithContext, VirtualMachineDetail
 from ..core.azure_service import AzureResourceService
 from azure.core.exceptions import ResourceNotFoundError, ClientAuthenticationError
+from ..auth import get_current_user_with_roles
+from ..rbac import check_read_permission, check_write_permission, check_admin_permission
 
 router = APIRouter(tags=["VM Shortcuts"], prefix="/api/subscriptions/virtual_machines")
 
@@ -11,6 +14,7 @@ router = APIRouter(tags=["VM Shortcuts"], prefix="/api/subscriptions/virtual_mac
 async def list_all_virtual_machines(
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ):
     """
     Get all virtual machines across all subscriptions and resource groups.
@@ -37,6 +41,7 @@ async def get_vm_by_name(
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     debug: bool = Query(False, alias="debug"),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ):
     """
     Find a virtual machine by name across all subscriptions and resource groups.

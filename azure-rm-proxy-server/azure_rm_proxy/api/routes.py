@@ -2,12 +2,14 @@
 
 import logging
 from fastapi import Depends, APIRouter, Query, HTTPException, Path
-from typing import List
+from typing import List, Dict
 
 from ..app.dependencies import get_azure_service
 from ..core.models import RouteTableSummaryModel, RouteTableModel, RouteModel
 from ..core.azure_service import AzureResourceService
 from azure.core.exceptions import ResourceNotFoundError, ClientAuthenticationError
+from ..auth import get_current_user_with_roles
+from ..rbac import check_read_permission, check_write_permission, check_admin_permission
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +34,7 @@ async def list_route_tables(
     subscription_id: str = Path(..., title=TITLE_SUBSCRIPTION_ID),
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ):
     """
     Get all route tables for a subscription.
@@ -62,6 +65,7 @@ async def get_route_table_details(
     route_table_name: str = Path(..., title=TITLE_ROUTE_TABLE),
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ):
     """
     Get detailed information about a specific route table.
@@ -99,6 +103,7 @@ async def get_vm_effective_routes(
     vm_name: str = Path(..., title=TITLE_VM_NAME),
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ):
     """
     Get all effective routes for a specific virtual machine across all its network interfaces.
@@ -133,6 +138,7 @@ async def get_nic_effective_routes(
     nic_name: str = Path(..., title=TITLE_NIC_NAME),
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ):
     """
     Get all effective routes for a specific network interface.

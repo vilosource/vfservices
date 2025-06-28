@@ -1,11 +1,13 @@
 """API endpoints for virtual network peering reports."""
 
-from typing import List, Optional
+from typing import List, Optional, Dict
 from fastapi import APIRouter, Depends, Query
 
 from ..app.dependencies import get_azure_service
 from ..core.models import VirtualNetworkPeeringPairModel
 from ..core.azure_service import AzureResourceService
+from ..auth import get_current_user_with_roles
+from ..rbac import check_read_permission, check_write_permission, check_admin_permission
 
 router = APIRouter(tags=["Virtual Network Peerings"], prefix="/api/vnet-peering-report")
 
@@ -23,6 +25,7 @@ async def get_subscription_peering_report(
         False, alias="refresh-cache", description="Whether to bypass cache and fetch fresh data"
     ),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ) -> List[VirtualNetworkPeeringPairModel]:
     """
     Get a report of all virtual network peerings in a subscription.

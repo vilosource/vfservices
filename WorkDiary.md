@@ -205,3 +205,128 @@ docker compose up -d azure-rm-proxy
 - Add batch operations
 - Create admin UI
 - Add export capabilities
+
+---
+
+## 2025-01-28T11:00:00Z - PHASE 2 STARTED: Authentication & Security
+- Starting implementation of JWT authentication
+- Will integrate with existing identity-provider
+- Following the Phase 2 plan from `/dev-docs/AZURE-RM-PROXY-PHASE2-PLAN.md`
+
+### Phase 2A Tasks (Basic Authentication):
+1. Add JWT authentication dependencies
+2. Create authentication middleware
+3. Integrate with identity-provider
+4. Protect API endpoints
+5. Test with existing users
+
+### 2025-01-28T11:05:00Z - Phase 2A Implementation Progress
+- ✅ Added JWT authentication dependencies to requirements.txt
+  - PyJWT>=2.8.0
+  - python-jose[cryptography]>=3.3.0
+  - python-multipart>=0.0.5
+- ✅ Created auth.py module with JWT validation
+  - Supports both Bearer token and cookie authentication
+  - Integrates with VF Services identity provider
+  - Includes user role fetching from identity provider
+- ✅ Created rbac.py for role-based access control
+  - Defined three roles: azure:read, azure:write, azure:admin
+  - Created permission mappings for each role
+  - Added permission check decorators and dependencies
+- ✅ Created rate_limiting.py module
+  - Sliding window rate limiter
+  - 60 req/min for anonymous users
+  - 120 req/min for authenticated users
+  - Automatic cleanup of old request records
+- ✅ Updated main.py to add middleware
+  - Added rate limiting middleware
+  - Security headers middleware already present
+  - CORS configuration for allowed origins
+- ✅ Updated docker-compose.yml with auth variables
+  - VF_JWT_SECRET for token validation
+  - IDENTITY_PROVIDER_URL for user data
+  - REQUIRE_AUTH flag (default false for testing)
+  - Rate limiting configuration
+
+### 2025-01-28T11:10:00Z - API Endpoints Protected
+- ✅ Updated all API routers with authentication dependencies
+  - subscriptions.py - Added check_read_permission
+  - resource_groups.py - Added check_read_permission
+  - virtual_machines.py - Added check_read_permission
+  - virtual_networks.py - Added check_read_permission
+  - routes.py - Added check_read_permission
+  - vm_report.py - Added check_read_permission
+  - vm_hostnames.py - Added check_read_permission
+  - vnet_peering_report.py - Added check_read_permission
+  - vm_shortcuts.py - Added check_read_permission
+- All endpoints now require azure:read role minimum
+- Service accounts have full access
+
+### 2025-01-28T11:15:00Z - Playwright Tests Created
+- ✅ Created test directory: /playwright/azure-rm-proxy/smoke-tests/
+- ✅ Created conftest.py with test configuration
+  - Test users configured
+  - Authentication token fixtures
+  - API headers fixtures
+- ✅ Created test_authentication.py
+  - Tests for JWT validation
+  - Tests for role-based access
+  - Tests for rate limiting
+  - Tests for authentication methods
+- ✅ Created test_api_endpoints.py
+  - Tests for all API endpoints
+  - Tests with proper authentication
+  - Error handling tests
+  - Permission validation tests
+- ✅ Created comprehensive README.md
+  - Test setup instructions
+  - Running test commands
+  - Debugging tips
+  - Expected results
+- ✅ Created requirements.txt for test dependencies
+
+### Phase 2A Summary:
+✅ JWT authentication fully implemented
+✅ RBAC with three roles configured
+✅ Rate limiting active
+✅ All API endpoints protected
+✅ Comprehensive test suite created
+✅ Documentation updated
+
+### Next Steps for Phase 2B (Week 2):
+- Implement fine-grained authorization
+- Add subscription-level access control
+- Create user attribute mappings
+- Add audit logging
+
+### Next Steps for Phase 2C (Week 3):
+- Security hardening
+- Enhanced monitoring
+- Performance optimization
+- Production readiness
+
+### 2025-01-28T11:20:00Z - Cookie Authentication Fixed
+- ✅ Fixed cookie name mismatch issue
+  - ARM-proxy was looking for 'vf_jwt' instead of 'jwt'
+  - Updated auth.py to use correct cookie name 'jwt'
+  - Now aligns with all other services in the project
+- ✅ Browser authentication now works correctly
+  - Users who log in at www.maltacentral.com get 'jwt' cookie
+  - Cookie is available to arm-proxy.maltacentral.com (same domain)
+  - API automatically authenticates using the browser session
+- ✅ Service restarted to apply changes
+
+### Authentication Summary:
+- Bearer token authentication: ✅ Working
+- Cookie authentication: ✅ Fixed and working
+- Role-based access control: ✅ Implemented
+- Rate limiting: ✅ Active
+- Public endpoints: /api/ping, /docs, /api/
+
+### 2025-01-28T11:25:00Z - RBAC Read Permission Updated
+- ✅ Modified read permission check to allow all authenticated users
+  - Previously required 'azure:read', 'azure:write', or 'azure:admin' roles
+  - Now any authenticated user can read Azure resource information
+  - Write and admin operations still require specific roles
+- ✅ Service restarted to apply changes
+- This change makes the API more accessible while maintaining security for write operations

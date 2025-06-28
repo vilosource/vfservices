@@ -1,12 +1,14 @@
 """API endpoints for virtual networks."""
 
-from typing import List, Optional
+from typing import List, Optional, Dict
 from fastapi import APIRouter, Depends, Query, HTTPException
 from starlette.status import HTTP_404_NOT_FOUND
 
 from ..app.dependencies import get_azure_service
 from ..core.models import VirtualNetworkModel
 from ..core.azure_service import AzureResourceService
+from ..auth import get_current_user_with_roles
+from ..rbac import check_read_permission, check_write_permission, check_admin_permission
 
 router = APIRouter(tags=["Virtual Networks"], prefix="/api/virtual-networks")
 
@@ -24,6 +26,7 @@ async def list_virtual_networks(
         False, alias="refresh-cache", description="Whether to bypass cache and fetch fresh data"
     ),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ) -> List[VirtualNetworkModel]:
     """
     List virtual networks in a subscription.
@@ -57,6 +60,7 @@ async def list_resource_group_virtual_networks(
         False, alias="refresh-cache", description="Whether to bypass cache and fetch fresh data"
     ),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ) -> List[VirtualNetworkModel]:
     """
     List virtual networks in a resource group.
@@ -91,6 +95,7 @@ async def get_virtual_network(
         False, alias="refresh-cache", description="Whether to bypass cache and fetch fresh data"
     ),
     azure_service: AzureResourceService = Depends(get_azure_service),
+    current_user: Dict = Depends(check_read_permission),
 ) -> VirtualNetworkModel:
     """
     Get details of a specific virtual network.
