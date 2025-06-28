@@ -118,7 +118,7 @@
                 {% if user.is_authenticated %}
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                        <img src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'assets/images/users/avatar-1.jpg' %}{% endif %}" alt="user" class="rounded-circle">
+                        <img src="{% static 'assets/images/users/avatar-1.jpg' %}" alt="user" class="rounded-circle user-avatar">
                         <span class="pro-user-name ms-1">
                             {{ user.get_full_name|default:user.username }} <i class="mdi mdi-chevron-down"></i> 
                         </span>
@@ -242,11 +242,11 @@
 
             <!-- User box -->
             <div class="user-box text-center">
-                <img src="{% static 'assets/images/users/avatar-1.jpg' %}" alt="user-img" title="Mat Helme"
-                    class="rounded-circle avatar-md">
+                <img src="{% static 'assets/images/users/avatar-1.jpg' %}" alt="user-img" title="{{ user.get_full_name|default:user.username }}"
+                    class="rounded-circle avatar-md user-avatar">
                 <div class="dropdown">
                     <a href="#" class="text-reset dropdown-toggle h5 mt-2 mb-1 d-block"
-                        data-bs-toggle="dropdown">{% block sidebar_user_name %}Nik Patel{% endblock %}</a>
+                        data-bs-toggle="dropdown">{% block sidebar_user_name %}{{ user.get_full_name|default:user.username }}{% endblock %}</a>
                     <div class="dropdown-menu user-pro-dropdown">
 
                         <!-- item-->
@@ -573,4 +573,22 @@
 <script src="{% static 'assets/libs/apexcharts/apexcharts.min.js' %}"></script>
 <script src="{% static 'assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js' %}"></script>
 <script src="{% static 'assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-world-mill-en.js' %}"></script>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<!-- Avatar Management -->
+<script src="{% static 'js/avatar-management.js' %}"></script>
+<script>
+    // Initialize avatar loading
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configure the avatar manager with correct identity provider URL
+        AvatarManager.config.identityProviderUrl = 'https://identity.vfservices.viloforge.com';
+        
+        // Initialize avatar loading for authenticated users
+        {% if user.is_authenticated %}
+        AvatarManager.init('.user-avatar');
+        {% endif %}
+    });
+</script>
 {% endblock %}

@@ -172,6 +172,7 @@
 {% endblock %}
 
 {% block extra_js %}
+{{ block.super }}
 <script>
     // Pass configuration to JavaScript
     window.IDENTITY_SERVICE_URL = "{{ identity_service_url }}";
