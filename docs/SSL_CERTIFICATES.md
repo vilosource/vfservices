@@ -8,6 +8,9 @@ VF Services uses Let's Encrypt certificates obtained via Cloudflare DNS validati
 - `*.vfservices.viloforge.com` (all subdomains)
 - `cielo.viloforge.com` (CIELO application domain)
 - `*.cielo.viloforge.com` (all CIELO subdomains)
+- `maltacentral.com` (Malta Central website domain)
+- `www.maltacentral.com` (Malta Central www subdomain)
+- `arm-proxy.maltacentral.com` (Azure RM Proxy subdomain)
 
 ## Certificate Management
 
@@ -53,6 +56,9 @@ The certificate includes:
 - `*.vfservices.viloforge.com` (covers identity, website, billing, inventory subdomains)
 - `cielo.viloforge.com`
 - `*.cielo.viloforge.com`
+- `maltacentral.com`
+- `www.maltacentral.com`
+- `arm-proxy.maltacentral.com`
 
 ### Verifying Certificate Coverage
 

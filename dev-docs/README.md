@@ -11,6 +11,7 @@ Complete technical documentation for the VF Services platform, covering authenti
 | **[New Website Quick Checklist](./NEW-WEBSITE-QUICK-CHECKLIST.md)** | Printable setup checklist | All developers |
 | **[Malta Central Setup Steps](./MALTACENTRAL-WEB-SETUP-STEPS.md)** | Real-world setup example with troubleshooting | Reference |
 | **[Frontend Developer Guide](./FRONTEND-DEVELOPER-GUIDE.md)** | Frontend development and API integration | Frontend devs |
+| **[Django Template Best Practices](./DJANGO-TEMPLATE-BEST-PRACTICES.md)** | Template inheritance and JavaScript integration | All developers |
 
 ### JWT Authentication
 | Document | Purpose | Audience |
@@ -26,6 +27,17 @@ Complete technical documentation for the VF Services platform, covering authenti
 | **[RBAC-ABAC Developer Guide](./RBAC-ABAC-DEVELOPER-GUIDE.md)** | Comprehensive authorization guide | New service developers |
 | **[RBAC-ABAC Quick Reference](./RBAC-ABAC-QUICK-REFERENCE.md)** | Quick patterns and examples | Experienced developers |
 | **[RBAC-ABAC Architecture](./RBAC-ABAC-ARCHITECTURE.md)** | System design and patterns | Architects & senior devs |
+
+### User Management & UI
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| **[User Management Architecture](./user-management-architecture.md)** | Centralized user data & avatar system | All developers |
+| **[User Dropdown Menu Guide](./user-dropdown-menu-guide.md)** | Implementing user menus | Frontend devs |
+
+### External Services Integration
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| **[Azure RM Proxy Integration](./AZURE-RM-PROXY-INTEGRATION.md)** | Azure Resource Manager API proxy setup | DevOps & API developers |
 
 ## 🚀 Quick Start Paths
 

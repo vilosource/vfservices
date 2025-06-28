@@ -193,14 +193,15 @@ make docker-https
 
 As of 2025-01-22, the project has a valid Let's Encrypt certificate covering all domains:
 - Certificate expiration: 2025-09-20
-- Domains covered: vfservices.viloforge.com, *.vfservices.viloforge.com, cielo.viloforge.com, *.cielo.viloforge.com, maltacentral.com, www.maltacentral.com
+- Domains covered: vfservices.viloforge.com, *.vfservices.viloforge.com, cielo.viloforge.com, *.cielo.viloforge.com, maltacentral.com, www.maltacentral.com, arm-proxy.maltacentral.com
 
 ## Changelog
 
+- 2025-06-28T10:30:00Z: Added arm-proxy.maltacentral.com to certificate coverage
 - 2025-01-22T15:50:00Z: Successfully renewed certificates including maltacentral.com domains
 - 2025-01-22T10:45:00Z: Added maltacentral.com and www.maltacentral.com to certificate coverage
 - 2025-01-22: Initial documentation created
 
 ---
 
-*Last updated: 2025-01-22*
+*Last updated: 2025-06-28*
