@@ -6,6 +6,7 @@
 ## identity-provider
 - The identity provider URL is https://identity.vfservices.viloforge.com (NOT identity-provider)
 - When integrating with the identity-provider always get the api schema /api/schema from the traefik endpoint of the identity-provider
+- Only implement api views in the identity-provider. Never implement UI other than the /api/docs. Identity Provider is an API only service. 
 
 ## Changelog
 - 2025-01-22T11:45:00Z: Added critical login form field name fix documentation

@@ -1,108 +1,100 @@
-# Malta Central SSL Certificate Tests
+# MaltaCentral Web Avatar Functionality Tests
 
-This directory contains Playwright tests to verify SSL certificate configuration for www.maltacentral.com.
+This directory contains Playwright smoke tests for avatar functionality in the MaltaCentral Web application.
+
+## Overview
+
+These tests verify that user avatars are dynamically loaded from the Identity Provider and displayed correctly throughout the MaltaCentral Web interface.
 
 ## Test Coverage
 
-The SSL certificate test (`test_ssl_certificate.py`) verifies:
-
-1. **Browser SSL Validation**
-   - Tests that browsers accept the certificate as valid
-   - Verifies both www.maltacentral.com and maltacentral.com
-   - Ensures no SSL warnings or errors
-
-2. **Certificate Details**
-   - Validates certificate is currently valid (not expired)
-   - Checks certificate validity period
-   - Verifies Subject Alternative Names (SANs) include maltacentral domains
-   - Shows days remaining until expiration
-
-3. **HTTPS Redirect**
-   - Confirms HTTP requests redirect to HTTPS
-   - Verifies the redirect maintains the correct domain
-
-4. **Certificate Chain**
-   - Validates the complete certificate chain
-   - Ensures intermediate certificates are properly served
+### test_avatar_functionality.py
+- **test_avatar_manager_loaded**: Verifies AvatarManager JavaScript is loaded and configured
+- **test_avatar_elements_present**: Checks avatar elements exist in topbar and sidebar
+- **test_avatar_displays_correctly**: Validates correct avatar image is displayed
+- **test_sidebar_avatar_displays**: Ensures sidebar avatar matches topbar avatar
+- **test_avatar_api_call**: Tests API communication with Identity Provider
+- **test_avatar_caching**: Verifies avatar data is cached in sessionStorage
+- **test_profile_page_avatar**: Checks avatars load on profile page
+- **test_avatar_fallback_pattern**: Validates fallback avatar numbering logic
 
 ## Prerequisites
 
-```bash
-# Install Python dependencies
-pip install playwright pytest pyOpenSSL
-
-# Install Playwright browsers
-playwright install chromium
-```
+1. Docker environment running with all services
+2. Identity Provider accessible at https://identity.vfservices.viloforge.com
+3. MaltaCentral Web accessible at https://www.maltacentral.com
+4. Admin user credentials: username `admin`, password `admin123`
 
 ## Running the Tests
 
-### Run all SSL certificate tests:
+### Run all avatar tests:
 ```bash
-cd playwright/maltacentral-web/smoke-tests
-python test_ssl_certificate.py
+cd /home/jasonvi/GitHub/vfservices/playwright/maltacentral-web/smoke-tests
+pytest test_avatar_functionality.py -v
 ```
 
-### Run with pytest for detailed output:
+### Run a specific test:
 ```bash
-cd playwright/maltacentral-web/smoke-tests
-pytest test_ssl_certificate.py -v
+pytest test_avatar_functionality.py::TestAvatarFunctionality::test_avatar_displays_correctly -v
 ```
 
-### Run specific test:
+### Run with browser visible (non-headless):
 ```bash
-pytest test_ssl_certificate.py::TestMaltaCentralSSLCertificate::test_ssl_certificate_details -v
+pytest test_avatar_functionality.py --headed -v
 ```
 
-## Expected Results
-
-When all tests pass, you should see:
-- ✅ Browser SSL validation: PASSED
-- ✅ Certificate details verification: PASSED
-- ✅ HTTPS redirect test: PASSED
-- ✅ Certificate chain validation: PASSED
-
-The certificate should include these domains in its SANs:
-- maltacentral.com
-- www.maltacentral.com
-- vfservices.viloforge.com
-- *.vfservices.viloforge.com
-- cielo.viloforge.com
-- *.cielo.viloforge.com
-
-## Troubleshooting
-
-### Connection Timeout
-If tests fail with connection timeout:
-1. Ensure Docker services are running: `docker compose ps`
-2. Check Traefik is healthy and serving HTTPS
-3. Verify DNS resolution for maltacentral.com
-
-### Certificate Errors
-If certificate validation fails:
-1. Check certificate is properly mounted in Traefik
-2. Verify `traefik/dynamic/tls-config.yaml` points to correct certificate
-3. Ensure certificate includes maltacentral.com domains: 
-   ```bash
-   openssl x509 -in certs/live/vfservices.viloforge.com/cert.pem -text -noout | grep -A3 "Subject Alternative Name"
-   ```
-
-### Import Errors
-If you get import errors for OpenSSL:
+### Run with slowmo for debugging:
 ```bash
-pip install pyOpenSSL
+pytest test_avatar_functionality.py --slowmo 1000 -v
 ```
 
-## Certificate Renewal
+## Expected Behavior
 
-The certificate expires every 90 days. To renew:
-```bash
-CLOUDFLARE_API_TOKEN=your_token LETSENCRYPT_EMAIL=your@email.com make certbot-renew
-```
+1. **Avatar Loading**: When a user logs in, JavaScript automatically fetches their profile from the Identity Provider
+2. **Fallback Logic**: If no custom avatar exists, users get a numbered default avatar (1-12) based on their user ID
+3. **Caching**: Avatar URLs are cached in sessionStorage for 5 minutes to improve performance
+4. **Consistency**: The same avatar appears in all locations (topbar dropdown, sidebar user box)
 
-## Notes
+## Common Issues
 
-- Tests use real HTTPS connections to verify certificates
-- No self-signed certificates or ignore_https_errors flags are used
-- Tests validate the actual certificate served by Traefik
-- Certificate expiration warnings appear when < 30 days remain
+### Avatars not loading
+- Check browser console for JavaScript errors
+- Verify Identity Provider is accessible
+- Ensure CORS is properly configured
+- Check that `{{ block.super }}` is used in template inheritance
+
+### Cross-Domain Limitations
+- MaltaCentral is on `.maltacentral.com` domain while Identity Provider is on `.viloforge.com`
+- JWT cookies cannot be shared across these different domains
+- Avatar loading may be limited due to cross-origin restrictions
+- The application may need to implement a backend proxy for avatar API calls
+
+### Wrong avatar displayed
+- Clear browser cache and sessionStorage
+- Verify user ID in Identity Provider
+- Check avatar fallback calculation
+- Note: Due to cross-domain issues, avatars may default to avatar-1.jpg
+
+### Test failures
+- Ensure all services are running via `docker compose up`
+- Verify SSL certificates are valid
+- Check that test user credentials are correct
+
+## Avatar Locations in UI
+
+1. **Top Navigation Bar**: Dropdown menu trigger (right side)
+2. **Left Sidebar**: User box at the top of sidebar
+3. **Profile Page**: All avatar instances should update
+
+## Technical Details
+
+- Avatars are loaded via JavaScript from `/api/profile/` endpoint
+- Default avatars are located in `/static/assets/images/users/avatar-[1-12].jpg`
+- Custom avatars are stored in Identity Provider at `/media/avatars/`
+- Avatar management script: `/static/js/avatar-management.js`
+
+## Related Documentation
+
+- [User Management Architecture](/dev-docs/user-management-architecture.md)
+- [Django Template Best Practices](/dev-docs/DJANGO-TEMPLATE-BEST-PRACTICES.md)
+- [JWT Authentication Guide](/dev-docs/JWT-AUTHENTICATION-GUIDE.md)
